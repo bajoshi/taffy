@@ -23,42 +23,6 @@ taffy_products = '/Volumes/Bhavins_backup/phil/TAFFY/products/'
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
 
-def check_3darr_equality(arr, arrname):
-    """
-    This function checks if the first and second dimensions of a 3D array
-    have the same elements.
-    I wrote this function because I noticed that the line maps have shapes
-    (2,58,58) but I had expected only (1, 58, 58) i.e. just (58,58). So this
-    function checks if the zeroth and the first row in the first dimension
-    of the array have all elements equal.
-
-    I also noticed that many elements are NaN. So this function first checks
-    if the elements are finite and then checks for equality. If the elements 
-    are equal then it proceeds to the next pair otherwise if they are not
-    equal then it prints the absolute value of the difference between them.
-    """
-
-    print "Checking", arrname, "now..."
-
-    eq = np.allclose(arr[0], arr[1], equal_nan=True)
-    print "Using Numpy's allclose which checks elementwise equality," +\
-    " the statement that the" + " two rows in the zeorth dimension are equal is --", eq
-
-    print "Now checking elementwise in a for loop."
-    print "If it doesn't print anything then the answer is True."
-
-    for i in range(len(arr[0][0])):
-        for j in range(len(arr[0][1])):
-            if np.isfinite(arr[0][i,j]) and np.isfinite(arr[1][i,j]):
-                if arr[0][i,j] == arr[1][i,j]:
-                    continue
-                else:
-                    diff = abs(arr[0][i,j] - arr[1][i,j])
-                    if diff > 1e-4:
-                        print diff
-
-    return None
-
 def getregionmask(pn, final_arr_shape, regionname):
     """
     This function will return a Boolean mask defining the region of interest.
@@ -222,7 +186,7 @@ if __name__ == '__main__':
     # loop over extensions 
     total_ext = fcj.get_total_extensions(h)
 
-    # assign line arrays and check equality; read func definition
+    # assign line arrays
     halpha = h['HALPHA'].data
     hbeta = h['HBETA'].data
     nii6583 = h['NII6583'].data

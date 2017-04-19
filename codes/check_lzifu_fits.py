@@ -142,7 +142,8 @@ if __name__ == '__main__':
 
     ax1.set_xlim(4600, 5400)
     ax1.get_xaxis().set_ticklabels([])
-    #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''], fontsize=10, rotation=35)
+    #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
+    # fontsize=10, rotation=35)
     ax1.tick_params(axis='both', which='major', labelsize=10)
 
     ax1.minorticks_on()
@@ -154,7 +155,8 @@ if __name__ == '__main__':
     ax2.plot(lam_b, residfit_b, color='k')
 
     ax2.set_xlim(4600, 5400)
-    ax2.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''], fontsize=10, rotation=35)
+    ax2.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
+     fontsize=10, rotation=35)
     ax2.tick_params(axis='both', which='major', labelsize=10)
 
     ax2.minorticks_on()
@@ -193,7 +195,8 @@ if __name__ == '__main__':
 
     ax3.set_xlim(6100, 6900)
     ax3.get_xaxis().set_ticklabels([])
-    #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'], fontsize=10, rotation=35)
+    #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
+    # fontsize=10, rotation=35)
     ax3.tick_params(axis='both', which='major', labelsize=10)
 
     ax3.minorticks_on()
@@ -205,7 +208,8 @@ if __name__ == '__main__':
     ax4.plot(lam_r, residfit_r, color='k')
 
     ax4.set_xlim(6100, 6900)
-    ax4.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'], fontsize=10, rotation=35)
+    ax4.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
+     fontsize=10, rotation=35)
     ax4.tick_params(axis='both', which='major', labelsize=10)
 
     ax4.minorticks_on()

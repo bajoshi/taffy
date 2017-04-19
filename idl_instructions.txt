@@ -1,0 +1,23 @@
+# to run lzifu and idl
+# in all the notes below, OBJ is the object name as identified by 
+# the 'obj_name' parameter in the lzifu_OBJ.pro file.
+# also check the notes by Phil (called useful.txt) with more details 
+# in the .../phil/ folder in the external hard drive.
+
+0. make sure that you have the correct directory structure to
+run lzifu in place. You need to have the 3 folders in whatever path 
+the code points to... i.e. you should have the data, products, and scripts 
+folders; with data -- contains both red and blue cubes as OBJ_B.fits and OBJ_R.fits,
+products -- should be empty, and scripts -- should contain the scripts lzifu_OBJ.pro
+and lzifu_linelist_OBJ.pro
+
+1. first edit lzifu_loop_spaxel.pro if you need to run it
+only on some pixels or on all of them.
+
+2. # at the terminal
+>> startlzifuv1.0
+>> cd /path/to/idl_scripts_for_OBJ
+>> idl
+
+idl>> .r lzifu_OBJ.pro
+idl>> lzifu_OBJ  # this will run the code # no .pro 
