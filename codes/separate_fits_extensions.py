@@ -9,7 +9,8 @@ import os
 home = os.getenv('HOME')  # does not have a trailing slash
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = '/Volumes/Bhavins_backup/phil/TAFFY/products/'
+taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
@@ -27,10 +28,12 @@ if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_products + 'TAFFY_2_comp.fits'
+    filepath = taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
+
+    print "Separating extensions from file:", filename_noext, "in directory:", os.path.dirname(filepath)
 
     total_ext = fcj.get_total_extensions(hdulist)
 
@@ -42,7 +45,7 @@ if __name__ == '__main__':
 
         new_hdulist = fits.HDUList()
         new_hdulist.append(fits.ImageHDU(data=hdulist[i+1].data, header=hdulist[i+1].header))
-        new_hdulist.writeto(taffy_products + ext_filename, clobber=True)
+        new_hdulist.writeto(taffy_extdir + 'products_big_cube_velsort/' + ext_filename, clobber=True)
 
     hdulist.close()
     sys.exit(0)

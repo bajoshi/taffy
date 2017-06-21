@@ -7,6 +7,7 @@ import Polygon as pg
 
 import os
 import sys
+import glob
 import time
 import datetime
 
@@ -18,7 +19,9 @@ from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures/"
-taffy_products = '/Volumes/Bhavins_backup/phil/TAFFY/products/'
+taffydir = home + "/Desktop/ipac/taffy/"
+taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
+em_line_dir = '/Volumes/Bhavins_backup/ipac/TAFFY/emission_line_ratios/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
@@ -33,6 +36,7 @@ def getregionmask(pn, final_arr_shape, regionname):
 
     final_arr_shape: Numpy array shape.
     This is two integers separated by a comma and enclosed in parentheses.
+    e.g. for the taffy VIRUS-P IFU data this should be (58,58)
     """
 
     regionmask = np.zeros(final_arr_shape, dtype=np.int)
@@ -90,7 +94,11 @@ def getregionmask(pn, final_arr_shape, regionname):
 
     return regionmask
 
-def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, orig_shape):
+def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, \
+    halpha, hbeta, oiii5007, nii6583, oi6300, sii, orig_shape):
+    """
+    The arrays that this function expects are of the same shape as orig_shape.
+    """
 
     zipped_ha_ind = zip(ha_valid_ind[0], ha_valid_ind[1])
     zipped_hb_ind = zip(hb_valid_ind[0], hb_valid_ind[1])
@@ -118,59 +126,256 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
                 if zipped_ha_ind[i] in zipped_hb_ind:
                     if zipped_ha_ind[i] in zipped_oiii_ind:
                         if zipped_ha_ind[i] in zipped_sii_ind:
-                            nii_halpha_withcut[zipped_ha_ind[i]] =\
-                             np.log10(nii6583[0][zipped_ha_ind[i]] / halpha[0][zipped_ha_ind[i]])
-                            oi_halpha_withcut[zipped_ha_ind[i]] =\
-                             np.log10(oi6300[0][zipped_ha_ind[i]] / halpha[0][zipped_ha_ind[i]])
-                            oiii_hbeta_withcut[zipped_ha_ind[i]] =\
-                             np.log10(oiii5007[0][zipped_ha_ind[i]] / hbeta[0][zipped_ha_ind[i]])
-                            sii_halpha_withcut[zipped_ha_ind[i]] =\
-                             np.log10(sii[zipped_ha_ind[i]] / halpha[0][zipped_ha_ind[i]])
 
-                            halpha_withcut[zipped_ha_ind[i]] = halpha[0][zipped_ha_ind[i]]
-                            hbeta_withcut[zipped_ha_ind[i]] = hbeta[0][zipped_ha_ind[i]]
-                            oiii5007_withcut[zipped_ha_ind[i]] = oiii5007[0][zipped_ha_ind[i]]
-                            oi6300_withcut[zipped_ha_ind[i]] = oi6300[0][zipped_ha_ind[i]]
-                            nii6583_withcut[zipped_ha_ind[i]] = nii6583[0][zipped_ha_ind[i]]
+                            nii_halpha_withcut[zipped_ha_ind[i]] =\
+                             np.log10(nii6583[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+
+                            oi_halpha_withcut[zipped_ha_ind[i]] =\
+                             np.log10(oi6300[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+
+                            oiii_hbeta_withcut[zipped_ha_ind[i]] =\
+                             np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+
+                            sii_halpha_withcut[zipped_ha_ind[i]] =\
+                             np.log10(sii[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+
+                            halpha_withcut[zipped_ha_ind[i]] = halpha[zipped_ha_ind[i]]
+                            hbeta_withcut[zipped_ha_ind[i]] = hbeta[zipped_ha_ind[i]]
+                            oiii5007_withcut[zipped_ha_ind[i]] = oiii5007[zipped_ha_ind[i]]
+                            oi6300_withcut[zipped_ha_ind[i]] = oi6300[zipped_ha_ind[i]]
+                            nii6583_withcut[zipped_ha_ind[i]] = nii6583[zipped_ha_ind[i]]
                             sii_withcut[zipped_ha_ind[i]] = sii[zipped_ha_ind[i]]
 
     return nii_halpha_withcut, oiii_hbeta_withcut, oi_halpha_withcut, sii_halpha_withcut,\
     halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut
 
 def get_arr_withsigcut(sig_cut, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
-    nii6583, nii6583_err, oi6300, oi6300_err, orig_shape):
+    nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, orig_shape):
+    """
+    The arrays that this function expects are of the same shape as orig_shape.
+    """
 
     # apply sigma cuts and create arrays for bpt diagram
-    ha_valid_ind = np.where((halpha[0]/halpha_err[0]) > sig_cut)
-    hb_valid_ind = np.where((hbeta[0]/hbeta_err[0]) > sig_cut)
-    oiii_valid_ind = np.where((oiii5007[0]/oiii5007_err[0]) > sig_cut)
-    nii_valid_ind = np.where((nii6583[0]/nii6583_err[0]) > sig_cut)
-    oi_valid_ind = np.where((oi6300[0]/oi6300_err[0]) > sig_cut)
+    ha_valid_ind = np.where((halpha/halpha_err) > sig_cut)
+    hb_valid_ind = np.where((hbeta/hbeta_err) > sig_cut)
+    oiii_valid_ind = np.where((oiii5007/oiii5007_err) > sig_cut)
+    nii_valid_ind = np.where((nii6583/nii6583_err) > sig_cut)
+    oi_valid_ind = np.where((oi6300/oi6300_err) > sig_cut)
     sii_valid_ind = np.where((sii/sii_err) > sig_cut)
 
     nii_halpha_withsigcut, oiii_hbeta_withsigcut, oi_halpha_withsigcut, sii_halpha_withsigcut,\
     halpha_withsigcut, hbeta_withsigcut, oiii5007_withsigcut, oi6300_withsigcut, nii6583_withsigcut, sii_withsigcut =\
-    zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, orig_shape)    
+    zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, \
+    halpha, hbeta, oiii5007, nii6583, oi6300, sii, orig_shape)
 
     return nii_halpha_withsigcut, oiii_hbeta_withsigcut, oi_halpha_withsigcut, sii_halpha_withsigcut,\
     halpha_withsigcut, hbeta_withsigcut, oiii5007_withsigcut, oi6300_withsigcut, nii6583_withsigcut, sii_withsigcut
 
 def get_arr_basecut(halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
     nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, orig_shape):
+    """
+    The arrays that this function expects are of the same shape as orig_shape.
+    """
 
-    ha_valid_ind = np.where(halpha[0] >= 10)
-    hb_valid_ind = np.where(hbeta[0] >= 4)
-    oiii_valid_ind = np.where(oiii5007[0] >= 1)
-    nii_valid_ind = np.where(nii6583[0] >= 8)
-    oi_valid_ind = np.where(oi6300[0] >= 0.5)
+    ha_valid_ind = np.where(halpha >= 10)
+    hb_valid_ind = np.where(hbeta >= 4)
+    oiii_valid_ind = np.where(oiii5007 >= 1)
+    nii_valid_ind = np.where(nii6583 >= 8)
+    oi_valid_ind = np.where(oi6300 >= 0.5)
     sii_valid_ind = np.where(sii >= 6)
 
     nii_halpha_withbasecut, oiii_hbeta_withbasecut, oi_halpha_withbasecut, sii_halpha_withbasecut,\
     halpha_withbasecut, hbeta_withbasecut, oiii5007_withbasecut, oi6300_withbasecut, nii6583_withbasecut, sii_withbasecut =\
-    zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, orig_shape) 
+    zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, \
+    halpha, hbeta, oiii5007, nii6583, oi6300, sii, orig_shape) 
 
     return nii_halpha_withbasecut, oiii_hbeta_withbasecut, oi_halpha_withbasecut, sii_halpha_withbasecut,\
     halpha_withbasecut, hbeta_withbasecut, oiii5007_withbasecut, oi6300_withbasecut, nii6583_withbasecut, sii_withbasecut
+
+def check_mappings_field(model, fieldname):
+
+    check_result = False
+
+    if fieldname in model.dtype.names:
+        check_result = True
+
+    return check_result
+
+def mappings_oi_nii_sii():
+
+    all_abun_n = ['M_n1_', 'T_n0_01_', 'U_n0_1_', 'V_n10_', 'L_n100_', 'S_n1000_']  # all solar abundances
+
+    #all_abun_n = ['U_n0_1_', 'V_n10_', 'L_n100_']
+
+    mappings_oi_halpha_v100 = []
+    mappings_oi_halpha_v125 = []
+    mappings_oi_halpha_v150 = []
+    mappings_oi_halpha_v175 = []
+    mappings_oi_halpha_v200 = []
+    mappings_oi_halpha_v225 = []
+    mappings_oi_halpha_v250 = []
+    mappings_oi_halpha_v300 = []
+
+    mappings_nii_halpha_v100 = []
+    mappings_nii_halpha_v125 = []
+    mappings_nii_halpha_v150 = []
+    mappings_nii_halpha_v175 = []
+    mappings_nii_halpha_v200 = []
+    mappings_nii_halpha_v225 = []
+    mappings_nii_halpha_v250 = []
+    mappings_nii_halpha_v300 = []
+    mappings_nii_halpha_v350 = []
+    mappings_nii_halpha_v400 = []
+    mappings_nii_halpha_v450 = []
+    mappings_nii_halpha_v500 = []
+
+    mappings_oiii_hbeta_v100 = []
+    mappings_oiii_hbeta_v125 = []
+    mappings_oiii_hbeta_v150 = []
+    mappings_oiii_hbeta_v175 = []
+    mappings_oiii_hbeta_v200 = []
+    mappings_oiii_hbeta_v225 = []
+    mappings_oiii_hbeta_v250 = []
+    mappings_oiii_hbeta_v300 = []
+    mappings_oiii_hbeta_v350 = []
+    mappings_oiii_hbeta_v400 = []
+    mappings_oiii_hbeta_v450 = []
+    mappings_oiii_hbeta_v500 = []
+
+    mappings_sii_halpha_v100 = []
+    mappings_sii_halpha_v125 = []
+    mappings_sii_halpha_v150 = []
+    mappings_sii_halpha_v175 = []
+    mappings_sii_halpha_v200 = []
+    mappings_sii_halpha_v225 = []
+    mappings_sii_halpha_v250 = []
+    mappings_sii_halpha_v300 = []
+
+    for curr_abun in all_abun_n:
+
+        for fl_name in glob.glob(em_line_dir + curr_abun + 'b5_s_lines.txt'):
+
+            mappings_model = np.genfromtxt(fl_name, dtype=None, names=True, skip_header=10)  
+
+            mappings_oi_idx = np.where((mappings_model['Atom'] == 'O') & (mappings_model['Species'] == 'I')\
+             & (mappings_model['Wavelength'] == '6300.2000'))[0]
+
+            mappings_nii6583_idx = np.where((mappings_model['Atom'] == 'N') & (mappings_model['Species'] == 'II')\
+             & (mappings_model['Wavelength'] == '6583.3400'))[0]
+
+            mappings_nii6547_idx = np.where((mappings_model['Atom'] == 'N') & (mappings_model['Species'] == 'II')\
+             & (mappings_model['Wavelength'] == '6547.9600'))[0]
+
+            mappings_halpha_idx = np.where((mappings_model['Atom'] == 'H') & (mappings_model['Species'] == 'I')\
+             & (mappings_model['Wavelength'] == '6562.8000'))[0]
+
+            mappings_oiii_idx = np.where((mappings_model['Atom'] == 'O') & (mappings_model['Species'] == 'III')\
+             & (mappings_model['Wavelength'] == '5006.7700'))[0]
+
+            mappings_hbeta_idx = np.where((mappings_model['Atom'] == 'H') & (mappings_model['Species'] == 'I')\
+             & (mappings_model['Wavelength'] == '4861.3200'))[0]
+
+            mappings_sii6716_idx = np.where((mappings_model['Atom'] == 'S') & (mappings_model['Species'] == 'II')\
+             & (mappings_model['Wavelength'] == '6716.3100'))[0]
+
+            mappings_sii6731_idx = np.where((mappings_model['Atom'] == 'S') & (mappings_model['Species'] == 'II')\
+             & (mappings_model['Wavelength'] == '6730.6800'))[0]
+
+            mappings_oi_line = mappings_model[mappings_oi_idx]
+            mappings_halpha_line = mappings_model[mappings_halpha_idx]
+            mappings_oiii_line = mappings_model[mappings_oiii_idx]
+            mappings_nii6583_line = mappings_model[mappings_nii6583_idx]
+            mappings_nii6547_line = mappings_model[mappings_nii6547_idx]
+            mappings_sii6716_line = mappings_model[mappings_sii6716_idx]
+            mappings_sii6731_line = mappings_model[mappings_sii6731_idx]
+
+            if check_mappings_field(mappings_model, '100'):
+                mappings_oi_halpha_v100.append(np.log10(float(mappings_oi_line['100']) / float(mappings_halpha_line['100'])))
+                mappings_nii_halpha_v100.append(np.log10((float(mappings_nii6583_line['100']) + float(mappings_nii6547_line['100'])) / float(mappings_halpha_line['100'])))
+                mappings_oiii_hbeta_v100.append(np.log10(float(mappings_oiii_line['100'])))
+                sii_sum = float(mappings_sii6716_line['100']) + float(mappings_sii6731_line['100'])
+                mappings_sii_halpha_v100.append(np.log10(sii_sum / float(mappings_halpha_line['100'])))
+
+            if check_mappings_field(mappings_model, '125'):
+                mappings_oi_halpha_v125.append(np.log10(float(mappings_oi_line['125']) / float(mappings_halpha_line['125'])))
+                mappings_nii_halpha_v125.append(np.log10((float(mappings_nii6583_line['125']) + float(mappings_nii6547_line['125'])) / float(mappings_halpha_line['125'])))
+                mappings_oiii_hbeta_v125.append(np.log10(float(mappings_oiii_line['125'])))
+                sii_sum = float(mappings_sii6716_line['125']) + float(mappings_sii6731_line['125'])
+                mappings_sii_halpha_v125.append(np.log10(sii_sum / float(mappings_halpha_line['125'])))
+
+            if check_mappings_field(mappings_model, '150'):
+                mappings_oi_halpha_v150.append(np.log10(float(mappings_oi_line['150']) / float(mappings_halpha_line['150'])))
+                mappings_nii_halpha_v150.append(np.log10((float(mappings_nii6583_line['150']) + float(mappings_nii6547_line['150'])) / float(mappings_halpha_line['150'])))
+                mappings_oiii_hbeta_v150.append(np.log10(float(mappings_oiii_line['150'])))
+                sii_sum = float(mappings_sii6716_line['150']) + float(mappings_sii6731_line['150'])
+                mappings_sii_halpha_v150.append(np.log10(sii_sum / float(mappings_halpha_line['150'])))
+
+            if check_mappings_field(mappings_model, '175'):
+                mappings_oi_halpha_v175.append(np.log10(float(mappings_oi_line['175']) / float(mappings_halpha_line['175'])))
+                mappings_nii_halpha_v175.append(np.log10((float(mappings_nii6583_line['175']) + float(mappings_nii6547_line['175'])) / float(mappings_halpha_line['175'])))
+                mappings_oiii_hbeta_v175.append(np.log10(float(mappings_oiii_line['175'])))
+                sii_sum = float(mappings_sii6716_line['175']) + float(mappings_sii6731_line['175'])
+                mappings_sii_halpha_v175.append(np.log10(sii_sum / float(mappings_halpha_line['175'])))
+
+            if check_mappings_field(mappings_model, '200'):
+                mappings_oi_halpha_v200.append(np.log10(float(mappings_oi_line['200']) / float(mappings_halpha_line['200'])))
+                mappings_nii_halpha_v200.append(np.log10((float(mappings_nii6583_line['200']) + float(mappings_nii6547_line['200'])) / float(mappings_halpha_line['200'])))
+                mappings_oiii_hbeta_v200.append(np.log10(float(mappings_oiii_line['200'])))
+                sii_sum = float(mappings_sii6716_line['200']) + float(mappings_sii6731_line['200'])
+                mappings_sii_halpha_v200.append(np.log10(sii_sum / float(mappings_halpha_line['200'])))
+
+            if check_mappings_field(mappings_model, '225'):
+                mappings_oi_halpha_v225.append(np.log10(float(mappings_oi_line['225']) / float(mappings_halpha_line['225'])))
+                mappings_nii_halpha_v225.append(np.log10((float(mappings_nii6583_line['225']) + float(mappings_nii6547_line['225'])) / float(mappings_halpha_line['225'])))
+                mappings_oiii_hbeta_v225.append(np.log10(float(mappings_oiii_line['225'])))
+                sii_sum = float(mappings_sii6716_line['225']) + float(mappings_sii6731_line['225'])
+                mappings_sii_halpha_v225.append(np.log10(sii_sum / float(mappings_halpha_line['225'])))
+
+            if check_mappings_field(mappings_model, '250'):
+                mappings_oi_halpha_v250.append(np.log10(float(mappings_oi_line['250']) / float(mappings_halpha_line['250'])))
+                mappings_nii_halpha_v250.append(np.log10((float(mappings_nii6583_line['250']) + float(mappings_nii6547_line['250'])) / float(mappings_halpha_line['250'])))
+                mappings_oiii_hbeta_v250.append(np.log10(float(mappings_oiii_line['250'])))
+                sii_sum = float(mappings_sii6716_line['250']) + float(mappings_sii6731_line['250'])
+                mappings_sii_halpha_v250.append(np.log10(sii_sum / float(mappings_halpha_line['250'])))
+
+            if check_mappings_field(mappings_model, '300'):
+                mappings_oi_halpha_v300.append(np.log10(float(mappings_oi_line['300']) / float(mappings_halpha_line['300'])))
+                mappings_nii_halpha_v300.append(np.log10((float(mappings_nii6583_line['300']) + float(mappings_nii6547_line['300'])) / float(mappings_halpha_line['300'])))
+                mappings_oiii_hbeta_v300.append(np.log10(float(mappings_oiii_line['300'])))
+                sii_sum = float(mappings_sii6716_line['300']) + float(mappings_sii6731_line['300'])
+                mappings_sii_halpha_v300.append(np.log10(sii_sum / float(mappings_halpha_line['300'])))
+
+            if check_mappings_field(mappings_model, '350'):
+                mappings_nii_halpha_v350.append(np.log10((float(mappings_nii6583_line['350']) + float(mappings_nii6547_line['350'])) / float(mappings_halpha_line['350'])))
+                mappings_oiii_hbeta_v350.append(np.log10(float(mappings_oiii_line['350'])))
+
+            if check_mappings_field(mappings_model, '400'):
+                mappings_nii_halpha_v400.append(np.log10((float(mappings_nii6583_line['400']) + float(mappings_nii6547_line['400'])) / float(mappings_halpha_line['400'])))
+                mappings_oiii_hbeta_v400.append(np.log10(float(mappings_oiii_line['400'])))
+
+            if check_mappings_field(mappings_model, '450'):
+                mappings_nii_halpha_v450.append(np.log10((float(mappings_nii6583_line['450']) + float(mappings_nii6547_line['450'])) / float(mappings_halpha_line['450'])))
+                mappings_oiii_hbeta_v450.append(np.log10(float(mappings_oiii_line['450'])))
+
+            if check_mappings_field(mappings_model, '500'):
+                mappings_nii_halpha_v500.append(np.log10((float(mappings_nii6583_line['500']) + float(mappings_nii6547_line['500'])) / float(mappings_halpha_line['500'])))
+                mappings_oiii_hbeta_v500.append(np.log10(float(mappings_oiii_line['500'])))
+
+
+    return mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
+           mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
+           mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+           mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
+           mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
+           mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
+           mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
+        mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
+        mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
+        mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
+        mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+        mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
+        mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
+        mappings_sii_halpha_v250, mappings_sii_halpha_v300
 
 if __name__ == '__main__':
     
@@ -180,87 +385,48 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in lzifu output file
-    h = fits.open(taffy_products + 'TAFFY_2_comp.fits')
-    hdu_vdisp = fits.open(taffy_products + 'TAFFY_2_comp_VDISP.fits')
+    h = fits.open(taffy_products + 'old_cube_2_comp_velsort.fits')
+    hdu_vdisp = fits.open(taffy_products + 'old_cube_2_comp_velsort_VDISP.fits')
 
     # loop over extensions 
     total_ext = fcj.get_total_extensions(h)
 
     # assign line arrays
-    halpha = h['HALPHA'].data
-    hbeta = h['HBETA'].data
-    nii6583 = h['NII6583'].data
-    oiii5007 = h['OIII5007'].data
-    oi6300 = h['OI6300'].data
-    oi6364 = h['OI6364'].data
-    sii6716 = h['SII6716'].data
-    sii6731 = h['SII6731'].data
+    halpha = h['HALPHA'].data[0]
+    hbeta = h['HBETA'].data[0]
+    nii6583 = h['NII6583'].data[0]
+    oiii5007 = h['OIII5007'].data[0]
+    oi6300 = h['OI6300'].data[0]
+    oi6364 = h['OI6364'].data[0]
+    sii6716 = h['SII6716'].data[0]
+    sii6731 = h['SII6731'].data[0]
     vdisp_line1 = hdu_vdisp[0].data[1]
     vdisp_line2 = hdu_vdisp[0].data[2]
 
-    halpha_err = h['HALPHA_ERR'].data
-    hbeta_err = h['HBETA_ERR'].data
-    nii6583_err = h['NII6583_ERR'].data
-    oiii5007_err = h['OIII5007_ERR'].data
-    oi6300_err = h['OI6300_ERR'].data
-    oi6364_err = h['OI6364_ERR'].data
-    sii6716_err = h['SII6716_ERR'].data
-    sii6731_err = h['SII6731_ERR'].data
+    halpha_err = h['HALPHA_ERR'].data[0]
+    hbeta_err = h['HBETA_ERR'].data[0]
+    nii6583_err = h['NII6583_ERR'].data[0]
+    oiii5007_err = h['OIII5007_ERR'].data[0]
+    oi6300_err = h['OI6300_ERR'].data[0]
+    oi6364_err = h['OI6364_ERR'].data[0]
+    sii6716_err = h['SII6716_ERR'].data[0]
+    sii6731_err = h['SII6731_ERR'].data[0]
 
     # add lines which are doublets
-    sii = sii6716[0] + sii6731[0]
-    sii_err = np.sqrt((sii6716_err[0])**2 + (sii6731_err[0])**2)
+    sii = sii6716 + sii6731
+    sii_err = np.sqrt((sii6716_err)**2 + (sii6731_err)**2)
 
     # get arrays with some baseline level cut off
-    nii_halpha_withcut, oiii_hbeta_withcut, oi_halpha_withcut, sii_halpha_withcut,\
-    halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut  =\
-     get_arr_basecut(halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
-    nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha[0].shape)
+    #nii_halpha_withcut, oiii_hbeta_withcut, oi_halpha_withcut, sii_halpha_withcut,\
+    #halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut  =\
+    # get_arr_basecut(halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
+    #nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha.shape)
 
     # get arrays with significance cut applied
     nii_halpha_withcut, oiii_hbeta_withcut, oi_halpha_withcut, sii_halpha_withcut,\
     halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut =\
      get_arr_withsigcut(3, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
-    nii6583, nii6583_err, oi6300, oi6300_err, halpha[0].shape)
-
-    # spatial mapping for interesting bpt points
-    oi_bpt_array = np.zeros(oiii_hbeta_withcut.shape)
-    oi_bpt_points = []
-
-    oi_agn_hii = lambda x: 1.33 + 0.73 / (x + 0.59)
-    oi_liner_seyfert = lambda x: 1.30 + 1.18 * x
-
-    for u in range(oiii_hbeta_withcut.shape[0]):
-
-        for v in range(oiii_hbeta_withcut.shape[1]):
-
-            current_y = oiii_hbeta_withcut[u,v]
-            current_x = oi_halpha_withcut[u,v]
-
-            # for LINER region
-            if (current_y > oi_agn_hii(current_x)) and (current_y < oi_liner_seyfert(current_x)):
-                oi_bpt_points.append([current_x, current_y])
-                #print current_x, current_y, u, v
-                oi_bpt_array[u,v] = 1.0
-                # add 1 to both u and v to convert to ds9 y and x respectively
-
-            # for HII region
-            # its currently giving all x values that are to the right of the HII line
-            # which is not what I want
-            # i think this is because the function has an asymptote somewhere to the right of the line drawn
-            if (current_y <= oi_agn_hii(current_x)) and (current_y != 0.0):
-                print current_x, current_y
-                oi_bpt_array[u,v] = 2.0
-
-            # for SEYFERT region
-            if (current_y > oi_agn_hii(current_x)) and (current_y > oi_liner_seyfert(current_x)):
-                oi_bpt_array[u,v] = 3.0
-
-    plt.imshow(oi_bpt_array, origin='lower')
-    plt.colorbar()
-    plt.show()
-
-    sys.exit(0)
+    nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha.shape)
 
     # arrays without any cut
     nii_halpha = np.log10(np.divide(nii6583[0], halpha[0]))
@@ -269,52 +435,44 @@ if __name__ == '__main__':
 
     # define regions and create corresponding masks
     # done by hand first in ds9 and copied over here
-    bridge_region = [24.498158,42.619034,27.071083,47.087243,32.801407,51.460385,\
-    39.498693,45.62965,42.281712,36.584839,42.142561,32.688612,28.923221,15.573047,\
-    18.023204,19.340414,6.5625575,26.277121,18.475598,34.269415]
+    # Use a polygon shaped region and save it in the image coord system
+    # so that ds9 will write both x and y coords of the region which you
+    # can copy and paste here from the .reg file.
+    bridge_region = [32.281801,57.268842,38.538533,57.614395,45.57281,57.702324,47.595164,49.173263,\
+    42.495313,39.325275,38.450604,30.884142,35.373108,26.839433,27.793224,19.116218,22.095459,19.749303,\
+    15.870124,18.483133,12.599185,23.442299,10.058727,30.487856,14.788552,34.751095,24.463539,45.30257,\
+    27.627401,47.586352,33.341603,48.641282,31.758745,54.356923]
 
     bridge_list = []
     for i in range(0,len(bridge_region),2):
         bridge_list.append([int(round(bridge_region[i])),int(round(bridge_region[i+1]))])
 
     bridge_pn = pg.Polygon(bridge_list)
-    bridge_mask = getregionmask(bridge_pn, halpha[0].shape, "bridge region.")
+    bridge_mask = getregionmask(bridge_pn, halpha.shape, "bridge region.")
 
     # -------------------------- #
-    north_galaxy_small_region = [9.9895105,46.297203,18.241259,52.348485,23.811189,56.061772,\
-    30.068765,54.548951,30.687646,49.11655,23.467366,46.022145,17.553613,37.495338,\
-    9.3706294,34.05711,7.6515152,36.395105,7.995338,40.38345]
+    north_galaxy_region = [20.778985,57.420501,32.283659,57.25855,31.756076,54.356913,33.338764,48.641556,\
+    27.623409,47.586438,24.457975,45.300312,14.785798,34.748937,9.2463044,34.573104,5.7291782,37.474758,\
+    9.2463475,44.684877]
 
-    north_galaxy_small_list = []
-    for i in range(0,len(north_galaxy_small_region),2):
-        north_galaxy_small_list.append([int(round(north_galaxy_small_region[i])),int(round(north_galaxy_small_region[i+1]))])
+    north_galaxy_list = []
+    for i in range(0,len(north_galaxy_region),2):
+        north_galaxy_list.append([int(round(north_galaxy_region[i])),int(round(north_galaxy_region[i+1]))])
 
-    north_galaxy_small_pn = pg.Polygon(north_galaxy_small_list)
-    north_mask = getregionmask(north_galaxy_small_pn, halpha[0].shape, "north galaxy small region.")
-
-    # -------------------------- #
-    #north_galaxy_region = [19.203963,58.812354,39.420746,58.881119,38.458042,49.047786,\
-    #29.449883,49.254079,25.874126,45.334499,18.378788,39.214452,11.983683,32.200466,\
-    #5.2447552,31.168998,6.5512821,41.277389,11.777389,46.572261,16.934732,53.517483]
-
-    #north_galaxy_list = []
-    #for i in range(0,len(north_galaxy_region),2):
-    #    north_galaxy_list.append([int(round(north_galaxy_region[i])),int(round(north_galaxy_region[i+1]))])
-
-    #north_galaxy_pn = pg.Polygon(north_galaxy_list)
-    #north_mask = getregionmask(north_galaxy_pn, halpha[0].shape, "north galaxy region.")
+    north_galaxy_pn = pg.Polygon(north_galaxy_list)
+    north_mask = getregionmask(north_galaxy_pn, halpha.shape, "north galaxy region.")
 
     # -------------------------- #
-    south_galaxy_region = [38.320513,44.715618,49.597902,43.271562,52.554779,35.019814,\
-    51.660839,27.455711,47.878788,14.80303,37.564103,4.969697,30.618881,7.8578089,\
-    33.438228,22.77972,42.0338,34.607226,41.758741,35.157343]
+    south_galaxy_region = [47.596266,49.175706,52.888458,43.299641,52.255373,30.743457,47.507236,17.554187,\
+    44.447325,11.856422,39.593674,8.4799692,31.785626,9.6406249,24.083093,10.379224,21.550753,15.021847,\
+    22.103279,19.736942,27.808648,19.103012,35.374908,26.873766,38.491912,30.927514,42.500817,39.360307]
 
     south_galaxy_list = []
     for i in range(0,len(south_galaxy_region),2):
         south_galaxy_list.append([int(round(south_galaxy_region[i])),int(round(south_galaxy_region[i+1]))])
 
     south_galaxy_pn = pg.Polygon(south_galaxy_list)
-    south_mask = getregionmask(south_galaxy_pn, halpha[0].shape, "south galaxy region.")
+    south_mask = getregionmask(south_galaxy_pn, halpha.shape, "south galaxy region.")
 
     # apply bridge mask
     nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
@@ -352,24 +510,107 @@ if __name__ == '__main__':
     nii6583_withcut_south = ma.array(nii6583_withcut, mask=south_mask)
     sii_withcut_south = ma.array(sii_withcut, mask=south_mask)
 
-    #print len(np.where(np.isfinite(nii_halpha_withcut_bridge.flatten()))[0])
+    # spatial mapping for interesting bpt points
+    all_oiii_hbeta = [oiii_hbeta_withcut_north, oiii_hbeta_withcut_south, oiii_hbeta_withcut_bridge]
+    all_oi_halpha  = [oi_halpha_withcut_north, oi_halpha_withcut_south, oi_halpha_withcut_bridge]
+    all_nii_halpha  = [nii_halpha_withcut_north, nii_halpha_withcut_south, nii_halpha_withcut_bridge]
+    all_sii_halpha  = [sii_halpha_withcut_north, sii_halpha_withcut_south, sii_halpha_withcut_bridge]
 
-    #print len(np.where((nii_halpha_withcut_bridge.flatten() >= -1) & (nii_halpha_withcut_bridge.flatten() <= 0.5))[0])
-    #print len(np.where((oiii_hbeta_withcut_bridge.flatten() >= -1) & (oiii_hbeta_withcut_bridge.flatten() <= 1.0))[0])
-    print len(np.unique(oiii_hbeta_withcut_bridge.flatten()))
-    print len(np.unique(nii_halpha_withcut_bridge.flatten()))
+    current_bpt_array = np.zeros(oiii_hbeta_withcut.shape)
 
-    print len(np.unique(oiii_hbeta_withcut_north.flatten()))
-    print len(np.unique(nii_halpha_withcut_north.flatten()))
+    oi_agn_hii = lambda x: 1.33 + 0.73 / (x + 0.59)
+    oi_liner_seyfert = lambda x: 1.30 + 1.18 * x
 
-    print len(np.unique(oiii_hbeta_withcut_south.flatten()))
-    print len(np.unique(nii_halpha_withcut_south.flatten()))
+    nii_hii = lambda x: 1.3 + 0.61 / (x - 0.05)
+    nii_agn = lambda x: 1.19 + 0.61 / (x - 0.47)
 
-    #print len(np.where(abs(nii_halpha) <= 1)[0])
-    #print len(np.where(abs(oiii_hbeta) <= 1)[0])
-    #print len(np.where(np.isfinite(nii_halpha.flatten()))[0]), len(np.where(np.isfinite(oiii_hbeta.flatten()))[0])
-    #print len(np.where(oi_halpha <= 0)[0])
-    #print len(np.where(np.isfinite(oi_halpha.flatten()))[0])
+    sii_hii = lambda x: 1.30 + 0.72 / (x - 0.32)
+    sii_agn = lambda x: 0.76 + 1.89 * x
+
+    current_plot = 'OI'
+
+    for w in range(3):
+
+        current_oiii_hbeta = all_oiii_hbeta[w]
+
+        if current_plot == 'OI':
+            current_hii_func = oi_agn_hii
+            current_agn_func = oi_liner_seyfert
+            current_X_halpha  = all_oi_halpha[w]
+
+        elif current_plot == 'NII':
+            current_hii_func = nii_hii
+            current_agn_func = nii_agn
+            current_X_halpha  = all_nii_halpha[w]
+
+        elif current_plot == 'SII':
+            current_hii_func = sii_hii
+            current_agn_func = sii_agn
+            current_X_halpha  = all_sii_halpha[w]
+
+        for u in range(current_oiii_hbeta.shape[0]):
+
+            for v in range(current_oiii_hbeta.shape[1]):
+
+                current_y = current_oiii_hbeta[u,v]
+                current_x = current_X_halpha[u,v]
+
+                # add 1 to both u and v to convert to ds9 y and x respectively
+
+                # for LINER region
+                if current_plot == 'OI' or current_plot == 'SII':
+
+                    if (current_y > current_hii_func(current_x)) and (current_y < current_agn_func(current_x)) and (current_x != 0.0) and (current_y != 0.0):
+                        #print 'LINER', current_x, current_y, v, u
+                        current_bpt_array[u,v] = 1.0
+
+                    # for HII region
+                    if (current_y <= current_hii_func(current_x)) and (current_y != 0.0):
+                        #print 'HII', current_x, current_y
+                        current_bpt_array[u,v] = 2.0
+
+                    # for SEYFERT region
+                    if (current_y > current_hii_func(current_x)) and (current_y > current_agn_func(current_x)):
+                        #print 'SEYFERT', current_x, current_y
+                        current_bpt_array[u,v] = 3.0
+
+                if current_plot == 'NII':
+
+                    if (current_y > nii_agn(current_x)) and (current_y != 0.0):
+                        # AGN
+                        #print 'AGN', current_x, current_y
+                        current_bpt_array[u,v] = 1.0
+
+                    if current_y < nii_hii(current_x):
+                        # HII region
+                        #print 'HII', current_x, current_y
+                        current_bpt_array[u,v] = 2.0
+
+                    if (current_y < nii_agn(current_x)) and (current_y > nii_hii(current_x)):
+                        # HII-AGN composite
+                        #print 'HII-AGN composite', current_x, current_y
+                        current_bpt_array[u,v] = 3.0
+
+    plt.imshow(current_bpt_array, origin='lower')
+    plt.colorbar()
+    #plt.show()
+    #sys.exit(0)
+
+    # read in Mappings III models and overplot
+    mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
+    mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
+    mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+    mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
+    mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
+    mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
+    mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
+        mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
+        mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
+        mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
+        mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+        mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
+        mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
+        mappings_sii_halpha_v250, mappings_sii_halpha_v300 = mappings_oi_nii_sii()
 
     # plot bpt diagrams
     # BPT with [NII]
@@ -388,11 +629,29 @@ if __name__ == '__main__':
     y_liner_seyfert_line = 1.19 + 0.61 / (np.arange(-1, 0.4, 0.01) - 0.47)
 
     #ax.plot(nii_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-    ax.plot(nii_halpha_withcut_bridge, oiii_hbeta_withcut_bridge, 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(nii_halpha_withcut_north, oiii_hbeta_withcut_north, 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(nii_halpha_withcut_south, oiii_hbeta_withcut_south, 'o', color='b', markersize=2, markeredgecolor='b')
+
+    nii_nonzero = np.nonzero(nii_halpha_withcut)
+
+    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_withcut_bridge[nii_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
+    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_withcut_north[nii_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
+    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_withcut_south[nii_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
+
+    ax.plot(mappings_nii_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
+    ax.plot(mappings_nii_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
+    ax.plot(mappings_nii_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
+    ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
+    ax.plot(mappings_nii_halpha_v350, mappings_oiii_hbeta_v350, label='350 km/s')
+    ax.plot(mappings_nii_halpha_v400, mappings_oiii_hbeta_v400, label='400 km/s')
+    ax.plot(mappings_nii_halpha_v450, mappings_oiii_hbeta_v450, label='450 km/s')
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, label='500 km/s')
+
+    ax.legend(loc=0, prop={'size':8})
 
     ax.set_xlim(-1,0.3)
     ax.set_ylim(-1,1)
@@ -422,7 +681,7 @@ if __name__ == '__main__':
     ax.add_artist(anc_hiibox)
 
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_nii.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -439,11 +698,25 @@ if __name__ == '__main__':
     y_liner_seyfert_line = 1.30 + 1.18 * np.arange(-1.1, 0, 0.01)
 
     #ax.plot(oi_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-    ax.plot(oi_halpha_withcut_bridge, oiii_hbeta_withcut_bridge, 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(oi_halpha_withcut_north, oiii_hbeta_withcut_north, 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(oi_halpha_withcut_south, oiii_hbeta_withcut_south, 'o', color='b', markersize=2, markeredgecolor='b')
+
+    oi_nonzero = np.nonzero(oi_halpha_withcut)
+
+    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_withcut_bridge[oi_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
+    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_withcut_north[oi_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
+    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_withcut_south[oi_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
+
+    ax.plot(mappings_oi_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
+    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
+    ax.plot(mappings_oi_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
+    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
+    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
+    ax.plot(mappings_oi_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
+    ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
+    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
+
+    ax.legend(loc=0, prop={'size':8})
 
     ax.set_xlim(-2.0,0)
     ax.set_ylim(-1,1)
@@ -463,7 +736,7 @@ if __name__ == '__main__':
 
     hiibox = TextArea('HII', textprops=dict(color='k', size=16))
     anc_hiibox = AnchoredOffsetbox(loc=2, child=hiibox, pad=0.0, frameon=False,\
-                                         bbox_to_anchor=(0.15, 0.2),\
+                                         bbox_to_anchor=(0.2, 0.2),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
 
@@ -472,7 +745,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_oi.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -489,11 +762,25 @@ if __name__ == '__main__':
     y_liner_seyfert_line = 0.76 + 1.89 * np.arange(-0.3, 1, 0.01)
 
     #ax.plot(sii_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-    ax.plot(sii_halpha_withcut_bridge, oiii_hbeta_withcut_bridge, 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(sii_halpha_withcut_north, oiii_hbeta_withcut_north, 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(sii_halpha_withcut_south, oiii_hbeta_withcut_south, 'o', color='b', markersize=2, markeredgecolor='b')
+
+    sii_nonzero = np.nonzero(sii_halpha_withcut)
+
+    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_withcut_bridge[sii_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
+    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_withcut_north[sii_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
+    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_withcut_south[sii_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
+
+    ax.plot(mappings_sii_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
+    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
+    ax.plot(mappings_sii_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
+    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
+    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
+    ax.plot(mappings_sii_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
+    ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
+    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
+
+    ax.legend(loc=0, prop={'size':8})
 
     ax.set_xlim(-1,0.5)
     ax.set_ylim(-1,1)
@@ -522,7 +809,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_sii.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -532,7 +819,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    im = ax.imshow(np.log10(np.divide(nii6583[0], halpha[0])), cmap='summer', origin='lower', vmin=-1, vmax=1)
+    im = ax.imshow(np.log10(np.divide(nii6583, halpha)), cmap='summer', origin='lower', vmin=-1, vmax=1)
     plt.colorbar(im, ax=ax)
 
     vdisp_line = vdisp_line2
@@ -546,7 +833,7 @@ if __name__ == '__main__':
     c = ax.contour(X, Y, vdisp_line, levels=levels, cmap='inferno')
     ax.clabel(c, inline=True, inline_spacing=1, fontsize=4, fmt='%1.2f')
 
-    fig.savefig(ipac_taffy_figdir + 'nii_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'nii_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -556,13 +843,13 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    im = ax.imshow(np.log10(np.divide(oiii5007[0], hbeta[0])), cmap='summer', origin='lower', vmin=-1, vmax=1)
+    im = ax.imshow(np.log10(np.divide(oiii5007, hbeta)), cmap='summer', origin='lower', vmin=-1, vmax=1)
     plt.colorbar(im, ax=ax)
 
     c = ax.contour(X, Y, vdisp_line, levels=levels, cmap='inferno')
     ax.clabel(c, inline=True, inline_spacing=1, fontsize=4, fmt='%1.2f')
 
-    fig.savefig(ipac_taffy_figdir + 'oiii_hbeta_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'oiii_hbeta_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -572,13 +859,13 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    im = ax.imshow(np.log10(np.divide(oi6300[0], halpha[0])), cmap='summer', origin='lower', vmin=-2.5, vmax=0)
+    im = ax.imshow(np.log10(np.divide(oi6300, halpha)), cmap='summer', origin='lower', vmin=-2.5, vmax=0)
     plt.colorbar(im, ax=ax)
 
     c = ax.contour(X, Y, vdisp_line, levels=levels, cmap='inferno')
     ax.clabel(c, inline=True, inline_spacing=1, fontsize=4, fmt='%1.2f')
 
-    fig.savefig(ipac_taffy_figdir + 'oi_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'oi_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -588,13 +875,13 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    im = ax.imshow(np.log10(np.divide(sii, halpha[0])), cmap='summer', origin='lower', vmin=-1, vmax=0.2)
+    im = ax.imshow(np.log10(np.divide(sii, halpha)), cmap='summer', origin='lower', vmin=-1, vmax=0.2)
     plt.colorbar(im, ax=ax)
 
     c = ax.contour(X, Y, vdisp_line, levels=levels, cmap='inferno')
     ax.clabel(c, inline=True, inline_spacing=1, fontsize=4, fmt='%1.2f')
 
-    fig.savefig(ipac_taffy_figdir + 'sii_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'sii_halpha_map_velodisp_comp' + str(vel_comp) + '.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()

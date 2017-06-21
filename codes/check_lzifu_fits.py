@@ -17,10 +17,11 @@ home = os.getenv('HOME')  # does not have a trailing slash
 desktop = home + '/Desktop/'
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = '/Volumes/Bhavins_backup/phil/TAFFY/products/'
-taffy_data = '/Volumes/Bhavins_backup/phil/TAFFY/data/'
+taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products/'
+taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 ipac_taffy_figdir = ipac_taffy_dir + 'figures/'
+taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_products + 'TAFFY_2_comp.fits')
+    h = fits.open(taffy_products + 'Taffy_2_comp.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
@@ -93,9 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 43
-    pix_y = 21
-
+    pix_x = 33
+    pix_y = 35
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 
@@ -126,11 +126,11 @@ if __name__ == '__main__':
     else:
         ax1.plot(lam_b, cont_fit_b, color='b', zorder=10)
 
-    ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
-    ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
+    #ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
+    #ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
     
     ax1.plot(lam_b, flam_obs_b, '-', color='k')
-    ax1.plot(lam_b, ferr_obs_b, '--', color='lightgray', linewidth=1, zorder=5)
+    #ax1.plot(lam_b, ferr_obs_b, '--', color='lightgray', linewidth=1, zorder=5)
     #ax1.axhline(y=ferr_obs_b[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax1.fill_between(lam_b, flam_obs_b + ferr_obs_b, flam_obs_b - ferr_obs_b, color='lightgray')
 
@@ -140,11 +140,16 @@ if __name__ == '__main__':
     trans = mtransforms.blended_transform_factory(ax1.transData, ax1.transAxes)
     ax1.fill_between(lam_b_masked, 0, 1, facecolor='b', alpha=0.3, transform=trans)
 
-    ax1.set_xlim(4600, 5400)
+    ax1.set_xlim(4800, 5300)  # old lims (4800, 5300)
+    #ax1.set_ylim(30,100)
+
     ax1.get_xaxis().set_ticklabels([])
     #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
     # fontsize=10, rotation=35)
     ax1.tick_params(axis='both', which='major', labelsize=10)
+
+    ax1.set_ylabel(r'$\mathrm{f_\lambda\ [erg\,s^{-1}\,cm^{-2}\,\AA^{-1}] / 1\times10^{-18}}$')
+    ax1.yaxis.set_label_coords(-0.1, 0.5)
 
     ax1.minorticks_on()
     ax1.tick_params('both', width=1, length=3, which='minor')
@@ -154,10 +159,12 @@ if __name__ == '__main__':
     # second blue subplot
     ax2.plot(lam_b, residfit_b, color='k')
 
-    ax2.set_xlim(4600, 5400)
-    ax2.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
+    ax2.set_xlim(4800, 5300)
+    ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''],\
      fontsize=10, rotation=35)
     ax2.tick_params(axis='both', which='major', labelsize=10)
+
+    ax2.set_ylabel(r'$\mathrm{(f^{data}_\lambda - f^{model}_\lambda)/\sigma}$')
 
     ax2.minorticks_on()
     ax2.tick_params('both', width=1, length=3, which='minor')
@@ -182,18 +189,20 @@ if __name__ == '__main__':
     else:
         ax3.plot(lam_r, cont_fit_r, color='r', zorder=10)
 
-    ax3.plot(lam_r, cont_fit_r, color='g', zorder=10)
-    ax3.plot(lam_r, line_fit_r, color='g', zorder=10)
+    #ax3.plot(lam_r, cont_fit_r, color='g', zorder=10)
+    #ax3.plot(lam_r, line_fit_r, color='g', zorder=10)
 
     ax3.plot(lam_r, flam_obs_r, '-', color='k')
-    ax3.plot(lam_r, ferr_obs_r, '--', color='lightgray', linewidth=1, zorder=5)
+    #ax3.plot(lam_r, ferr_obs_r, '--', color='lightgray', linewidth=1, zorder=5)
     #ax3.axhline(y=ferr_obs_r[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax3.fill_between(lam_r, flam_obs_r + ferr_obs_r, flam_obs_r - ferr_obs_r, color='lightgray')
 
     trans = mtransforms.blended_transform_factory(ax3.transData, ax3.transAxes)
     ax3.fill_between(lam_r_masked, 0, 1, facecolor='r', alpha=0.3, transform=trans)
 
-    ax3.set_xlim(6100, 6900)
+    ax3.set_xlim(6370, 6700)  # old lims (6370, 6700)
+    #ax3.set_ylim(50,300)
+
     ax3.get_xaxis().set_ticklabels([])
     #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
     # fontsize=10, rotation=35)
@@ -207,8 +216,11 @@ if __name__ == '__main__':
     # second red subplot
     ax4.plot(lam_r, residfit_r, color='k')
 
-    ax4.set_xlim(6100, 6900)
-    ax4.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
+    ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$')
+    ax4.xaxis.set_label_coords(0.00, -0.3)
+
+    ax4.set_xlim(6370, 6700)
+    ax4.get_xaxis().set_ticklabels(['', '6400', '6450', '6500', '6500', '6600', '6650', '6700'],\
      fontsize=10, rotation=35)
     ax4.tick_params(axis='both', which='major', labelsize=10)
 
@@ -220,7 +232,7 @@ if __name__ == '__main__':
     plt.show()
 
     #fig.savefig(ipac_taffy_figdir + 'lzifu_fit_pix_ds9xy_' + str(pix_x) + '_' + str(pix_y) + '.png',\
-    # dpi=600, bbox_inches='tight')
+    # dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()

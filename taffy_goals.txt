@@ -1,0 +1,73 @@
+To-do
+# check velocity offsets
+i.e. divide by wavelengths for all em lines by (1+z) and check if they are consistent
+do this for both red and blue cubes
+
+# you could split the system in zones to study the diff velocity components
+i.e. take a small slice of the x and y pixels and only fit that.
+
+# line velocity width
+line width [A] * 3e5 [km/s] / rest_wav_of_line [A]
+
+# check VIRUS-P website at McDonald observatory
+
+--------------------------------------------------------------------------------
+# read these papers
+Peterson et al 2012
+Vollmer & Braine 2012
+Appleton et al 2017, 2013
+Rich et al (by Jeff Rich, in the last few years or so)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Goals for the 6 month visit:
+Main project title (also GISS title): Study of turbulence and shock heated IGM gas with emission line spectroscopy in the Taffy galaxies
+Second project: Reduce Palomar triplespec data
+
+Short term goals
+1. understand fitting; is lzifu fitting the em and abs and continuum properly; i.e. are you doing as good of a fitting as you can do
+2. look at optical em and abs lines to study (bpt line diagnostic diagrams)
+
+3. start investigating the NIR spectra
+
+Long term goals
+1. Have a first draft of the paper on optical emission lines ready by the time I leave. i.e. by the end of July
+2. Present at GISS. Around midway through project.
+3. Understand and automate (to some extent?) LZIFU fitting on IFU data. Will this be used with the JWST ERS proposal?
+
+4. By early May, have reduction done on the Palomar datasets (have scripts done so they can be used on obs run)
+5. Check how the ancillary data (ALMA and Herschel) ties in with the emission line data.
+
+Sci goals
+1. why hasn't a collison between two gas rich galaxies produced many stars? there is a LOT of molecular Hydrogen in here, why is it not making stars?
+
+2. how do turbulence and shocks affect SF and how long does it last? Does turbulence trigger SF in some cases and supress it in some others? If yes, then what is the dividing line between the two cases?
+2a. what is the role of turbulence in terms of feedback? does it play a significant role in galaxy evolution, say if you compare it to AGN and SNe feedback?
+i.e. what role does turbulence play in supressing SF?
+
+4. Not really a sci goal but something I'll have to do along the way -- what properties of hte gas can you derive from the emission lines? 
+
+--------------------------------------------------------------------------------
+Timeline:
+
+March 2017
+1. By first week of March have the parametrs of lzifu finalized that allow it to fit all regions in the TAFYY IFU cube properly. 
+2. Start writing a draft by mid march. Put in some text in the methods and data section of the paper.
+3. Work on HST proposal. 
+4. By mid-march, finish running lzifu on entire smoothed map with the option of 2 velocity components. Create BPT diagrams after it finishes running.
+5. Work on reducing the Palomar TSpec data.
+
+April 2017
+1. 
+
+May 2017
+
+June 2017
+
+July 2017
+
+
+--------------------------------------------------------------------------------
+Expected results:
+
+
