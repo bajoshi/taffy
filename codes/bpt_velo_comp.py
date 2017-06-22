@@ -148,6 +148,21 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     
     return None
 
+def bpt_range_to_spatial(xarr, yarr, xran, yran):
+
+    xlow = xran[0]
+    xhigh = xran[1]
+
+    ylow = yran[0]
+    yhigh = yran[1]
+
+    idx = np.where((xarr >= xlow) & (xarr <= xhigh) & (yarr >= ylow) & (yarr <= yhigh))
+
+    spatial_mask = np.ones(xarr.shape)
+    spatial_mask[idx] = 0.0
+
+    return spatial_mask
+
 if __name__ == '__main__':
     
     # Start time
@@ -156,8 +171,8 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/old_cube_2_comp_velsort.fits')
-    hdu_vdisp = fits.open(taffy_extdir + 'products_big_cube_velsort/old_cube_2_comp_velsort_VDISP.fits')
+    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    hdu_vdisp = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
 
     # assign line arrays for each component and their errors
     # -------------- component 1 -------------- #
@@ -221,6 +236,11 @@ if __name__ == '__main__':
     halpha_withcut_comp2, hbeta_withcut_comp2, oiii5007_withcut_comp2, oi6300_withcut_comp2, nii6583_withcut_comp2, sii_withcut_comp2 = \
     bpt.get_arr_withsigcut(3, halpha_comp2, halpha_err_comp2, hbeta_comp2, hbeta_err_comp2, oiii5007_comp2, oiii5007_err_comp2,\
     nii6583_comp2, nii6583_err_comp2, oi6300_comp2, oi6300_err_comp2, sii_comp2, sii_err_comp2, (58,58))
+
+    spatial_mask = bpt_range_to_spatial(sii_halpha_withcut_comp2, oiii_hbeta_withcut_comp2, [-0.6,-0.25], [-0.15,0.0])
+    plt.imshow(spatial_mask, origin='lower')
+    plt.show()
+    sys.exit(0)
 
     # get region mask for region defined first in ds9
     # see process to do this detailed in the comments in the bpt_plots.py code.
