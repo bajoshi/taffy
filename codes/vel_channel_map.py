@@ -34,12 +34,14 @@ if __name__ == '__main__':
     lightspeed = 299792.458  # km/s
 
     # read in i band SDSS image
-    sdss_i = fits.open(taffy_dir + 'SDSS/taffyi_sdss.fits')
+    sdss_i = fits.open(taffy_dir + 'SDSS/sdss_i_cutout.fits')
     wcs_sdss = WCS(sdss_i[0].header)
 
     # read in lzifu output file
     h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
-    wcs_lzifu = WCS(h['B_LINE'].header)  # from the header it seems like the wcs is same for both red and blue channels; as it should be 
+    wcs_lzifu = WCS(h['B_LINE'].header)
+    wcs_lzifu = wcs_lzifu.sub(['longitude', 'latitude'])
+    # from the header it seems like the wcs is same for both red and blue channels; as it should be 
 
     # assign line arrays for the total and each component
     # -------------- total -------------- #
@@ -102,25 +104,52 @@ if __name__ == '__main__':
     # create figure and axis grid
     # this has to be done before looping over each vel range
     # also defining custom color list
-    gs = gridspec.GridSpec(4,5)
+    gs = gridspec.GridSpec(3,3)
     gs.update(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.02, hspace=0.02)
 
-    fig = plt.figure(figsize=(10,8))
+    fig = plt.figure(figsize=(8,8))
 
+    # color palette from colorbrewer.com
     colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
     cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
 
     # arbitrarily choosing -400 to +400 km/s as the velo range over which to show channel maps 
     # --> and the step I want for channel maps is 50 km/s to Nyquist sample the channels since the resolution 
     # at hbeta is 98 km/s
-    low_vel_lim = sys_vel - 450.0
-    high_vel_lim = sys_vel + 450.0
-    vel_step = 50.0
+    low_vel_lim = sys_vel - 400.0
+    high_vel_lim = sys_vel + 400.0
+    vel_step = 100.0
     
     vel_range_arr = np.arange(low_vel_lim, high_vel_lim+vel_step, vel_step)
 
     for j in range(len(vel_range_arr)):
 
+        # first plot the sdss image
+        row, col = divmod(j, 3)  # dividing by number of columns
+        ax = fig.add_subplot(gs[row, col], projection=wcs_sdss)
+
+        # overlay the contours on sdss image
+        # get the correct sized image and normalization and plot
+        im = ax.imshow(np.log10(sdss_i[0].data), origin='lower', cmap='Greys', vmin=-0.0545, vmax=0.5)
+        # [45:-80,100:-50] is hte array slice that will be zoomed in on just the galaxies 
+        # but the WCS coordinates are incorrect then
+        # ok in this case, because I don't need to have tick marks for the coordinates
+
+        ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level apparently
+
+        lon = ax.coords[0]
+        lat = ax.coords[1]
+
+        lon.set_ticks_visible(False)
+        lon.set_ticklabel_visible(False)
+        lat.set_ticks_visible(False)
+        lat.set_ticklabel_visible(False)
+        lon.set_axislabel('')
+        lat.set_axislabel('')
+
+        ax.coords.frame.set_color('None')
+
+        # make contour plot
         vel_range_low = low_vel_lim + vel_step*j
         vel_range_high = low_vel_lim + vel_step*(j+1)
         vel_range_idx = np.where((helio_vel_arr >= vel_range_low) & (helio_vel_arr <= vel_range_high))
@@ -131,32 +160,17 @@ if __name__ == '__main__':
         vel_mean_arr = np.mean(b_line_total[vel_range_idx], axis=0)
         vel_mean_arr = ma.array(vel_mean_arr, mask=all_mask)
 
-        # make contour plot
-        row, col = divmod(j, 5)  # dividing by number of columns
-        ax = fig.add_subplot(gs[row, col], projection=wcs_lzifu)
-
-        x = np.arange(vel_mean_arr.shape[0])
-        y = np.arange(vel_mean_arr.shape[1])
+        x = np.arange(vel_mean_arr.shape[1])
+        y = np.arange(vel_mean_arr.shape[0])
         X, Y = np.meshgrid(x, y)
-        X, Y = X.T, Y.T
 
         # levels have to be defined by hand for each vel range; no other option there
         # taken after first verifying with ds9
         print np.mean(blue_wav_arr[vel_range_idx])
         levels = np.array([1,3,5,8,9,12,15])
 
-        c = ax.contour(X, Y, vel_mean_arr, levels=levels, cmap=cm)
+        c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
         ax.clabel(c, inline=True, inline_spacing=2, fontsize=5, fmt='%1.2f')
-
-        # overlay the contours on sdss image
-        # get the correct sized image and normalization and plot
-        ax = WCSAxes(fig, [], wcs=wcs_sdss)
-        fig.add_axes(ax)
-        cutout = sdss_i[0].data[45:-80,100:-50]
-        im = ax.imshow(cutout, origin='lower', cmap='Greys', vmin=-0.0545, vmax=0.5)
-        # [45:-80,100:-50] is hte array slice that will be zoomed in on just the galaxies 
-        # but the WCS coordinates are incorrect then
-        # ok in this case, because I don't need to have tick marks for the coordinates
 
         # remove all ticks, ticklabels, and spines
         ax.spines["top"].set_visible(False)
@@ -169,6 +183,7 @@ if __name__ == '__main__':
 
         ax.tick_params(axis="both", which="both", bottom="off", top="off", labelbottom="off", left="off", right="off", labelleft="off")
 
-    plt.show()
+    fig.savefig(taffy_dir + 'figures/vel_channel_hbeta.eps', dpi=150, bbox_inches='tight')
+    #plt.show()
 
     sys.exit(0)
