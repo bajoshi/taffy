@@ -78,13 +78,6 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     return newcmap
 
 if __name__ == '__main__':
-
-    """
-    TO DO:
-    1. Change vel range for second component
-    2. Put in custom levels for both comonents
-    3. Make map of integrated emission
-    """
     
     # Start time
     start = time.time()
@@ -172,15 +165,21 @@ if __name__ == '__main__':
 
     # color palette from colorbrewer2.org
     colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
-    cm7 = LinearSegmentedColormap.from_list('blues', colors, N=7)
-    cm6 = LinearSegmentedColormap.from_list('blues', colors, N=6)
-    cm4 = LinearSegmentedColormap.from_list('blues', colors, N=4)
+    cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
 
     # arbitrarily choosing -400 to +400 km/s as the velo range over which to show channel maps 
     # --> and the step I want for channel maps is 50 km/s to Nyquist sample the channels since the resolution 
     # at hbeta is 98 km/s
-    low_vel_lim = sys_vel - 400.0
-    high_vel_lim = sys_vel + 400.0
+    maptype = 'total'
+
+    if maptype == 'total' or maptype == 'comp1':
+        low_vel_lim = sys_vel - 400.0
+        high_vel_lim = sys_vel + 400.0
+
+    if maptype == 'comp2':
+        low_vel_lim = sys_vel - 300.0
+        high_vel_lim = sys_vel + 500.0
+
     vel_step = 100.0
     
     vel_range_arr = np.arange(low_vel_lim, high_vel_lim+vel_step, vel_step)
@@ -198,9 +197,6 @@ if __name__ == '__main__':
         shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
         im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=-0.2, vmax=6, norm=norm)
         # FYI it looks okay even without the shifted cmap but the ability to shift it is awesome.
-        # [45:-80,100:-50] is hte array slice that will be zoomed in on just the galaxies 
-        # but the WCS coordinates are incorrect then
-        # ok in this case, because I don't need to have tick marks for the coordinates
 
         ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level and able actually overplot the image and contours
 
@@ -221,11 +217,14 @@ if __name__ == '__main__':
         vel_range_high = low_vel_lim + vel_step*(j+1)
         vel_range_idx = np.where((helio_vel_arr >= vel_range_low) & (helio_vel_arr <= vel_range_high))
 
-        #print vel_range_low - sys_vel, vel_range_high - sys_vel, vel_range_idx
-
         # avg along spectrum axis; has the same shape as only spatial dimensions # (58,58) for taffy
-        vel_mean_arr = np.mean(b_line_total[vel_range_idx], axis=0)
-        # change the array here if you want to make the map for the total emission or the indiv comp
+        if maptype == 'total':
+            vel_mean_arr = np.mean(b_line_total[vel_range_idx], axis=0)
+        elif maptype == 'comp1':
+            vel_mean_arr = np.mean(b_line_comp1[vel_range_idx], axis=0)
+        elif maptype == 'comp2':
+            vel_mean_arr = np.mean(b_line_comp2[vel_range_idx], axis=0)
+
         vel_mean_arr = ma.array(vel_mean_arr, mask=all_mask)
         vel_mean_arr = ma.filled(vel_mean_arr, fill_value=0.0)
         vel_mean_arr = np.nan_to_num(vel_mean_arr)
@@ -235,41 +234,51 @@ if __name__ == '__main__':
         X, Y = np.meshgrid(x, y)
 
         # levels have to be defined by hand for each vel range; no other option there
-        # taken after first verifying with ds9
-        print np.mean(blue_wav_arr[vel_range_idx])
+        # taken after first verifying interactively with ds9
+        print j, np.mean(blue_wav_arr[vel_range_idx])
 
-        if j==0: 
-            levels = np.array([7,15,30,45])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
-        elif j==1: 
-            levels = np.array([4,10,20,40,60,80])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
-        elif j==2: 
-            levels = np.array([4,10,20,40,60,80])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
-        elif j==3: 
-            levels = np.array([1,4,10,20,40,60,80])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm7)
-        elif j==4: 
-            levels = np.array([1,4,10,20,40,60,80])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm7)
-        elif j==5: 
-            levels = np.array([2,9,20,40,60,80])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
-        elif j==6: 
-            levels = np.array([2,9,18,29])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
-        elif j==7: 
-            levels = np.array([2,9,18,29])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
-        elif j==8: 
-            levels = np.array([3,7,15,22])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
-        elif j==9: 
-            levels = np.array([3,7,15,22])
-            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+        if maptype == 'total':
+            if j==0: 
+                levels = np.array([7,15,30,45])
+            elif j==1: 
+                levels = np.array([4,10,20,40,60,80])
+            elif j==2: 
+                levels = np.array([4,10,20,40,60,80])
+            elif j==3: 
+                levels = np.array([1,4,10,20,40,60,80])
+            elif j==4: 
+                levels = np.array([1,4,10,20,40,60,80])
+            elif j==5: 
+                levels = np.array([2,9,20,40,60,80])
+            elif j==6: 
+                levels = np.array([2,9,18,29])
+            elif j==7: 
+                levels = np.array([2,9,18,29])
+            elif j==8: 
+                levels = np.array([3,7,15,22])
 
-        #ax.clabel(c, inline=True, inline_spacing=0, fontsize=4, fmt='%1.1f', lw=3, ls='-')
+        elif maptype == 'comp1' or maptype == 'comp2':
+            if j==0: 
+                levels = np.array([4,7,15,30])
+            elif j==1: 
+                levels = np.array([4,7,15,30,60])
+            elif j==2: 
+                levels = np.array([3,10,15,30,50])
+            elif j==3: 
+                levels = np.array([1,4,10,15,30])
+            elif j==4: 
+                levels = np.array([1,4,10,20,30])
+            elif j==5: 
+                levels = np.array([1,5,10,20])
+            elif j==6: 
+                levels = np.array([1,5,10,19])
+            elif j==7: 
+                levels = np.array([1,5,15])
+            elif j==8: 
+                levels = np.array([1,3])
+
+        c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+        ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=3, ls='-')
 
         # remove all ticks, ticklabels, and spines
         ax.spines["top"].set_visible(False)
@@ -282,7 +291,15 @@ if __name__ == '__main__':
 
         ax.tick_params(axis="both", which="both", bottom="off", top="off", labelbottom="off", left="off", right="off", labelleft="off")
 
-    fig.savefig(taffy_dir + 'figures/vel_channel_hbeta_noclabel.eps', dpi=150, bbox_inches='tight')
+        # put in velocity range label
+        vel_range_str = str(int(vel_range_low)) + " to " + str(int(vel_range_high))
+        vel_rangebox = TextArea(vel_range_str, textprops=dict(color='k', size=9))
+        anc_vel_rangebox = AnchoredOffsetbox(loc=2, child=vel_rangebox, pad=0.0, frameon=False,\
+                                             bbox_to_anchor=(0.07, 0.1),\
+                                             bbox_transform=ax.transAxes, borderpad=0.0)
+        ax.add_artist(anc_vel_rangebox)
+
+    fig.savefig(taffy_dir + 'figures/vel_channel_hbeta_' + maptype + '_withclabel.eps', dpi=150, bbox_inches='tight')
     #plt.show()
 
     sys.exit(0)
