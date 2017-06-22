@@ -5,13 +5,14 @@ import numpy.ma as ma
 from astropy.io import fits
 import Polygon as pg
 from astropy.wcs import WCS
-from astropy.visualization.wcsaxes import WCSAxes
+from astropy.visualization import ManualInterval, ZScaleInterval, LogStretch, ImageNormalize
 
 import os
 import sys
 import time
 import datetime
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
@@ -23,7 +24,67 @@ taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
 import bpt_plots as bpt
 
+# this function to stretch the colormap by 
+# shifting its midpoint is from SO user Paul H.
+def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
+    '''
+    Function to offset the "center" of a colormap. Useful for
+    data with a negative min and positive max and you want the
+    middle of the colormap's dynamic range to be at zero
+
+    Input
+    -----
+      cmap : The matplotlib colormap to be altered
+      start : Offset from lowest point in the colormap's range.
+          Defaults to 0.0 (no lower ofset). Should be between
+          0.0 and `midpoint`.
+      midpoint : The new center of the colormap. Defaults to 
+          0.5 (no shift). Should be between 0.0 and 1.0. In
+          general, this should be  1 - vmax/(vmax + abs(vmin))
+          For example if your data range from -15.0 to +5.0 and
+          you want the center of the colormap at 0.0, `midpoint`
+          should be set to  1 - 5/(5 + 15)) or 0.75
+      stop : Offset from highets point in the colormap's range.
+          Defaults to 1.0 (no upper ofset). Should be between
+          `midpoint` and 1.0.
+    '''
+    cdict = {
+        'red': [],
+        'green': [],
+        'blue': [],
+        'alpha': []
+    }
+
+    # regular index to compute the colors
+    reg_index = np.linspace(start, stop, 257)
+
+    # shifted index to match the data
+    shift_index = np.hstack([
+        np.linspace(0.0, midpoint, 128, endpoint=False), 
+        np.linspace(midpoint, 1.0, 129, endpoint=True)
+    ])
+
+    for ri, si in zip(reg_index, shift_index):
+        r, g, b, a = cmap(ri)
+
+        cdict['red'].append((si, r, r))
+        cdict['green'].append((si, g, g))
+        cdict['blue'].append((si, b, b))
+        cdict['alpha'].append((si, a, a))
+
+    newcmap = LinearSegmentedColormap(name, cdict)
+    plt.register_cmap(cmap=newcmap)
+
+    return newcmap
+
 if __name__ == '__main__':
+
+    """
+    TO DO:
+    1. Change vel range for second component
+    2. Put in custom levels for both comonents
+    3. Make map of integrated emission
+    """
     
     # Start time
     start = time.time()
@@ -109,9 +170,11 @@ if __name__ == '__main__':
 
     fig = plt.figure(figsize=(8,8))
 
-    # color palette from colorbrewer.com
+    # color palette from colorbrewer2.org
     colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
-    cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
+    cm7 = LinearSegmentedColormap.from_list('blues', colors, N=7)
+    cm6 = LinearSegmentedColormap.from_list('blues', colors, N=6)
+    cm4 = LinearSegmentedColormap.from_list('blues', colors, N=4)
 
     # arbitrarily choosing -400 to +400 km/s as the velo range over which to show channel maps 
     # --> and the step I want for channel maps is 50 km/s to Nyquist sample the channels since the resolution 
@@ -130,12 +193,16 @@ if __name__ == '__main__':
 
         # overlay the contours on sdss image
         # get the correct sized image and normalization and plot
-        im = ax.imshow(np.log10(sdss_i[0].data), origin='lower', cmap='Greys', vmin=-0.0545, vmax=0.5)
+        norm = ImageNormalize(sdss_i[0].data, interval=ZScaleInterval(), stretch=LogStretch())
+        orig_cmap = mpl.cm.Greys
+        shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
+        im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=-0.2, vmax=6, norm=norm)
+        # FYI it looks okay even without the shifted cmap but the ability to shift it is awesome.
         # [45:-80,100:-50] is hte array slice that will be zoomed in on just the galaxies 
         # but the WCS coordinates are incorrect then
         # ok in this case, because I don't need to have tick marks for the coordinates
 
-        ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level apparently
+        ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level and able actually overplot the image and contours
 
         lon = ax.coords[0]
         lat = ax.coords[1]
@@ -158,7 +225,10 @@ if __name__ == '__main__':
 
         # avg along spectrum axis; has the same shape as only spatial dimensions # (58,58) for taffy
         vel_mean_arr = np.mean(b_line_total[vel_range_idx], axis=0)
+        # change the array here if you want to make the map for the total emission or the indiv comp
         vel_mean_arr = ma.array(vel_mean_arr, mask=all_mask)
+        vel_mean_arr = ma.filled(vel_mean_arr, fill_value=0.0)
+        vel_mean_arr = np.nan_to_num(vel_mean_arr)
 
         x = np.arange(vel_mean_arr.shape[1])
         y = np.arange(vel_mean_arr.shape[0])
@@ -167,10 +237,39 @@ if __name__ == '__main__':
         # levels have to be defined by hand for each vel range; no other option there
         # taken after first verifying with ds9
         print np.mean(blue_wav_arr[vel_range_idx])
-        levels = np.array([1,3,5,8,9,12,15])
 
-        c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
-        ax.clabel(c, inline=True, inline_spacing=2, fontsize=5, fmt='%1.2f')
+        if j==0: 
+            levels = np.array([7,15,30,45])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+        elif j==1: 
+            levels = np.array([4,10,20,40,60,80])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
+        elif j==2: 
+            levels = np.array([4,10,20,40,60,80])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
+        elif j==3: 
+            levels = np.array([1,4,10,20,40,60,80])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm7)
+        elif j==4: 
+            levels = np.array([1,4,10,20,40,60,80])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm7)
+        elif j==5: 
+            levels = np.array([2,9,20,40,60,80])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm6)
+        elif j==6: 
+            levels = np.array([2,9,18,29])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+        elif j==7: 
+            levels = np.array([2,9,18,29])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+        elif j==8: 
+            levels = np.array([3,7,15,22])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+        elif j==9: 
+            levels = np.array([3,7,15,22])
+            c = ax.contour(X, Y, vel_mean_arr, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm4)
+
+        #ax.clabel(c, inline=True, inline_spacing=0, fontsize=4, fmt='%1.1f', lw=3, ls='-')
 
         # remove all ticks, ticklabels, and spines
         ax.spines["top"].set_visible(False)
@@ -183,7 +282,7 @@ if __name__ == '__main__':
 
         ax.tick_params(axis="both", which="both", bottom="off", top="off", labelbottom="off", left="off", right="off", labelleft="off")
 
-    fig.savefig(taffy_dir + 'figures/vel_channel_hbeta.eps', dpi=150, bbox_inches='tight')
+    fig.savefig(taffy_dir + 'figures/vel_channel_hbeta_noclabel.eps', dpi=150, bbox_inches='tight')
     #plt.show()
 
     sys.exit(0)
