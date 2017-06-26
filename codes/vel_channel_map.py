@@ -24,6 +24,24 @@ taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
 import bpt_plots as bpt
 
+def make_halpha_based_mask():
+
+    taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+
+    halpha = fits.open(taffy_extdir + "products_big_cube_velsort/big_cube_2_comp_velsort_HALPHA.fits")
+    
+    halpha_comp1 = halpha[0].data[1]
+    halpha_comp2 = halpha[0].data[2]
+    
+    # first remove NaNs and then the low halpha values to get rid of noise
+    halpha_comp1_nan_idx = np.isnan(halpha_comp1)
+    halpha_comp1_lowsig_idx = np.where(halpha_comp1 <= 20.0)
+
+    halpha_comp2_nan_idx = np.isnan(halpha_comp2)
+    halpha_comp2_lowsig_idx = np.where(halpha_comp2 <= 20.0)
+
+    return halpha_comp1_nan_idx, halpha_comp1_lowsig_idx, halpha_comp2_nan_idx, halpha_comp2_lowsig_idx
+
 # this function to stretch the colormap by 
 # shifting its midpoint is from SO user Paul H.
 def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
