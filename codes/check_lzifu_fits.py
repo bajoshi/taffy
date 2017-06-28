@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_products + 'Taffy_2_comp.fits')
+    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
@@ -94,8 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 33
-    pix_y = 35
+    pix_x = 16
+    pix_y = 41
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 
@@ -122,14 +122,14 @@ if __name__ == '__main__':
     lam_b_masked = np.ma.array(lam_b, mask=mask_fit_b)
 
     if np.any(np.isfinite(line_fit_b+cont_fit_b)):
-        ax1.plot(lam_b, line_fit_b+cont_fit_b, color='b', zorder=10)
+        ax1.plot(lam_b, line_fit_b+cont_fit_b, color='b', lw=1.3, zorder=10)
     else:
         ax1.plot(lam_b, cont_fit_b, color='b', zorder=10)
 
     #ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
     #ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
     
-    ax1.plot(lam_b, flam_obs_b, '-', color='k')
+    ax1.plot(lam_b, flam_obs_b, '-', color='gray')
     #ax1.plot(lam_b, ferr_obs_b, '--', color='lightgray', linewidth=1, zorder=5)
     #ax1.axhline(y=ferr_obs_b[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax1.fill_between(lam_b, flam_obs_b + ferr_obs_b, flam_obs_b - ferr_obs_b, color='lightgray')
@@ -138,10 +138,10 @@ if __name__ == '__main__':
     print "valid wavlength indices for B, line:", np.unique(np.where(np.isfinite(line_fit_b)))
     
     trans = mtransforms.blended_transform_factory(ax1.transData, ax1.transAxes)
-    ax1.fill_between(lam_b_masked, 0, 1, facecolor='b', alpha=0.3, transform=trans)
+    #ax1.fill_between(lam_b_masked, 0, 1, facecolor='b', alpha=0.3, transform=trans)
 
     ax1.set_xlim(4800, 5300)  # old lims (4800, 5300)
-    #ax1.set_ylim(30,100)
+    #ax1.set_ylim(35,90)
 
     ax1.get_xaxis().set_ticklabels([])
     #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     ax1.grid(True)
 
     # second blue subplot
-    ax2.plot(lam_b, residfit_b, color='k')
+    ax2.plot(lam_b, residfit_b, color='gray')
 
     ax2.set_xlim(4800, 5300)
     ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''],\
@@ -185,23 +185,23 @@ if __name__ == '__main__':
     print "valid wavlength indices for R, line:", np.unique(np.where(np.isfinite(line_fit_r)))
 
     if np.any(np.isfinite(line_fit_r+cont_fit_r)):
-        ax3.plot(lam_r, line_fit_r+cont_fit_r, color='r', zorder=10)
+        ax3.plot(lam_r, line_fit_r+cont_fit_r, color='r', lw=1.3, zorder=10)
     else:
         ax3.plot(lam_r, cont_fit_r, color='r', zorder=10)
 
     #ax3.plot(lam_r, cont_fit_r, color='g', zorder=10)
     #ax3.plot(lam_r, line_fit_r, color='g', zorder=10)
 
-    ax3.plot(lam_r, flam_obs_r, '-', color='k')
+    ax3.plot(lam_r, flam_obs_r, '-', color='gray')
     #ax3.plot(lam_r, ferr_obs_r, '--', color='lightgray', linewidth=1, zorder=5)
     #ax3.axhline(y=ferr_obs_r[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax3.fill_between(lam_r, flam_obs_r + ferr_obs_r, flam_obs_r - ferr_obs_r, color='lightgray')
 
     trans = mtransforms.blended_transform_factory(ax3.transData, ax3.transAxes)
-    ax3.fill_between(lam_r_masked, 0, 1, facecolor='r', alpha=0.3, transform=trans)
+    #ax3.fill_between(lam_r_masked, 0, 1, facecolor='r', alpha=0.3, transform=trans)
 
     ax3.set_xlim(6370, 6700)  # old lims (6370, 6700)
-    #ax3.set_ylim(50,300)
+    #ax3.set_ylim(0,300)
 
     ax3.get_xaxis().set_ticklabels([])
     #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
@@ -214,7 +214,7 @@ if __name__ == '__main__':
     ax3.grid(True)
 
     # second red subplot
-    ax4.plot(lam_r, residfit_r, color='k')
+    ax4.plot(lam_r, residfit_r, color='gray')
 
     ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$')
     ax4.xaxis.set_label_coords(0.00, -0.3)
@@ -231,14 +231,14 @@ if __name__ == '__main__':
 
     plt.show()
 
-    #fig.savefig(ipac_taffy_figdir + 'lzifu_fit_pix_ds9xy_' + str(pix_x) + '_' + str(pix_y) + '.png',\
+    #fig.savefig(ipac_taffy_figdir + 'lzifu_fit_pix_ds9xy_' + str(pix_x) + '_' + str(pix_y) + '_gray.eps',\
     # dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
     plt.close()
 
-    # overplot
+    # overplot two pixels
     """
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -246,7 +246,7 @@ if __name__ == '__main__':
     flam_obs_b1 = obs_data_b[:,arr_x,arr_y]
     flam_obs_b2 = obs_data_b[:,arr_x+1,arr_y]
 
-    ax.plot(lam_b, flam_obs_b1, '-', color='k')
+    ax.plot(lam_b, flam_obs_b1, '-', color='gray')
     ax.plot(lam_b, flam_obs_b2-50, '-', color='r')
 
     ax.set_xlim(4600, 5400)

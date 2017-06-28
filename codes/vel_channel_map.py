@@ -95,6 +95,177 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
 
     return newcmap
 
+def create_vel_vdisp_maps(vel_hdu, vdisp_hdu):
+    """
+    For vel comp maps --
+    I think these maps just need the lzifu pixels filled in.
+    At least, at the edge of the defined region -- vel_comp.reg.
+
+    The vel comp maps 
+
+    """
+
+    # assign components
+    vel_comp1 = vel_hdu[0].data[1]
+    vel_comp2 = vel_hdu[0].data[2]
+
+    vdisp_comp1 = vdisp_hdu[0].data[1]
+    vdisp_comp2 = vdisp_hdu[0].data[2]
+
+    # make and apply halpha based masks to vel and vdisp maps
+    halpha_comp1_nan_idx, halpha_comp1_lowsig_idx, halpha_comp2_nan_idx, halpha_comp2_lowsig_idx = make_halpha_based_mask()
+
+    #vel_comp1[halpha_comp1_nan_idx]= None
+    #vel_comp1[halpha_comp1_lowsig_idx] = None
+
+    #vel_comp2[halpha_comp2_nan_idx]= np.nan
+    #vel_comp2[halpha_comp2_lowsig_idx] = np.nan
+
+    # or this way...
+    vel_comp_mask = get_region_mask('vel_comp')
+    
+    vel_comp1 = ma.array(vel_comp1, mask=vel_comp_mask)
+    vel_comp2 = ma.array(vel_comp2, mask=vel_comp_mask)
+    #vel_comp1 = ma.filled(vel_comp1, fill_value=-500.0)
+    #vel_comp1 = np.nan_to_num(vel_comp1)
+
+    # make contour maps overlaid on sdss image
+    # first get sdss image and wcs from image and contour
+    sdss_i, wcs_sdss = get_sdss('i')
+    h, wcs_lzifu = get_lzifu_products()
+
+    # see comments in the main code to uderstand whats happening here
+    # this is just repeated code
+    # ---------------- velocity component 1 ---------------- #
+    #fig, ax = plot_sdss_image(sdss_i, wcs_sdss)
+    #cm = get_colorbrewer_cm()
+
+    #x = np.arange(vel_comp1.shape[1])
+    #y = np.arange(vel_comp1.shape[0])
+    #X, Y = np.meshgrid(x, y)
+
+    #levels = np.array([-225,-200,-150,-100,-50,0,50,100,150,200,225])
+    #c = ax.contour(X, Y, vel_comp1, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+
+    #fig.savefig(taffy_dir + 'figures/vel_comp1.eps', dpi=300, bbox_inches='tight')
+
+    ## ---------------- velocity component 2 ---------------- #
+    #fig, ax = plot_sdss_image(sdss_i, wcs_sdss)
+    #cm = get_colorbrewer_cm()
+
+    #x = np.arange(vel_comp2.shape[1])
+    #y = np.arange(vel_comp2.shape[0])
+    #X, Y = np.meshgrid(x, y)
+
+    #levels = np.array([-250,-225,-200,-150,-100,-50,0,50,100,150,200,225,250,275,300,325,350,375,400])
+    #c = ax.contour(X, Y, vel_comp2, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+
+    #fig.savefig(taffy_dir + 'figures/vel_comp2.eps', dpi=300, bbox_inches='tight')
+
+    # ------------------------------ velocity dispersion component 1 ------------------------------ #
+    fig, ax = plot_sdss_image(sdss_i, wcs_sdss)
+    cm = get_colorbrewer_cm()
+
+    x = np.arange(vdisp_comp1.shape[1])
+    y = np.arange(vdisp_comp1.shape[0])
+    X, Y = np.meshgrid(x, y)
+
+    vdisp_comp1 = ma.array(vdisp_comp1, mask=vel_comp_mask)
+    vdisp_comp1 = ma.filled(vdisp_comp1, fill_value=0.0)
+    vdisp_comp1 = np.nan_to_num(vdisp_comp1)
+
+    levels = np.array([25,50,100,125,150,200])
+    c = ax.contour(X, Y, vdisp_comp1, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+
+    fig.savefig(taffy_dir + 'figures/vdisp_comp1.eps', dpi=300, bbox_inches='tight')
+
+    # ------------------------------ velocity dispersion component 1 ------------------------------ #
+    fig, ax = plot_sdss_image(sdss_i, wcs_sdss)
+    cm = get_colorbrewer_cm()
+
+    x = np.arange(vdisp_comp2.shape[1])
+    y = np.arange(vdisp_comp2.shape[0])
+    X, Y = np.meshgrid(x, y)
+
+    vdisp_comp2 = ma.array(vdisp_comp2, mask=vel_comp_mask)
+    vdisp_comp2 = ma.filled(vdisp_comp2, fill_value=0.0)
+    vdisp_comp2 = np.nan_to_num(vdisp_comp2)
+
+    levels = np.array([25,50,75,100,125,150,200])
+    c = ax.contour(X, Y, vdisp_comp2, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+
+    fig.savefig(taffy_dir + 'figures/vdisp_comp2.eps', dpi=300, bbox_inches='tight')
+
+    return None
+
+def plot_sdss_image(sdss_hdu, wcs_sdss):
+
+    fig = plt.figure(figsize=(8,8))
+    ax = fig.add_subplot(111, projection=wcs_sdss)
+
+    norm = ImageNormalize(sdss_hdu[0].data, interval=ZScaleInterval(), stretch=LogStretch())
+    orig_cmap = mpl.cm.Greys
+    shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
+    im = ax.imshow(sdss_hdu[0].data, origin='lower', cmap=shifted_cmap, vmin=-0.2, vmax=6, norm=norm)
+
+    ax.set_autoscale_on(False)
+
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+
+    lon.set_ticks_visible(False)
+    lon.set_ticklabel_visible(False)
+    lat.set_ticks_visible(False)
+    lat.set_ticklabel_visible(False)
+    lon.set_axislabel('')
+    lat.set_axislabel('')
+
+    ax.coords.frame.set_color('None')
+
+    return fig, ax
+
+def get_colorbrewer_cm():
+
+    colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
+    cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
+
+    return cm
+
+def get_sdss(band):
+
+    # make sure that this cutout exists!
+    # check code called create_sdss_cutout.py to make cutout
+    sdss_hdu = fits.open(taffy_dir + 'SDSS/sdss_' + band + '_cutout.fits')
+    wcs_sdss = WCS(sdss_hdu[0].header)
+
+    return sdss_hdu, wcs_sdss
+
+def get_lzifu_products():
+
+    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    wcs_lzifu = WCS(h['B_LINE'].header)
+    wcs_lzifu = wcs_lzifu.sub(['longitude', 'latitude'])
+    # from the header it seems like the wcs is same for both red and blue channels; as it should be
+
+    return h, wcs_lzifu
+
+def get_region_mask(regionname):
+
+    # mask elements where LZIFU gave NaNs
+    region_file = open(taffy_extdir + regionname + '.reg')
+    region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
+    region_list = region_list.astype(np.float64)
+    region_file.close()
+
+    pn_list = []
+    for i in range(0,len(region_list),2):
+        pn_list.append([int(round(region_list[i])),int(round(region_list[i+1]))])
+
+    region_pn = pg.Polygon(pn_list)
+    regionmask = bpt.getregionmask(region_pn, (58,58), "region.")
+
+    return regionmask
+
 if __name__ == '__main__':
     
     # Start time
@@ -105,15 +276,18 @@ if __name__ == '__main__':
     # constants:
     lightspeed = 299792.458  # km/s
 
+    # read in velocity and velocity dispersion maps
+    vel_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_V.fits')
+    vdisp_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
+
+    create_vel_vdisp_maps(vel_hdu, vdisp_hdu)
+    sys.exit(0)
+
     # read in i band SDSS image
-    sdss_i = fits.open(taffy_dir + 'SDSS/sdss_i_cutout.fits')
-    wcs_sdss = WCS(sdss_i[0].header)
+    sdss_i, wcs_sdss = get_sdss('i')
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
-    wcs_lzifu = WCS(h['B_LINE'].header)
-    wcs_lzifu = wcs_lzifu.sub(['longitude', 'latitude'])
-    # from the header it seems like the wcs is same for both red and blue channels; as it should be 
+    h, wcs_lzifu = get_lzifu_products()
 
     # assign line arrays for the total and each component
     # -------------- total -------------- #
@@ -145,18 +319,8 @@ if __name__ == '__main__':
     red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
     red_wav_arr = np.asarray(red_wav_arr)
 
-    # mask elements where LZIFU gave NaNs
-    region_file = open(taffy_extdir + 'all_possibly_notnan_pixels.reg')
-    region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
-    region_list = region_list.astype(np.float64)
-    region_file.close()
-
-    pn_list = []
-    for i in range(0,len(region_list),2):
-        pn_list.append([int(round(region_list[i])),int(round(region_list[i+1]))])
-
-    region_pn = pg.Polygon(pn_list)
-    all_mask = bpt.getregionmask(region_pn, (58,58), "region.")
+    # get mask of all possible not NaN pixels
+    all_mask = get_region_mask('all_possibly_notnan_pixels')
 
     # select a line to draw contours for
     # make sure that its rest wavelength is its wavelength in air!! the IFU data was taken on the ground
@@ -182,8 +346,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(8,8))
 
     # color palette from colorbrewer2.org
-    colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
-    cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
+    cm = get_colorbrewer_cm()
 
     # arbitrarily choosing -400 to +400 km/s as the velo range over which to show channel maps 
     # --> and the step I want for channel maps is 50 km/s to Nyquist sample the channels since the resolution 
