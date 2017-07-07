@@ -203,9 +203,7 @@ def check_mappings_field(model, fieldname):
 
 def mappings_oi_nii_sii():
 
-    all_abun_n = ['M_n1_', 'T_n0_01_', 'U_n0_1_', 'V_n10_', 'L_n100_', 'S_n1000_']  # all solar abundances
-
-    #all_abun_n = ['U_n0_1_', 'V_n10_', 'L_n100_']
+    #all_abun_n = ['M_n1_', 'T_n0_01_', 'U_n0_1_', 'V_n10_', 'L_n100_', 'S_n1000_']  # all solar abundances
 
     mappings_oi_halpha_v100 = []
     mappings_oi_halpha_v125 = []
@@ -385,8 +383,8 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in lzifu output file
-    h = fits.open(taffy_products + 'old_cube_2_comp_velsort.fits')
-    hdu_vdisp = fits.open(taffy_products + 'old_cube_2_comp_velsort_VDISP.fits')
+    h = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')
+    hdu_vdisp = fits.open(taffy_products + 'big_cube_2_comp_velsort_VDISP.fits')
 
     # loop over extensions 
     total_ext = fcj.get_total_extensions(h)
@@ -638,18 +636,18 @@ if __name__ == '__main__':
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_nii_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
-    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
-    ax.plot(mappings_nii_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
-    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
-    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
-    ax.plot(mappings_nii_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
-    ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
-    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
-    ax.plot(mappings_nii_halpha_v350, mappings_oiii_hbeta_v350, label='350 km/s')
-    ax.plot(mappings_nii_halpha_v400, mappings_oiii_hbeta_v400, label='400 km/s')
-    ax.plot(mappings_nii_halpha_v450, mappings_oiii_hbeta_v450, label='450 km/s')
-    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, label='500 km/s')
+    ax.plot(mappings_nii_halpha_v100, mappings_oiii_hbeta_v100, '.-', label='100 km/s')
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', label='125 km/s')
+    ax.plot(mappings_nii_halpha_v150, mappings_oiii_hbeta_v150, '.-', label='150 km/s')
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', label='175 km/s')
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', label='200 km/s')
+    ax.plot(mappings_nii_halpha_v225, mappings_oiii_hbeta_v225, '.-', label='225 km/s')
+    ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, '.-', label='250 km/s')
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', label='300 km/s')
+    ax.plot(mappings_nii_halpha_v350, mappings_oiii_hbeta_v350, '.-', label='350 km/s')
+    ax.plot(mappings_nii_halpha_v400, mappings_oiii_hbeta_v400, '.-', label='400 km/s')
+    ax.plot(mappings_nii_halpha_v450, mappings_oiii_hbeta_v450, '.-', label='450 km/s')
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', label='500 km/s')
 
     ax.legend(loc=0, prop={'size':8})
 
@@ -707,14 +705,14 @@ if __name__ == '__main__':
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_oi_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
-    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
-    ax.plot(mappings_oi_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
-    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
-    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
-    ax.plot(mappings_oi_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
-    ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
-    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
+    ax.plot(mappings_oi_halpha_v100, mappings_oiii_hbeta_v100, '.-', label='100 km/s')
+    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', label='125 km/s')
+    ax.plot(mappings_oi_halpha_v150, mappings_oiii_hbeta_v150, '.-', label='150 km/s')
+    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', label='175 km/s')
+    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', label='200 km/s')
+    ax.plot(mappings_oi_halpha_v225, mappings_oiii_hbeta_v225, '.-', label='225 km/s')
+    ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, '.-', label='250 km/s')
+    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', label='300 km/s')
 
     ax.legend(loc=0, prop={'size':8})
 
@@ -771,14 +769,14 @@ if __name__ == '__main__':
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_sii_halpha_v100, mappings_oiii_hbeta_v100, label='100 km/s')
-    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, label='125 km/s')
-    ax.plot(mappings_sii_halpha_v150, mappings_oiii_hbeta_v150, label='150 km/s')
-    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, label='175 km/s')
-    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, label='200 km/s')
-    ax.plot(mappings_sii_halpha_v225, mappings_oiii_hbeta_v225, label='225 km/s')
-    ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, label='250 km/s')
-    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, label='300 km/s')
+    ax.plot(mappings_sii_halpha_v100, mappings_oiii_hbeta_v100, '.-', label='100 km/s')
+    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', label='125 km/s')
+    ax.plot(mappings_sii_halpha_v150, mappings_oiii_hbeta_v150, '.-', label='150 km/s')
+    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', label='175 km/s')
+    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', label='200 km/s')
+    ax.plot(mappings_sii_halpha_v225, mappings_oiii_hbeta_v225, '.-', label='225 km/s')
+    ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, '.-', label='250 km/s')
+    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', label='300 km/s')
 
     ax.legend(loc=0, prop={'size':8})
 

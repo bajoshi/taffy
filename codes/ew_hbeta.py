@@ -18,7 +18,7 @@ taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
 import bpt_plots as bpt
 
-def test_pix(blue_cont):
+def plot_pix(blue_cont):
 
     pix_x = 18
     pix_y = 39
@@ -41,6 +41,50 @@ def get_pn(region_list):
 
     return pg.Polygon(pn_list)
 
+def plot_map(ew_map, ew_map_north, ew_map_south):
+
+    # combine masks and plot
+    comb_mask = (north_mask == 1) & (south_mask == 1)
+
+    nan_idx = np.where(ew_map < 0.1)
+    ew_map[nan_idx] = np.nan
+    ew_map = ma.array(ew_map, mask=comb_mask)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    cax = ax.imshow(ew_map, vmin=6.5, vmax=20, cmap='coolwarm', origin='lower')
+    fig.colorbar(cax)
+
+    plt.show()
+
+    return None
+
+def read_map_and_plot(north_mask, south_mask):
+
+    # load previously saved ew map
+    ew_map = np.load(taffy_extdir + 'ew_map.npy')
+
+    # plot
+    plot_map(ew_map, north_mask, south_mask)
+
+    return None
+
+def save_map_as_fits(blue_cont_hdu, north_mask, south_mask):
+
+    ew_map = np.load(taffy_extdir + 'ew_map.npy')
+
+    nan_idx = np.where(ew_map < 0.1)
+    ew_map[nan_idx] = np.nan
+
+    comb_mask = (north_mask == 1) & (south_mask == 1)
+    ew_map[comb_mask] = np.nan
+
+    hdu = fits.PrimaryHDU(data=ew_map, header=blue_cont_hdu.header)
+    hdu.writeto(taffy_extdir + 'ew_map.fits', clobber=True)
+
+    return None
+
 if __name__ == '__main__':
 
     # read in lzifu output file
@@ -49,7 +93,7 @@ if __name__ == '__main__':
     blue_cont = h['B_CONTINUUM'].data
 
     # mask elements where LZIFU gave NaNs
-    region_file = open(taffy_extdir + 'NS_2017new_xy.reg')
+    region_file = open(taffy_extdir + 'NS_EW.reg')
 
     for line in region_file.readlines()[3:]:
 
@@ -65,6 +109,10 @@ if __name__ == '__main__':
             south_mask = bpt.getregionmask(south_pn, (58,58), "South galaxy region.")
 
     region_file.close()
+
+    read_map_and_plot(north_mask, south_mask)
+    #save_map_as_fits(h['B_CONTINUUM'], north_mask, south_mask)
+    sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -93,12 +141,6 @@ if __name__ == '__main__':
             pix_y = i + 1
 
             #print "On ds9 pixel (x,y):", pix_x, pix_y
-
-            # checks to see that the pixel is not masked and 
-            # that no elements in the fitting array are NaN
-            #if all_mask[i,j]:
-            #    ew_map[i,j] = np.nan
-            #    continue
 
             if all(np.isnan(blue_cont[:,i,j])):
                 ew_map[i,j] = np.nan
@@ -172,24 +214,11 @@ if __name__ == '__main__':
             else:
                 abs_area_analytic = 0.0
 
-            ew_map[i,j] = abs_area_analytic #/ cont_mean
+            ew_map[i,j] = abs_area_analytic
 
-            #print abs_area_analytic, abs_area
-            #print cont_mean
-            #print ew_map[i,j]
-            #sys.exit(0)
+    # save map as numpy array
+    np.save(taffy_extdir + 'ew_map.npy', ew_map)
 
-    #ew_map = ma.array(ew_map, mask=all_mask)
-
-    ew_map_north = ma.array(ew_map, mask=north_mask)
-    ew_map_south = ma.array(ew_map, mask=south_mask)
-
-    plt.imshow(ew_map_north, cmap='viridis', origin='lower')
-    plt.colorbar()
-    plt.show()
-
-    plt.imshow(ew_map_south, cmap='viridis', origin='lower')
-    plt.colorbar()
-    plt.show()
+    plot_map(ew_map, north_mask, south_mask)
 
     sys.exit(0)
