@@ -245,7 +245,7 @@ def get_lzifu_products():
     h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
     wcs_lzifu = WCS(h['B_LINE'].header)
     wcs_lzifu = wcs_lzifu.sub(['longitude', 'latitude'])
-    # from the header it seems like the wcs is same for both red and blue channels; as it should be
+    # from the header it seems like the wcs is same for both red and blue channel products; as it should be
 
     return h, wcs_lzifu
 

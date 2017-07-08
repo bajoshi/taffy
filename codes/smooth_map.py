@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
             taffy_map[0].data[i] = convolve(taffy_map[0].data[i], kernel, boundary='extend')
     
-    # currently assuming that the noise decreases because of the smoothing by a blanket factor of 1.25
-    taffy_map[1].data /= 2
+        # currently assuming that the noise decreases because of the smoothing by a blanket factor of 1.25
+        taffy_map[1].data /= 2
 
     taffy_b.writeto('/Volumes/Bhavins_backup/phil/TAFFY/data/Taffy_B.fits', output_verify='ignore', clobber=True)
     taffy_r.writeto('/Volumes/Bhavins_backup/phil/TAFFY/data/Taffy_R.fits', output_verify='ignore', clobber=True)
