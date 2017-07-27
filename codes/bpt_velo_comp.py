@@ -31,6 +31,22 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
 
     ax.set_ylabel(r'$\mathrm{log\left( \frac{[OIII]}{H\beta} \right)}$', fontsize=15)
 
+    # read in Mappings III models and overplot
+    mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
+    mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
+    mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+    mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
+    mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
+    mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
+    mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
+        mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
+        mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
+        mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
+        mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+        mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
+        mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
+        mappings_sii_halpha_v250, mappings_sii_halpha_v300 = bpt.mappings_oi_nii_sii()
+
     if plottype == 'nii':
         ax.set_xlabel(r'$\mathrm{log\left( \frac{[NII]}{H\alpha} \right)}$', fontsize=15)
 
@@ -43,6 +59,11 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
 
         ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
+
+        ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
+        ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
+        ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
+        ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
 
         ax.set_xlim(-1,0.3)
         ax.set_ylim(-1,1)
@@ -79,6 +100,11 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
+        ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
+        ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
+        ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
+        ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+
         ax.set_xlim(-2.0,0)
         ax.set_ylim(-1,1)
 
@@ -114,6 +140,11 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
+        ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
+        ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
+        ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
+        ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+
         ax.set_xlim(-1,0.5)
         ax.set_ylim(-1,1)
 
@@ -135,6 +166,8 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
                                              bbox_to_anchor=(0.22, 0.3),\
                                              bbox_transform=ax.transAxes, borderpad=0.0)
         ax.add_artist(anc_hiibox)
+
+    ax.legend(loc=0, prop={'size':10})
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
@@ -360,12 +393,12 @@ if __name__ == '__main__':
     oiii_hbeta_for_sii_withcut_south_comp2 = ma.array(oiii_hbeta_for_sii_withcut_comp2, mask=south_mask)
 
     # spatial mapping 
-    spatial_mask, spatial_mask_idx = \
-    bpt_range_to_spatial(nii_halpha_withcut_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, [-0.3,-0.05], [-0.2,0.0])
+    #spatial_mask, spatial_mask_idx = \
+    #bpt_range_to_spatial(nii_halpha_withcut_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, [-0.3,-0.05], [-0.2,0.0])
     #plt.imshow(spatial_mask, origin='lower')
     #plt.show()
-    overlay_spatial_mask_on_sdss(spatial_mask_idx)
-    sys.exit(0)
+    #overlay_spatial_mask_on_sdss(spatial_mask_idx)
+    #sys.exit(0)
 
     # plot bpt diagrams
     # BPT with [NII]
