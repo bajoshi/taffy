@@ -19,6 +19,18 @@ taffydir = home + '/Desktop/ipac/taffy/'
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
 
+speed_of_light = 299792.458  # km/s
+
+def plot_indices(idx):
+
+    dummy = np.zeros((58,58))
+    dummy[idx] = 1.0
+
+    plt.imshow(dummy, origin='lower', cmap='Greys')
+    plt.show()
+
+    return None
+
 if __name__ == '__main__':
     
     # Start time
@@ -75,20 +87,45 @@ if __name__ == '__main__':
     # I think the rest of the bridge can be fit with a single Gaussian.
 
     # create wavelength array
-    # I read these data from the header
-    delt = 0.3  # the wav axis is sampled at 0.3A
-    blue_wav_start = 4662
+    # I read these data from the corresponding headers
+    delt_b = 0.3  # i.e. the wav axis is sampled at 0.3A
+    blue_wav_start = 4662.0
     total_blue_res_elem = 2227
+    blue_res = 1.6
 
-    blue_wav_arr = [blue_wav_start + delt*i for i in range(total_blue_res_elem)]
+    blue_wav_arr = [blue_wav_start + delt_b*i for i in range(total_blue_res_elem)]
     blue_wav_arr = np.asarray(blue_wav_arr)
+
+    # red wav arr
+    delt_r = 0.3  # i.e. the wav axis is sampled at 0.3A
+    red_wav_start = 6165.0
+    total_red_res_elem = 2350
+    red_res = 1.5
+
+    red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
+    red_wav_arr = np.asarray(red_wav_arr)
 
     # find hbeta index in wavelength array
     redshift = 0.0145  # average z
-    linename = 'oiii5007'
-    line_air_wav = 5006.84  # 5006.84 for oiii5007  # 4861.363 for hbeta
-    line_wav = line_air_wav*(1+redshift)
-    line_idx = np.argmin(abs(blue_wav_arr - line_wav))
+    linename = 'halpha'
+    line_air_wav = 6562.80  # 6562.80 for halpha  # 5006.84 for oiii5007  # 4861.363 for hbeta
+    channel = 'red'
+
+    if channel == 'blue':
+        wav_arr = blue_wav_arr
+        line_comp1 = b_line_comp1
+        line_comp2 = b_line_comp2
+        line_total = b_line
+        obs_data = obs_data_b
+        data_res = blue_res
+
+    elif channel == 'red':
+        wav_arr = red_wav_arr
+        line_comp1 = r_line_comp1
+        line_comp2 = r_line_comp2
+        line_total = r_line
+        obs_data = obs_data_r
+        data_res = red_res
 
     # loop over all spaxels and fit a gaussian to the individual line fits
     # initialize arrays for saving fit parameters
@@ -102,34 +139,43 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 24
-    pix_y = 39
+    pix_x = 50
+    pix_y = 33
     arr_x = pix_y - 1
     arr_y = pix_x - 1
+    box_size = 3
 
     # start looping
     count = 0
-    for i in range(58):  #(arr_x, arr_x + 3):  # If you want to analyze a 3x3 block enter the pix coords of the low left corner above
-        for j in range(58):  #(arr_y, arr_y + 3):
+    for i in range(58):  # (arr_x, arr_x + box_size):  # If you want to analyze a 3x3 block enter the pix coords of the low left corner above
+        for j in range(58):  # (arr_y, arr_y + box_size):
 
             # slice array to get only region containing line
-            linepad = 50
-            line_y_arr_comp1 = b_line_comp1[line_idx-linepad:line_idx+linepad, i, j]
-            line_x_arr_comp1 = np.linspace(line_idx-linepad, line_idx+linepad, len(line_y_arr_comp1))
+            linepad_left = 35
+            linepad_right = 50
+            # find the center of the biggest peak and call that the line idx
+            line_wav = line_air_wav*(1+redshift)
+            line_idx = np.argmin(abs(wav_arr - line_wav))
+            max_val_idx = np.argmax(obs_data[line_idx-80: line_idx+80, i, j])
+            line_idx = line_idx-80+max_val_idx
 
-            line_y_arr_comp2 = b_line_comp2[line_idx-linepad:line_idx+linepad, i, j]
-            line_x_arr_comp2 = np.linspace(line_idx-linepad, line_idx+linepad, len(line_y_arr_comp2))
+            line_y_arr_comp1 = line_comp1[line_idx-linepad_left:line_idx+linepad_right, i, j]
+            line_x_arr_comp1 = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_comp1))
+
+            line_y_arr_comp2 = line_comp2[line_idx-linepad_left:line_idx+linepad_right, i, j]
+            line_x_arr_comp2 = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_comp2))
 
             # fitting
-            gauss_init = models.Gaussian1D(amplitude=5.0, mean=line_idx, stddev=5.0)
+            gauss_init_lowcomp = models.Gaussian1D(amplitude=5.0, mean=line_idx-10, stddev=5.0)
+            gauss_init_highcomp = models.Gaussian1D(amplitude=5.0, mean=line_idx+10, stddev=5.0)
             fit_gauss = fitting.LevMarLSQFitter()
 
-            g1 = fit_gauss(gauss_init, line_x_arr_comp1, line_y_arr_comp1)
-            g2 = fit_gauss(gauss_init, line_x_arr_comp2, line_y_arr_comp2)
+            g1 = fit_gauss(gauss_init_lowcomp, line_x_arr_comp1, line_y_arr_comp1)
+            g2 = fit_gauss(gauss_init_highcomp, line_x_arr_comp2, line_y_arr_comp2)
 
             # also fit raw data by a single gaussian
-            line_y_arr_single_gaussfit = obs_data_b[line_idx-linepad:line_idx+linepad, i, j]
-            g = fit_gauss(gauss_init, line_x_arr_comp1, line_y_arr_single_gaussfit)
+            line_y_arr_data = obs_data[line_idx-linepad_left:line_idx+linepad_right, i, j]
+            g = fit_gauss(gauss_init_lowcomp, line_x_arr_comp1, line_y_arr_data)
 
             # save in arrays
             amp_comp1[i,j] = g1.parameters[0]
@@ -144,13 +190,16 @@ if __name__ == '__main__':
 
             #print amp_comp2[i,j], vel_comp2[i,j], std_comp2[i,j]
 
+            """
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
-            #print "mean diff", vel_comp2[i,j] - vel_comp1[i,j]
-            #print "std diff", std_comp2[i,j] - std_comp1[i,j]
+            print "at pixel", i, j
+            print "mean diff", (((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light
+            print "std devs", std_comp2[i,j], std_comp1[i,j]
+            print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))))
+            print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))))
+            print '\n' 
 
             # plot to check
-            # comp 1
-            """
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
@@ -160,10 +209,10 @@ if __name__ == '__main__':
             ax.plot(line_x_arr_comp2, line_y_arr_comp2, '.', color='r')
             ax.plot(line_x_arr_comp2, g2(line_x_arr_comp2), ls='--', color='r', lw=2)
 
-            ax.plot(line_x_arr_comp1, b_line[line_idx-linepad:line_idx+linepad, i, j], color='k')
+            ax.plot(line_x_arr_comp1, line_total[line_idx-linepad_left:line_idx+linepad_right, i, j], color='k')
 
             # also showing the raw data and *MY* single gaussian fit to the raw data
-            ax.plot(line_x_arr_comp1, line_y_arr_single_gaussfit, color='gray')
+            ax.plot(line_x_arr_comp1, line_y_arr_data, color='gray')
             ax.plot(line_x_arr_comp1, g(line_x_arr_comp1), ls='--', color='g', lw=2)
 
             plt.show()
@@ -171,8 +220,6 @@ if __name__ == '__main__':
             plt.cla()
             plt.close()
             """
-
-            #if count == 2: sys.exit(0)
 
             count += 1
 
@@ -200,6 +247,49 @@ if __name__ == '__main__':
     amp_diff = np.ma.filled(amp_diff, fill_value=np.nan)
     mean_diff = np.ma.filled(mean_diff, fill_value=np.nan)
     std_diff = np.ma.filled(std_diff, fill_value=np.nan)
+
+    # now save the different cases separately (see action_items.txt for more details)
+    # first convert mean diff arr to units of km/s
+    # currently it is sampled at 0.3A so multiplying by that gives the diff in Angstroms
+    # convert angstroms to km/s by using line wav and speed of light
+    mean_diff *= 0.3
+    mean_diff = (mean_diff / line_air_wav) * speed_of_light
+
+    # I'm puting the std values in abs() because I noticed that some std 
+    # values are negative. I have no idea why, for now.
+    #std_comp1 = np.absolute(std_comp1)
+    #std_comp2 = np.absolute(std_comp2)
+
+    # 1. if mean and std are not too different ==> there is only a single comp
+    single_idx = np.where((mean_diff < 45) & (std_comp2 < 1.5 * std_comp1))
+    plot_indices(single_idx)
+
+    # 2. Different mean but same std ==> There are two components
+    diffmean_idx = np.where((mean_diff >= 45) & (std_comp2 < 1.5 * std_comp1))
+    large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) >= (data_res / line_air_wav) * speed_of_light)
+    print diffmean_idx
+    print large_stddiff_idx
+    sys.exit(0)
+
+    plot_indices(diffmean_idx)
+
+    # 3. Different std but same mean ==> There are two components
+    diffstd_idx = np.where((mean_diff < 45) & (std_comp2 >= 1.5 * std_comp1))
+    plot_indices(diffstd_idx)
+
+    # 4. Different mean and std ==> There are two components
+    diffboth_idx = np.where((mean_diff >= 45) & (std_comp2 >= 1.5 * std_comp1))
+    plot_indices(diffboth_idx)
+
+    # save all cases
+    all_cases_hdu = fits.HDUList()
+    all_cases_hdu.append(fits.ImageHDU(data=single_idx))
+    all_cases_hdu.append(fits.ImageHDU(data=diffmean_idx))
+    all_cases_hdu.append(fits.ImageHDU(data=diffstd_idx))
+    all_cases_hdu.append(fits.ImageHDU(data=diffboth_idx))
+    all_cases_hdu.writeto(savedir + 'all_cases_indices.fits', clobber=True)
+
+    sys.exit(0)
 
     # save differences as fits file
     new_hdu = fits.PrimaryHDU(data=amp_diff)
