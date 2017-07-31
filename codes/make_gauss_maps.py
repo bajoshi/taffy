@@ -309,13 +309,20 @@ if __name__ == '__main__':
 
     # save all cases
     all_cases_hdu = fits.PrimaryHDU()
+    hdr = fits.Header()
     all_cases_hdulist = fits.HDUList(all_cases_hdu)
-    all_cases_hdulist.append(fits.ImageHDU(data=comp1_inv_idx))
-    all_cases_hdulist.append(fits.ImageHDU(data=comp2_inv_idx))
-    all_cases_hdulist.append(fits.ImageHDU(data=single_idx_arr))
-    all_cases_hdulist.append(fits.ImageHDU(data=diffmean_idx_arr))
-    all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr))
-    all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr))
+    hdr['EXTNAME'] = 'COMP1_INV'
+    all_cases_hdulist.append(fits.ImageHDU(data=comp1_inv_idx, header=hdr))
+    hdr['EXTNAME'] = 'COMP2_INV'
+    all_cases_hdulist.append(fits.ImageHDU(data=comp2_inv_idx, header=hdr))
+    hdr['EXTNAME'] = 'SINGLE_IDX'
+    all_cases_hdulist.append(fits.ImageHDU(data=single_idx_arr, header=hdr))
+    hdr['EXTNAME'] = 'DIFFMEAN_IDX'
+    all_cases_hdulist.append(fits.ImageHDU(data=diffmean_idx_arr, header=hdr))
+    hdr['EXTNAME'] = 'DIFFSTD_IDX'
+    all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr, header=hdr))
+    hdr['EXTNAME'] = 'DIFFBOTH_IDX'
+    all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
     all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', clobber=True)
 
     # save differences as fits file
