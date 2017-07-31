@@ -28,12 +28,13 @@ if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits'
+    filepath = taffy_extdir + 'baj_gauss_fits_to_lzifu_linefits/stitched_cube.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
 
-    print "Separating extensions from file:", filename_noext, "in directory:", os.path.dirname(filepath)
+    basedir = os.path.dirname(filepath) + '/'
+    print "Separating extensions from file:", filename_noext, "in directory:", basedir
 
     total_ext = fcj.get_total_extensions(hdulist)
 
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 
         new_hdulist = fits.HDUList()
         new_hdulist.append(fits.ImageHDU(data=hdulist[i+1].data, header=hdulist[i+1].header))
-        new_hdulist.writeto(taffy_extdir + 'products_big_cube_velsort/' + ext_filename, clobber=True)
+        new_hdulist.writeto(basedir + ext_filename, clobber=True)
 
     hdulist.close()
     sys.exit(0)

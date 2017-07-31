@@ -13,6 +13,34 @@ taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 taffydir = home + '/Desktop/ipac/taffy/'
 savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
 
+def single_comp_stitch(extnames, stitched_cube, single_comp, arr_x, arr_y, blue_shape, red_shape, line_shape):
+
+    for k in range(38):
+        if 'COMP1' in extnames[k]:
+            stitched_cube[extnames[k]].data[:,arr_x,arr_y] = single_comp[extnames[k]].data[:,arr_x,arr_y]
+        elif 'COMP2' in extnames[k]:
+            if 'B_LINE_COMP2' in extnames[k]:
+                stitched_cube[extnames[k]].data[:,arr_x,arr_y] = np.ones(blue_shape[0]) * -9999.0
+            elif 'R_LINE_COMP2' in extnames[k]:
+                stitched_cube[extnames[k]].data[:,arr_x,arr_y] = np.ones(red_shape[0]) * -9999.0
+        else:
+            shape = stitched_cube[extnames[k]].data.shape
+            if (shape == blue_shape) or (shape == red_shape):
+                stitched_cube[extnames[k]].data[:,arr_x,arr_y] = single_comp[extnames[k]].data[:,arr_x,arr_y]
+            elif (shape == (3, 58, 38)) or (shape == (2, 58, 58)):
+                # This elif part was put in because the single comp fits have line cubes which are shaped
+                # as (2, 58, 58) and the two comp fits have lines cubes shaped as (3, 58, 58).
+                # What I'm trying to do here is to first take all the 3 values that are present in the 
+                # stitched cube at a given pixel and replace them by -9999.0. Then I keep the first one 
+                # (i.e. zeroth index) as -9999.0 and replace the next two with data from the single comp
+                # fit which can now be done with the correct shape. 
+                stitched_cube[extnames[k]].data[:,arr_x,arr_y] = np.ones(shape[0]) * -9999.0
+                stitched_cube[extnames[k]].data[1:,arr_x,arr_y] = single_comp[extnames[k]].data[:,arr_x,arr_y]
+            elif shape == (58, 58):
+                stitched_cube[extnames[k]].data[arr_x,arr_y] = single_comp[extnames[k]].data[arr_x,arr_y]
+
+    return stitched_cube
+
 if __name__ == '__main__':
     
     # read in indices file
@@ -29,7 +57,7 @@ if __name__ == '__main__':
     single_comp = fits.open(taffy_extdir + 'products/Taffy_1_comp.fits')
     two_comp = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')
 
-    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+    stitched_cube = fits.open(savedir + 'stitched_cube.fits')
 
     # loop over all pixels and stitch them according 
     # to whether they need a one or two comp fit
@@ -42,42 +70,30 @@ if __name__ == '__main__':
     # define shapes because the extensions in the fits file have diff shapes
     blue_shape = (2227, 58, 58)
     red_shape = (2350, 58, 58)
-    #line_shape = (3, 58, 58)
+    line_shape = (3, 58, 58)
 
     # loop over all pixels 
+    # My goal here is to keep the shapes of the stitched cube 
+    # extensions to be the same as those of the two comp fit results.
     for i in range(58):
         for j in range(58):
 
             if single_idx[i,j]:
-                for k in range(38):
-                    if 'COMP1' in extnames[k]:
-                        stitched_cube[extnames[k]].data = single_comp[extnames[k]].data
-                    elif 'COMP2' in extnames[k]:
-                        stitched_cube[extnames[k]].data = np.ones((58,58)) * np.nan
-                        # this should really be blue or red shape depending on what it is but I'm just going to leave it as (58,58) 
-                    else:
-                        stitched_cube[extnames[k]].data = single_comp[extnames[k]].data
+                single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
-                
                 if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
-                    # next few lines are the same as above
-                    if 'COMP1' in extnames[k]:
-                        stitched_cube[extnames[k]].data = single_comp[extnames[k]].data
-                    elif 'COMP2' in extnames[k]:
-                        stitched_cube[extnames[k]].data = np.ones((58,58)) * np.nan 
-                    else:
-                        stitched_cube[extnames[k]].data = single_comp[extnames[k]].data
-
+                    single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
                 else:
-                    # loop over each extension and replace nan data with new fit data
+                    # loop over each extension
                     for k in range(38):
-                        stitched_cube[extnames[k]].data = two_comp[extnames[k]].data
-                        #shape = stitched_cube[extnames[k]].data.shape
-                        #if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
-                        #    stitched_cube[extnames[k]].data = two_comp[extnames[k]].data
-                        #elif shape == (58, 58):
-                        #    stitched_cube[extnames[k]].data = pix_hdu[extnames[k]].data
+                        shape = stitched_cube[extnames[k]].data.shape
+                        if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
+                            stitched_cube[extnames[k]].data[:,i,j] = two_comp[extnames[k]].data[:,i,j]
+                        elif shape == (58, 58):
+                            stitched_cube[extnames[k]].data[i,j] = two_comp[extnames[k]].data[i,j]
 
+    stitched_cube.writeto(savedir + 'stitched_cube.fits', clobber=True, output_verify='fix')
+    stitched_cube.close()
 
     sys.exit(0)
