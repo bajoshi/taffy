@@ -15,6 +15,7 @@ home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
 taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
 taffydir = home + '/Desktop/ipac/taffy/'
+savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     # It appears that both the northern and southern galaxies have 
     # double peaked profiles. The southern galaxy more so than the 
     # northern one. The southern galaxy has double peaked lines all
-    # above its nucleus and not so much below the nucleus. The  
+    # above its nucleus and not below the nucleus. The  
     # southern nucleus itself seems to have really broad lines.
     # The northern galaxy mostly has double peaked lines closer to 
     # the HII region. It might also have double peaked lines near 
@@ -118,6 +119,7 @@ if __name__ == '__main__':
         line_total = b_line
         obs_data = obs_data_b
         data_res = blue_res
+        delt = delt_b
 
     elif channel == 'red':
         wav_arr = red_wav_arr
@@ -126,6 +128,7 @@ if __name__ == '__main__':
         line_total = r_line
         obs_data = obs_data_r
         data_res = red_res
+        delt = delt_r
 
     # loop over all spaxels and fit a gaussian to the individual line fits
     # initialize arrays for saving fit parameters
@@ -144,6 +147,9 @@ if __name__ == '__main__':
     arr_x = pix_y - 1
     arr_y = pix_x - 1
     box_size = 3
+
+    comp1_inv_idx = np.zeros((58,58))
+    comp2_inv_idx = np.zeros((58,58))
 
     # start looping
     count = 0
@@ -188,6 +194,15 @@ if __name__ == '__main__':
             vel_comp2[i,j] = g2.parameters[1]
             std_comp2[i,j] = g2.parameters[2]
 
+            isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))))
+            isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))))
+
+            if isinvalid_comp1_fit:
+                comp1_inv_idx[i,j] = 1.0
+
+            if isinvalid_comp2_fit:
+                comp2_inv_idx[i,j] = 1.0
+
             #print amp_comp2[i,j], vel_comp2[i,j], std_comp2[i,j]
 
             """
@@ -224,7 +239,6 @@ if __name__ == '__main__':
             count += 1
 
     # save fit parameters
-    savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
     np.save(savedir + 'vel_' + linename + '_comp1.npy', vel_comp1)
     np.save(savedir + 'std_' + linename + '_comp1.npy', std_comp1)
@@ -263,33 +277,46 @@ if __name__ == '__main__':
     # 1. if mean and std are not too different ==> there is only a single comp
     single_idx = np.where((mean_diff < 45) & (std_comp2 < 1.5 * std_comp1))
     plot_indices(single_idx)
+    single_idx_arr = np.zeros((58,58))
+    single_idx_arr[single_idx] = 1.0
 
     # 2. Different mean but same std ==> There are two components
     diffmean_idx = np.where((mean_diff >= 45) & (std_comp2 < 1.5 * std_comp1))
-    large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) >= (data_res / line_air_wav) * speed_of_light)
-    print diffmean_idx
-    print large_stddiff_idx
-    sys.exit(0)
+    #large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) * delt >= data_res)
 
+    #for k in range(len(large_stddiff_idx[0])):
+    #    print large_stddiff_idx[0][k], large_stddiff_idx[1][k]
+
+    #    if (large_stddiff_idx[0][k], large_stddiff_idx[1][k]) in zip(diffmean_idx[0], diffmean_idx[1]):
+    #        print "   ", large_stddiff_idx[0][k], large_stddiff_idx[1][k]
+
+    #sys.exit(0)
     plot_indices(diffmean_idx)
+    diffmean_idx_arr = np.zeros((58,58))
+    diffmean_idx_arr[diffmean_idx] = 1.0
 
     # 3. Different std but same mean ==> There are two components
     diffstd_idx = np.where((mean_diff < 45) & (std_comp2 >= 1.5 * std_comp1))
     plot_indices(diffstd_idx)
+    diffstd_idx_arr = np.zeros((58,58))
+    diffstd_idx_arr[diffstd_idx] = 1.0
 
     # 4. Different mean and std ==> There are two components
     diffboth_idx = np.where((mean_diff >= 45) & (std_comp2 >= 1.5 * std_comp1))
     plot_indices(diffboth_idx)
+    diffboth_idx_arr = np.zeros((58,58))
+    diffboth_idx_arr[diffboth_idx] = 1.0
 
     # save all cases
-    all_cases_hdu = fits.HDUList()
-    all_cases_hdu.append(fits.ImageHDU(data=single_idx))
-    all_cases_hdu.append(fits.ImageHDU(data=diffmean_idx))
-    all_cases_hdu.append(fits.ImageHDU(data=diffstd_idx))
-    all_cases_hdu.append(fits.ImageHDU(data=diffboth_idx))
-    all_cases_hdu.writeto(savedir + 'all_cases_indices.fits', clobber=True)
-
-    sys.exit(0)
+    all_cases_hdu = fits.PrimaryHDU()
+    all_cases_hdulist = fits.HDUList(all_cases_hdu)
+    all_cases_hdulist.append(fits.ImageHDU(data=comp1_inv_idx))
+    all_cases_hdulist.append(fits.ImageHDU(data=comp2_inv_idx))
+    all_cases_hdulist.append(fits.ImageHDU(data=single_idx_arr))
+    all_cases_hdulist.append(fits.ImageHDU(data=diffmean_idx_arr))
+    all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr))
+    all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr))
+    all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', clobber=True)
 
     # save differences as fits file
     new_hdu = fits.PrimaryHDU(data=amp_diff)
