@@ -6,6 +6,8 @@ from astropy.io import fits
 import os
 import sys
 
+import matplotlib.pyplot as plt
+
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
 taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
@@ -39,7 +41,7 @@ def single_comp_stitch(extnames, stitched_cube, single_comp, arr_x, arr_y, blue_
             elif shape == (58, 58):
                 stitched_cube[extnames[k]].data[arr_x,arr_y] = single_comp[extnames[k]].data[arr_x,arr_y]
 
-    return stitched_cube
+    return None
 
 if __name__ == '__main__':
     
@@ -80,10 +82,45 @@ if __name__ == '__main__':
 
             if single_idx[i,j]:
                 single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                #for k in range(38):
+                #    if 'COMP1' in extnames[k]:
+                #        stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                #    elif 'COMP2' in extnames[k]:
+                #        if 'B_LINE_COMP2' in extnames[k]:
+                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(blue_shape[0]) * -9999.0
+                #        elif 'R_LINE_COMP2' in extnames[k]:
+                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(red_shape[0]) * -9999.0
+                #    else:
+                #        shape = stitched_cube[extnames[k]].data.shape
+                #        if (shape == blue_shape) or (shape == red_shape):
+                #            stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                #        elif (shape == (3, 58, 38)) or (shape == (2, 58, 58)):
+                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(shape[0]) * -9999.0
+                #            stitched_cube[extnames[k]].data[1:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                #        elif shape == (58, 58):
+                #            stitched_cube[extnames[k]].data[i,j] = single_comp[extnames[k]].data[i,j]
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
                 if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
                     single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                    #for k in range(38):
+                    #    if 'COMP1' in extnames[k]:
+                    #        stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                    #    elif 'COMP2' in extnames[k]:
+                    #        if 'B_LINE_COMP2' in extnames[k]:
+                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(blue_shape[0]) * -9999.0
+                    #        elif 'R_LINE_COMP2' in extnames[k]:
+                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(red_shape[0]) * -9999.0
+                    #    else:
+                    #        shape = stitched_cube[extnames[k]].data.shape
+                    #        if (shape == blue_shape) or (shape == red_shape):
+                    #            stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                    #        elif (shape == (3, 58, 38)) or (shape == (2, 58, 58)):
+                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(shape[0]) * -9999.0
+                    #            stitched_cube[extnames[k]].data[1:,i,j] = single_comp[extnames[k]].data[:,i,j]
+                    #        elif shape == (58, 58):
+                    #            stitched_cube[extnames[k]].data[i,j] = single_comp[extnames[k]].data[i,j]
+
                 else:
                     # loop over each extension
                     for k in range(38):
