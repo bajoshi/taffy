@@ -156,43 +156,6 @@ if __name__ == '__main__':
     oiii_hbeta_for_nii_onecomp_south = ma.array(oiii_hbeta_for_nii_onecomp, mask=south_mask)
     oiii_hbeta_for_oi_onecomp_south = ma.array(oiii_hbeta_for_oi_onecomp, mask=south_mask)
     oiii_hbeta_for_sii_onecomp_south = ma.array(oiii_hbeta_for_sii_onecomp, mask=south_mask)
-    
-    # ------------------- # 
-    # two comp 
-    nii_halpha_twocomp = ma.array(nii_halpha_withcut, mask=twocomp_mask)
-    oi_halpha_twocomp = ma.array(oi_halpha_withcut, mask=twocomp_mask)
-    sii_halpha_twocomp = ma.array(sii_halpha_withcut, mask=twocomp_mask)
-
-    oiii_hbeta_for_nii_twocomp = ma.array(oiii_hbeta_for_nii_withcut, mask=twocomp_mask)
-    oiii_hbeta_for_oi_twocomp = ma.array(oiii_hbeta_for_oi_withcut, mask=twocomp_mask)
-    oiii_hbeta_for_sii_twocomp = ma.array(oiii_hbeta_for_sii_withcut, mask=twocomp_mask)
-
-    # apply bridge mask
-    nii_halpha_twocomp_bridge = ma.array(nii_halpha_twocomp, mask=bridge_mask)
-    oi_halpha_twocomp_bridge = ma.array(oi_halpha_twocomp, mask=bridge_mask)
-    sii_halpha_twocomp_bridge = ma.array(sii_halpha_twocomp, mask=bridge_mask)
-
-    oiii_hbeta_for_nii_twocomp_bridge = ma.array(oiii_hbeta_for_nii_twocomp, mask=bridge_mask)
-    oiii_hbeta_for_oi_twocomp_bridge = ma.array(oiii_hbeta_for_oi_twocomp, mask=bridge_mask)
-    oiii_hbeta_for_sii_twocomp_bridge = ma.array(oiii_hbeta_for_sii_twocomp, mask=bridge_mask)
-
-    # apply north mask
-    nii_halpha_twocomp_north = ma.array(nii_halpha_twocomp, mask=north_mask)
-    oi_halpha_twocomp_north = ma.array(oi_halpha_twocomp, mask=north_mask)
-    sii_halpha_twocomp_north = ma.array(sii_halpha_twocomp, mask=north_mask)
-
-    oiii_hbeta_for_nii_twocomp_north = ma.array(oiii_hbeta_for_nii_twocomp, mask=north_mask)
-    oiii_hbeta_for_oi_twocomp_north = ma.array(oiii_hbeta_for_oi_twocomp, mask=north_mask)
-    oiii_hbeta_for_sii_twocomp_north = ma.array(oiii_hbeta_for_sii_twocomp, mask=north_mask)
-
-    # apply south mask
-    nii_halpha_twocomp_south = ma.array(nii_halpha_twocomp, mask=south_mask)
-    oi_halpha_twocomp_south = ma.array(oi_halpha_twocomp, mask=south_mask)
-    sii_halpha_twocomp_south = ma.array(sii_halpha_twocomp, mask=south_mask)
-
-    oiii_hbeta_for_nii_twocomp_south = ma.array(oiii_hbeta_for_nii_twocomp, mask=south_mask)
-    oiii_hbeta_for_oi_twocomp_south = ma.array(oiii_hbeta_for_oi_twocomp, mask=south_mask)
-    oiii_hbeta_for_sii_twocomp_south = ma.array(oiii_hbeta_for_sii_twocomp, mask=south_mask)
 
     # read in Mappings III models and overplot
     mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\

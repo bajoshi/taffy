@@ -13,13 +13,13 @@ import datetime
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 
-import bpt_plots as bpt
-import vel_channel_map as vm
-
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"
 taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
-ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures/"
+
+sys.path.append(taffydir + 'codes/')
+import bpt_plots as bpt
+import vel_channel_map as vcm
 
 def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, valid_indices, figdir):
     """
@@ -200,13 +200,13 @@ def bpt_range_to_spatial(xarr, yarr, xran, yran):
 def overlay_spatial_mask_on_sdss(spatial_mask_idx):
 
     # read in i band SDSS image
-    sdss_i, wcs_sdss = vm.get_sdss('i')
+    sdss_i, wcs_sdss = vcm.get_sdss('i')
 
     # only need the IFU WCS here
-    h, wcs_lzifu = vm.get_lzifu_products()
+    h, wcs_lzifu = vcm.get_lzifu_products()
 
     # plot sdss image
-    fig, ax = vm.plot_sdss_image(sdss_i, wcs_sdss)
+    fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
 
     im = ax.scatter(spatial_mask_idx[1], spatial_mask_idx[0], s=34, c='r', marker='s',\
      alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
@@ -225,8 +225,44 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
-    hdu_vdisp = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
+    stitched = True
+    if stitched:
+        savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
+        h = fits.open(savedir + 'stitched_cube.fits')
+        ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures_stitched_cube/"
+
+        # read in masks for single and two comp fit
+        all_cases = fits.open(savedir + 'all_cases_indices.fits')
+
+        comp1_inv_idx = all_cases['COMP1_INV'].data.astype(bool)
+        comp2_inv_idx = all_cases['COMP2_INV'].data.astype(bool)
+        single_idx = all_cases['SINGLE_IDX'].data.astype(bool)
+        diffmean_idx = all_cases['DIFFMEAN_IDX'].data.astype(bool)
+        diffstd_idx = all_cases['DIFFSTD_IDX'].data.astype(bool)
+        diffboth_idx = all_cases['DIFFBOTH_IDX'].data.astype(bool)
+
+        # also get mask for all possible not nan spaxels
+        all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
+
+        # make masks for single comp and two comp
+        comp_inv_mask = np.ma.mask_or(comp1_inv_idx, comp2_inv_idx)
+        onecomp_mask = np.ma.mask_or(single_idx, comp_inv_mask)
+        onecomp_mask = np.ma.masked_array(onecomp_mask, mask=all_mask)
+        onecomp_mask = np.logical_not(onecomp_mask)  
+        # this logical not above here is to make sure that the mask has the
+        # correct boolean scheme. In the numpy scheme, 0 is ok and 1 is to
+        # be masked. When I initially made the masks I made them such that 
+        # 0 is where the condition failed and 1 is where it was satisfied.
+        # So it is the reverse of what numpy wants. Therefore, I had to 
+        # use logical_not here.
+
+        twocomp_mask = np.logical_not(onecomp_mask)
+        twocomp_mask = np.ma.masked_array(twocomp_mask, mask=all_mask)
+
+    else:
+        h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+        hdu_vdisp = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
+        ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures/"
 
     # assign line arrays for each component and their errors
     # -------------- component 1 -------------- #
@@ -268,8 +304,8 @@ if __name__ == '__main__':
     sii6731_err_comp2 = h['SII6731_ERR'].data[2]
 
     # velocity dispersions of each component
-    vdisp_line1 = hdu_vdisp[0].data[1]
-    vdisp_line2 = hdu_vdisp[0].data[2]
+    #vdisp_line1 = hdu_vdisp[0].data[1]
+    #vdisp_line2 = hdu_vdisp[0].data[2]
 
     # add lines which are doublets
     sii_comp1 = sii6716_comp1 + sii6731_comp1
@@ -334,6 +370,26 @@ if __name__ == '__main__':
     south_mask = bpt.getregionmask(region_pn, (58,58), "south galaxy region.")
 
     # apply mask
+    if stitched:
+        # apply two comp mask
+        # comp1
+        nii_halpha_withcut_comp1 = ma.array(nii_halpha_withcut_comp1, mask=twocomp_mask)
+        oi_halpha_withcut_comp1 = ma.array(oi_halpha_withcut_comp1, mask=twocomp_mask)
+        sii_halpha_withcut_comp1 = ma.array(sii_halpha_withcut_comp1, mask=twocomp_mask)
+
+        oiii_hbeta_for_nii_withcut_comp1 = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=twocomp_mask)
+        oiii_hbeta_for_oi_withcut_comp1 = ma.array(oiii_hbeta_for_oi_withcut_comp1, mask=twocomp_mask)
+        oiii_hbeta_for_sii_withcut_comp1 = ma.array(oiii_hbeta_for_sii_withcut_comp1, mask=twocomp_mask)
+
+        # comp2
+        nii_halpha_withcut_comp2 = ma.array(nii_halpha_withcut_comp2, mask=twocomp_mask)
+        oi_halpha_withcut_comp2 = ma.array(oi_halpha_withcut_comp2, mask=twocomp_mask)
+        sii_halpha_withcut_comp2 = ma.array(sii_halpha_withcut_comp2, mask=twocomp_mask)
+
+        oiii_hbeta_for_nii_withcut_comp2 = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=twocomp_mask)
+        oiii_hbeta_for_oi_withcut_comp2 = ma.array(oiii_hbeta_for_oi_withcut_comp2, mask=twocomp_mask)
+        oiii_hbeta_for_sii_withcut_comp2 = ma.array(oiii_hbeta_for_sii_withcut_comp2, mask=twocomp_mask)
+
     # ----------------- bridge ----------------- #
     nii_halpha_withcut_bridge_comp1 = ma.array(nii_halpha_withcut_comp1, mask=bridge_mask)
     oi_halpha_withcut_bridge_comp1 = ma.array(oi_halpha_withcut_comp1, mask=bridge_mask)
@@ -404,26 +460,26 @@ if __name__ == '__main__':
     # BPT with [NII]
     # -------------- component 1 -------------- #
     plotbpt('nii', '1', nii_halpha_withcut_bridge_comp1, oiii_hbeta_for_nii_withcut_bridge_comp1, nii_halpha_withcut_north_comp1,\
-    oiii_hbeta_for_nii_withcut_north_comp1, nii_halpha_withcut_south_comp1, oiii_hbeta_for_nii_withcut_south_comp1, np.nonzero(nii_halpha_withcut_comp1))
+    oiii_hbeta_for_nii_withcut_north_comp1, nii_halpha_withcut_south_comp1, oiii_hbeta_for_nii_withcut_south_comp1, np.nonzero(nii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('nii', '2', nii_halpha_withcut_bridge_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, nii_halpha_withcut_north_comp2,\
-    oiii_hbeta_for_nii_withcut_north_comp2, nii_halpha_withcut_south_comp2, oiii_hbeta_for_nii_withcut_south_comp2, np.nonzero(nii_halpha_withcut_comp2))
+    oiii_hbeta_for_nii_withcut_north_comp2, nii_halpha_withcut_south_comp2, oiii_hbeta_for_nii_withcut_south_comp2, np.nonzero(nii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [OI]
     # -------------- component 1 -------------- #
     plotbpt('oi', '1', oi_halpha_withcut_bridge_comp1, oiii_hbeta_for_oi_withcut_bridge_comp1, oi_halpha_withcut_north_comp1,\
-    oiii_hbeta_for_oi_withcut_north_comp1, oi_halpha_withcut_south_comp1, oiii_hbeta_for_oi_withcut_south_comp1, np.nonzero(oi_halpha_withcut_comp1))
+    oiii_hbeta_for_oi_withcut_north_comp1, oi_halpha_withcut_south_comp1, oiii_hbeta_for_oi_withcut_south_comp1, np.nonzero(oi_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('oi', '2', oi_halpha_withcut_bridge_comp2, oiii_hbeta_for_oi_withcut_bridge_comp2, oi_halpha_withcut_north_comp2,\
-    oiii_hbeta_for_oi_withcut_north_comp2, oi_halpha_withcut_south_comp2, oiii_hbeta_for_oi_withcut_south_comp2, np.nonzero(oi_halpha_withcut_comp2))
+    oiii_hbeta_for_oi_withcut_north_comp2, oi_halpha_withcut_south_comp2, oiii_hbeta_for_oi_withcut_south_comp2, np.nonzero(oi_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [SII]
     # -------------- component 1 -------------- #
     plotbpt('sii', '1', sii_halpha_withcut_bridge_comp1, oiii_hbeta_for_sii_withcut_bridge_comp1, sii_halpha_withcut_north_comp1,\
-    oiii_hbeta_for_sii_withcut_north_comp1, sii_halpha_withcut_south_comp1, oiii_hbeta_for_sii_withcut_south_comp1, np.nonzero(sii_halpha_withcut_comp1))
+    oiii_hbeta_for_sii_withcut_north_comp1, sii_halpha_withcut_south_comp1, oiii_hbeta_for_sii_withcut_south_comp1, np.nonzero(sii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('sii', '2', sii_halpha_withcut_bridge_comp2, oiii_hbeta_for_sii_withcut_bridge_comp2, sii_halpha_withcut_north_comp2,\
-    oiii_hbeta_for_sii_withcut_north_comp2, sii_halpha_withcut_south_comp2, oiii_hbeta_for_sii_withcut_south_comp2, np.nonzero(sii_halpha_withcut_comp2))
+    oiii_hbeta_for_sii_withcut_north_comp2, sii_halpha_withcut_south_comp2, oiii_hbeta_for_sii_withcut_south_comp2, np.nonzero(sii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # total run time
     print "Total time taken --", time.time() - start, "seconds."
