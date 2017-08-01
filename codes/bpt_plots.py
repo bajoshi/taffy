@@ -507,6 +507,51 @@ def bpt_to_spatial():
 
     return None
 
+def getallmasks(shape):
+
+    # define regions and create corresponding masks
+    # done by hand first in ds9 and copied over here
+    # Use a polygon shaped region and save it in the image coord system
+    # so that ds9 will write both x and y coords of the region which you
+    # can copy and paste here from the .reg file.
+    bridge_region = [32.281801,57.268842,38.538533,57.614395,45.57281,57.702324,47.595164,49.173263,\
+    42.495313,39.325275,38.450604,30.884142,35.373108,26.839433,27.793224,19.116218,22.095459,19.749303,\
+    15.870124,18.483133,12.599185,23.442299,10.058727,30.487856,14.788552,34.751095,24.463539,45.30257,\
+    27.627401,47.586352,33.341603,48.641282,31.758745,54.356923]
+
+    bridge_list = []
+    for i in range(0,len(bridge_region),2):
+        bridge_list.append([int(round(bridge_region[i])),int(round(bridge_region[i+1]))])
+
+    bridge_pn = pg.Polygon(bridge_list)
+    bridge_mask = getregionmask(bridge_pn, shape, "bridge region.")
+
+    # -------------------------- #
+    north_galaxy_region = [20.778985,57.420501,32.283659,57.25855,31.756076,54.356913,33.338764,48.641556,\
+    27.623409,47.586438,24.457975,45.300312,14.785798,34.748937,9.2463044,34.573104,5.7291782,37.474758,\
+    9.2463475,44.684877]
+
+    north_galaxy_list = []
+    for i in range(0,len(north_galaxy_region),2):
+        north_galaxy_list.append([int(round(north_galaxy_region[i])),int(round(north_galaxy_region[i+1]))])
+
+    north_galaxy_pn = pg.Polygon(north_galaxy_list)
+    north_mask = getregionmask(north_galaxy_pn, shape, "north galaxy region.")
+
+    # -------------------------- #
+    south_galaxy_region = [47.596266,49.175706,52.888458,43.299641,52.255373,30.743457,47.507236,17.554187,\
+    44.447325,11.856422,39.593674,8.4799692,31.785626,9.6406249,24.083093,10.379224,21.550753,15.021847,\
+    22.103279,19.736942,27.808648,19.103012,35.374908,26.873766,38.491912,30.927514,42.500817,39.360307]
+
+    south_galaxy_list = []
+    for i in range(0,len(south_galaxy_region),2):
+        south_galaxy_list.append([int(round(south_galaxy_region[i])),int(round(south_galaxy_region[i+1]))])
+
+    south_galaxy_pn = pg.Polygon(south_galaxy_list)
+    south_mask = getregionmask(south_galaxy_pn, shape, "south galaxy region.")
+
+    return bridge_mask, north_mask, south_mask
+
 if __name__ == '__main__':
     
     # Start time
@@ -564,46 +609,7 @@ if __name__ == '__main__':
     oiii_hbeta = np.log10(np.divide(oiii5007[0], hbeta[0]))
     oi_halpha = np.log10(np.divide(oi6300[0], halpha[0]))
 
-    # define regions and create corresponding masks
-    # done by hand first in ds9 and copied over here
-    # Use a polygon shaped region and save it in the image coord system
-    # so that ds9 will write both x and y coords of the region which you
-    # can copy and paste here from the .reg file.
-    bridge_region = [32.281801,57.268842,38.538533,57.614395,45.57281,57.702324,47.595164,49.173263,\
-    42.495313,39.325275,38.450604,30.884142,35.373108,26.839433,27.793224,19.116218,22.095459,19.749303,\
-    15.870124,18.483133,12.599185,23.442299,10.058727,30.487856,14.788552,34.751095,24.463539,45.30257,\
-    27.627401,47.586352,33.341603,48.641282,31.758745,54.356923]
-
-    bridge_list = []
-    for i in range(0,len(bridge_region),2):
-        bridge_list.append([int(round(bridge_region[i])),int(round(bridge_region[i+1]))])
-
-    bridge_pn = pg.Polygon(bridge_list)
-    bridge_mask = getregionmask(bridge_pn, halpha.shape, "bridge region.")
-
-    # -------------------------- #
-    north_galaxy_region = [20.778985,57.420501,32.283659,57.25855,31.756076,54.356913,33.338764,48.641556,\
-    27.623409,47.586438,24.457975,45.300312,14.785798,34.748937,9.2463044,34.573104,5.7291782,37.474758,\
-    9.2463475,44.684877]
-
-    north_galaxy_list = []
-    for i in range(0,len(north_galaxy_region),2):
-        north_galaxy_list.append([int(round(north_galaxy_region[i])),int(round(north_galaxy_region[i+1]))])
-
-    north_galaxy_pn = pg.Polygon(north_galaxy_list)
-    north_mask = getregionmask(north_galaxy_pn, halpha.shape, "north galaxy region.")
-
-    # -------------------------- #
-    south_galaxy_region = [47.596266,49.175706,52.888458,43.299641,52.255373,30.743457,47.507236,17.554187,\
-    44.447325,11.856422,39.593674,8.4799692,31.785626,9.6406249,24.083093,10.379224,21.550753,15.021847,\
-    22.103279,19.736942,27.808648,19.103012,35.374908,26.873766,38.491912,30.927514,42.500817,39.360307]
-
-    south_galaxy_list = []
-    for i in range(0,len(south_galaxy_region),2):
-        south_galaxy_list.append([int(round(south_galaxy_region[i])),int(round(south_galaxy_region[i+1]))])
-
-    south_galaxy_pn = pg.Polygon(south_galaxy_list)
-    south_mask = getregionmask(south_galaxy_pn, halpha.shape, "south galaxy region.")
+    bridge_mask, north_mask, south_mask = getallmasks(halpha.shape)
 
     # apply bridge mask
     nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
@@ -709,9 +715,6 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
-
-    # model point labels
-
 
     # region labels
     agnbox = TextArea('AGN', textprops=dict(color='k', size=16))

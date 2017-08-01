@@ -21,7 +21,7 @@ taffydir = home + "/Desktop/ipac/taffy/"
 taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures/"
 
-def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, valid_indices):
+def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, valid_indices, figdir):
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
     """
@@ -174,7 +174,7 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_' + plottype + '_comp' + vel_comp + '.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
