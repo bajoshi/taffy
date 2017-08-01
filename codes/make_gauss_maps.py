@@ -188,8 +188,6 @@ if __name__ == '__main__':
             vel_comp1[i,j] = g1.parameters[1]
             std_comp1[i,j] = g1.parameters[2]
 
-            #print amp_comp1[i,j], vel_comp1[i,j], std_comp1[i,j]
-
             amp_comp2[i,j] = g2.parameters[0]
             vel_comp2[i,j] = g2.parameters[1]
             std_comp2[i,j] = g2.parameters[2]
@@ -202,8 +200,6 @@ if __name__ == '__main__':
 
             if isinvalid_comp2_fit:
                 comp2_inv_idx[i,j] = 1.0
-
-            #print amp_comp2[i,j], vel_comp2[i,j], std_comp2[i,j]
 
             """
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]

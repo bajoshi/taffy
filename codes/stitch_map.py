@@ -55,6 +55,16 @@ if __name__ == '__main__':
     diffstd_idx = h['DIFFSTD_IDX'].data
     diffboth_idx = h['DIFFBOTH_IDX'].data
 
+    #plt.imshow(single_idx, origin='lower', cmap='Greys')
+    #plt.show()
+    #plt.imshow(diffmean_idx, origin='lower', cmap='Greys')
+    #plt.show()
+    #plt.imshow(diffstd_idx, origin='lower', cmap='Greys')
+    #plt.show()
+    #plt.imshow(diffboth_idx, origin='lower', cmap='Greys')
+    #plt.show()
+    sys.exit(0)
+
     # read in both 1 and 2 comp fitting results
     single_comp = fits.open(taffy_extdir + 'products/Taffy_1_comp.fits')
     two_comp = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')

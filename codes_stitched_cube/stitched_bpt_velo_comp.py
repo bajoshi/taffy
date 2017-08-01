@@ -11,7 +11,6 @@ import time
 import datetime
 
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"

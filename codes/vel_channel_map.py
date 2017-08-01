@@ -483,4 +483,6 @@ if __name__ == '__main__':
     fig.savefig(taffy_dir + 'figures/vel_channel_hbeta_' + maptype + '_withclabel.eps', dpi=150, bbox_inches='tight')
     #plt.show()
 
+    # total run time
+    print "Total time taken --", time.time() - start, "seconds."
     sys.exit(0)
