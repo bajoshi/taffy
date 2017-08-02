@@ -43,36 +43,26 @@ def overplot_mask(mask_idx):
 
     return fig, ax
 
-if __name__ == '__main__':
-    
-    # Start time
-    start = time.time()
-    dt = datetime.datetime
-    print "Starting at --", dt.now()
+def save_npy_to_fits(fullpath, clobber=False):
 
-    # Read in stitched cube
-    stitched_cube = fits.open(savedir + 'stitched_cube.fits')
+    # read in arr
+    npy_arr = np.load(fullpath)
 
-    # read in masks for single and two comp fit
-    all_cases = fits.open(savedir + 'all_cases_indices.fits')
+    # get dir name and filename
+    filename = os.path.basename(fullpath)
+    filename = filename.split('.')[0]
+    basedir = os.path.dirname(fullpath) + '/'
 
-    comp1_inv_idx = all_cases['COMP1_INV'].data.astype(bool)
-    comp2_inv_idx = all_cases['COMP2_INV'].data.astype(bool)
-    single_idx = all_cases['SINGLE_IDX'].data.astype(bool)
-    diffmean_idx = all_cases['DIFFMEAN_IDX'].data.astype(bool)
-    diffstd_idx = all_cases['DIFFSTD_IDX'].data.astype(bool)
-    diffboth_idx = all_cases['DIFFBOTH_IDX'].data.astype(bool)
+    # get shape
+    shape = npy_arr.shape
 
-    # create mask by applying threshold and sig cut to each halpha component
-    # first read in lzifu 2 comp fitting result
-    two_comp = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    # save as fits
+    hdu = fits.PrimaryHDU(data=npy_arr)
+    hdu.writeto(basedir + filename + '.fits', clobber=clobber)
 
-    # read in each halpha comp
-    halpha_comp1 = two_comp['HALPHA'].data[1]
-    halpha_comp2 = two_comp['HALPHA'].data[2]
+    return None
 
-    halpha_err_comp1 = two_comp['HALPHA_ERR'].data[1]
-    halpha_err_comp2 = two_comp['HALPHA_ERR'].data[2]
+def get_two_comp_mask(halpha_comp1, halpha_comp2, halpha_err_comp1, halpha_err_comp2):
 
     # find spaxels above threshold
     halpha_thresh_lim = 5
@@ -124,6 +114,42 @@ if __name__ == '__main__':
     #fig, ax = overplot_mask(mask_idx)
     #plt.show()
 
+    return new_mask
+
+if __name__ == '__main__':
+    
+    # Start time
+    start = time.time()
+    dt = datetime.datetime
+    print "Starting at --", dt.now()
+
+    # Read in stitched cube
+    stitched_cube = fits.open(savedir + 'stitched_cube.fits')
+
+    # read in masks for single and two comp fit
+    all_cases = fits.open(savedir + 'all_cases_indices.fits')
+
+    comp1_inv_idx = all_cases['COMP1_INV'].data.astype(bool)
+    comp2_inv_idx = all_cases['COMP2_INV'].data.astype(bool)
+    single_idx = all_cases['SINGLE_IDX'].data.astype(bool)
+    diffmean_idx = all_cases['DIFFMEAN_IDX'].data.astype(bool)
+    diffstd_idx = all_cases['DIFFSTD_IDX'].data.astype(bool)
+    diffboth_idx = all_cases['DIFFBOTH_IDX'].data.astype(bool)
+
+    # create mask by applying threshold and sig cut to each halpha component
+    # first read in lzifu 2 comp fitting result
+    two_comp = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+
+    # read in each halpha comp
+    halpha_comp1 = two_comp['HALPHA'].data[1]
+    halpha_comp2 = two_comp['HALPHA'].data[2]
+
+    halpha_err_comp1 = two_comp['HALPHA_ERR'].data[1]
+    halpha_err_comp2 = two_comp['HALPHA_ERR'].data[2]
+
+    # get mask for spaxels where two comp fits are to be used
+    two_comp_mask = get_two_comp_mask(halpha_comp1, halpha_comp2, halpha_err_comp1, halpha_err_comp2)
+
     # make contours for all derived quantities from the line fits
     # read in saved fit params
     amp1 = np.load(savedir + 'amp_halpha_comp1.npy')
@@ -134,7 +160,19 @@ if __name__ == '__main__':
     vel2 = np.load(savedir + 'vel_halpha_comp2.npy')
     std2 = np.load(savedir + 'std_halpha_comp2.npy')
 
-    # 
+    # save these npy arrays as fits to be able to draw contours interactively in ds9
+    """
+    save_npy_to_fits(savedir + 'amp_halpha_comp1.npy')
+    save_npy_to_fits(savedir + 'vel_halpha_comp1.npy')
+    save_npy_to_fits(savedir + 'std_halpha_comp1.npy')
+
+    save_npy_to_fits(savedir + 'amp_halpha_comp2.npy')
+    save_npy_to_fits(savedir + 'vel_halpha_comp2.npy')
+    save_npy_to_fits(savedir + 'std_halpha_comp2.npy')
+    """
+
+    # Levels taken interactively from ds9
+
 
     # close all open fits files
     stitched_cube.close()

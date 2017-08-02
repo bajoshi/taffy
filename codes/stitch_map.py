@@ -63,7 +63,7 @@ if __name__ == '__main__':
     #plt.show()
     #plt.imshow(diffboth_idx, origin='lower', cmap='Greys')
     #plt.show()
-    sys.exit(0)
+    #sys.exit(0)
 
     # read in both 1 and 2 comp fitting results
     single_comp = fits.open(taffy_extdir + 'products/Taffy_1_comp.fits')
@@ -92,44 +92,10 @@ if __name__ == '__main__':
 
             if single_idx[i,j]:
                 single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
-                #for k in range(38):
-                #    if 'COMP1' in extnames[k]:
-                #        stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                #    elif 'COMP2' in extnames[k]:
-                #        if 'B_LINE_COMP2' in extnames[k]:
-                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(blue_shape[0]) * -9999.0
-                #        elif 'R_LINE_COMP2' in extnames[k]:
-                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(red_shape[0]) * -9999.0
-                #    else:
-                #        shape = stitched_cube[extnames[k]].data.shape
-                #        if (shape == blue_shape) or (shape == red_shape):
-                #            stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                #        elif (shape == (3, 58, 38)) or (shape == (2, 58, 58)):
-                #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(shape[0]) * -9999.0
-                #            stitched_cube[extnames[k]].data[1:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                #        elif shape == (58, 58):
-                #            stitched_cube[extnames[k]].data[i,j] = single_comp[extnames[k]].data[i,j]
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
                 if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
                     single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
-                    #for k in range(38):
-                    #    if 'COMP1' in extnames[k]:
-                    #        stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                    #    elif 'COMP2' in extnames[k]:
-                    #        if 'B_LINE_COMP2' in extnames[k]:
-                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(blue_shape[0]) * -9999.0
-                    #        elif 'R_LINE_COMP2' in extnames[k]:
-                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(red_shape[0]) * -9999.0
-                    #    else:
-                    #        shape = stitched_cube[extnames[k]].data.shape
-                    #        if (shape == blue_shape) or (shape == red_shape):
-                    #            stitched_cube[extnames[k]].data[:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                    #        elif (shape == (3, 58, 38)) or (shape == (2, 58, 58)):
-                    #            stitched_cube[extnames[k]].data[:,i,j] = np.ones(shape[0]) * -9999.0
-                    #            stitched_cube[extnames[k]].data[1:,i,j] = single_comp[extnames[k]].data[:,i,j]
-                    #        elif shape == (58, 58):
-                    #            stitched_cube[extnames[k]].data[i,j] = single_comp[extnames[k]].data[i,j]
 
                 else:
                     # loop over each extension
