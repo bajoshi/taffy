@@ -40,7 +40,7 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vdisp'
+    mapname = 'vel'
     comp = '2'
     if mapname == 'vel':
         vel_comp1_hdu = fits.open(savedir + 'vel_halpha_comp1.fits')
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     # write out map
     # get header from lzifu output
     hdr = one_comp['CHI2'].header
-    hdr['EXTNAME'] = mapname
+    hdr['EXTNAME'] = mapname + '_comp' + comp
     hdu = fits.PrimaryHDU(data=map_cube, header=hdr)
     hdu.writeto(savedir + mapname + '_cube_comp' + comp + '.fits', clobber=True)
 
