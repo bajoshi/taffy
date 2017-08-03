@@ -15,6 +15,12 @@ taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 taffydir = home + '/Desktop/ipac/taffy/'
 savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
 
+sys.path.append(taffydir + 'codes/')
+import vel_channel_map as vcm
+
+speed_of_light = 299792.458
+redshift = 0.0145
+
 if __name__ == '__main__':
     
     # read in indices file
@@ -34,7 +40,7 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vdisp'
+    mapname = 'vel'
     if mapname == 'vel':
         vel_comp1_hdu = fits.open(savedir + 'vel_halpha_comp1.fits')
         vel_comp2_hdu = fits.open(savedir + 'vel_halpha_comp2.fits')
@@ -52,6 +58,20 @@ if __name__ == '__main__':
         map_comp1 = vdisp_comp1_hdu[0].data
         map_comp2 = vdisp_comp2_hdu[0].data
         map_onecomp = vdisp_onecomp_hdu[0].data
+
+    # red wav arr
+    delt_r = 0.3  # i.e. the wav axis is sampled at 0.3A
+    red_wav_start = 6165.0
+    total_red_res_elem = 2350
+
+    red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
+    red_wav_arr = np.asarray(red_wav_arr)
+
+    # also define line wav
+    halpha_air_wav = 6562.8
+
+    # get mask of all possible not NaN pixels
+    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
 
     # loop over all spaxels and check case and save in array
     map_cube = np.ones((58,58)) * -9999.0
@@ -73,6 +93,39 @@ if __name__ == '__main__':
                     elif comp == '2':
                         map_cube[i,j] = map_comp2[i,j]
 
+            # convert velocities to physical units
+            if mapname == 'vel':
+                try:
+                    wavidx = int(map_cube[i,j])
+                    # heliocentric
+                    map_cube[i,j] = ((red_wav_arr[wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
+                    # relative to systemic
+                    map_cube[i,j] -= speed_of_light * redshift
+
+                except IndexError as e:
+                    map_cube[i,j] = np.nan
+
+    if mapname == 'vel':
+        # apply mask
+        # first nan all spaxels outside of region of interest
+        all_mask = np.logical_not(all_mask)
+        map_cube = np.multiply(map_cube, all_mask)
+        mask_idx = np.where(map_cube == 0)
+        map_cube[mask_idx] = np.nan
+
+        # now nan all spaxels that are not within an acceptable physical range
+        min_idx = np.where(map_cube < -400)
+        max_idx = np.where(map_cube > 400)
+
+        map_cube[min_idx] = np.nan
+        map_cube[max_idx] = np.nan
+
+        #plt.imshow(map_cube, origin='lower', vmin=-250, vmax=250)
+        #plt.colorbar()
+        #plt.show()
+        #sys.exit(0)
+
+    # write out map
     hdu = fits.PrimaryHDU(data=map_cube)
     hdu.writeto(savedir + mapname + '_cube_comp' + comp + '.fits', clobber=True)
 
