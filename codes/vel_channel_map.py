@@ -19,9 +19,10 @@ from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 from matplotlib.colors import LinearSegmentedColormap
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-taffy_dir = home + "/Desktop/ipac/taffy/"
+taffy_dir = home + '/Desktop/ipac/taffy/'
 taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
+sys.path.append(taffy_dir + 'codes/')
 import bpt_plots as bpt
 
 def make_halpha_based_mask():

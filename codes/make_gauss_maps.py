@@ -140,6 +140,10 @@ if __name__ == '__main__':
     vel_comp2 = np.ones((58,58)) * -9999.0
     std_comp2 = np.ones((58,58)) * -9999.0
 
+    amp_onecomp = np.ones((58,58)) * -9999.0
+    vel_onecomp = np.ones((58,58)) * -9999.0
+    std_onecomp = np.ones((58,58)) * -9999.0
+
     # conv ds9 coords to array coords 
     # to be able to check with ds9
     pix_x = 50
@@ -192,6 +196,10 @@ if __name__ == '__main__':
             vel_comp2[i,j] = g2.parameters[1]
             std_comp2[i,j] = g2.parameters[2]
 
+            amp_onecomp[i,j] = g.parameters[0]
+            vel_onecomp[i,j] = g.parameters[1]
+            std_onecomp[i,j] = g.parameters[2]
+
             isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))))
             isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))))
 
@@ -242,6 +250,12 @@ if __name__ == '__main__':
     np.save(savedir + 'amp_' + linename + '_comp2.npy', amp_comp2)
     np.save(savedir + 'vel_' + linename + '_comp2.npy', vel_comp2)
     np.save(savedir + 'std_' + linename + '_comp2.npy', std_comp2)
+
+    np.save(savedir + 'amp_' + linename + '_onecomp.npy', amp_onecomp)
+    np.save(savedir + 'vel_' + linename + '_onecomp.npy', vel_onecomp)
+    np.save(savedir + 'std_' + linename + '_onecomp.npy', std_onecomp)
+
+    sys.exit(0)
 
     # get mask and set all masked elements to np.nan
     all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')

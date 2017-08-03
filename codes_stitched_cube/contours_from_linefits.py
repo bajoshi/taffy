@@ -171,6 +171,10 @@ if __name__ == '__main__':
     save_npy_to_fits(savedir + 'std_halpha_comp2.npy')
     """
 
+    save_npy_to_fits(savedir + 'amp_halpha_onecomp.npy')
+    save_npy_to_fits(savedir + 'vel_halpha_onecomp.npy')
+    save_npy_to_fits(savedir + 'std_halpha_onecomp.npy')
+
     # Levels taken interactively from ds9
 
 

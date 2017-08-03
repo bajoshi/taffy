@@ -38,15 +38,20 @@ if __name__ == '__main__':
     if mapname == 'vel':
         vel_comp1_hdu = fits.open(savedir + 'vel_halpha_comp1.fits')
         vel_comp2_hdu = fits.open(savedir + 'vel_halpha_comp2.fits')
+        vel_onecomp_hdu = fits.open(savedir + 'vel_halpha_onecomp.fits')
 
         map_comp1 = vel_comp1_hdu[0].data
         map_comp2 = vel_comp2_hdu[0].data
+        map_onecomp = vel_onecomp_hdu[0].data
+
     elif mapname == 'vdisp':
         vdisp_comp1_hdu = fits.open(savedir + 'std_halpha_comp1.fits')
         vdisp_comp2_hdu = fits.open(savedir + 'std_halpha_comp2.fits')
+        vdisp_onecomp_hdu = fits.open(savedir + 'std_halpha_onecomp.fits')
 
         map_comp1 = vdisp_comp1_hdu[0].data
         map_comp2 = vdisp_comp2_hdu[0].data
+        map_onecomp = vdisp_onecomp_hdu[0].data
 
     # loop over all spaxels and check case and save in array
     map_cube = np.ones((58,58)) * -9999.0
@@ -56,11 +61,11 @@ if __name__ == '__main__':
         for j in range(58):
 
             if single_idx[i,j]:
-                map_cube[i,j] = np.mean([map_comp1[i,j], map_comp2[i,j]])
+                map_cube[i,j] = map_onecomp[i,j]
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
                 if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
-                    map_cube[i,j] = np.mean([map_comp1[i,j], map_comp2[i,j]])
+                    map_cube[i,j] = map_onecomp[i,j]
 
                 else:
                     if comp == '1':
