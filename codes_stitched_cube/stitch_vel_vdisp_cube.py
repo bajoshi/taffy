@@ -40,7 +40,8 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vel'
+    mapname = 'vdisp'
+    comp = '2'
     if mapname == 'vel':
         vel_comp1_hdu = fits.open(savedir + 'vel_halpha_comp1.fits')
         vel_comp2_hdu = fits.open(savedir + 'vel_halpha_comp2.fits')
@@ -75,7 +76,6 @@ if __name__ == '__main__':
 
     # loop over all spaxels and check case and save in array
     map_cube = np.ones((58,58)) * -9999.0
-    comp = '2'
 
     for i in range(58):
         for j in range(58):
@@ -105,14 +105,21 @@ if __name__ == '__main__':
                 except IndexError as e:
                     map_cube[i,j] = np.nan
 
-    if mapname == 'vel':
-        # apply mask
-        # first nan all spaxels outside of region of interest
-        all_mask = np.logical_not(all_mask)
-        map_cube = np.multiply(map_cube, all_mask)
-        mask_idx = np.where(map_cube == 0)
-        map_cube[mask_idx] = np.nan
+            # convert vel dispersions to physical units
+            if mapname == 'vdisp':
+                try:
+                    map_cube[i,j] = ((map_cube[i,j] * 0.3) / halpha_air_wav) * speed_of_light
+                except IndexError as e:
+                    map_cube[i,j] = np.nan
 
+    # apply mask
+    # first nan all spaxels outside of region of interest
+    all_mask = np.logical_not(all_mask)
+    map_cube = np.multiply(map_cube, all_mask)
+    mask_idx = np.where(map_cube == 0)
+    map_cube[mask_idx] = np.nan
+
+    if mapname == 'vel':
         # now nan all spaxels that are not within an acceptable physical range
         min_idx = np.where(map_cube < -400)
         max_idx = np.where(map_cube > 400)
@@ -125,8 +132,19 @@ if __name__ == '__main__':
         #plt.show()
         #sys.exit(0)
 
+    if mapname == 'vdisp':
+        # now nan all spaxels that are not within an acceptable physical range
+        min_idx = np.where(map_cube < 0)
+        max_idx = np.where(map_cube > 350)
+
+        map_cube[min_idx] = np.nan
+        map_cube[max_idx] = np.nan
+
     # write out map
-    hdu = fits.PrimaryHDU(data=map_cube)
+    # get header from lzifu output
+    hdr = one_comp['CHI2'].header
+    hdr['EXTNAME'] = mapname
+    hdu = fits.PrimaryHDU(data=map_cube, header=hdr)
     hdu.writeto(savedir + mapname + '_cube_comp' + comp + '.fits', clobber=True)
 
     sys.exit(0)
