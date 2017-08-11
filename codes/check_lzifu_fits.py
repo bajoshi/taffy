@@ -17,11 +17,11 @@ home = os.getenv('HOME')  # does not have a trailing slash
 desktop = home + '/Desktop/'
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products/'
-taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
+taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_data = '/Users/baj/Desktop/ipac/taffy_lzifu/data/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 ipac_taffy_figdir = ipac_taffy_dir + 'figures/'
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_extdir = '/Users/baj/Desktop/ipac/taffy_lzifu/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    h = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
