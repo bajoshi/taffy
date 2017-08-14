@@ -99,8 +99,105 @@ Procedure for filling in fitting for individual spaxels:
 # the pix coords here are ds9 referenced coords
 
 ----------------------------------------------------1-------------------------------------------------------
-# for pix x,y = 
-line_sig_guess = 
+***** These should all be 1-comp fits. *****
+-- I do not see 2-comp in the data at these spaxels.
+-- Or the spectrum is too noisy and I don't see lines at all. In which case, it should still revert to a 1-comp fit.
+All ds9 coordinates. If the coords run over a range then both ends are included.
+# for spaxels 
+x,  y 
+33, 15
+
+35, 13
+34--36, 12
+34--38, 11
+35--36, 10
+35--37, 9
+35, 8
+40, 8
+41, 9
+
+39--40, 5--6
+41, 5
+40, 4
+39, 3
+38, 4
+
+41, 2   # also failed in 1-comp fit
+
+42, 10  # only failed in 1-comp fit
+
+45, 12
+44, 11
+44--45, 10
+
+45, 14
+
+48, 16--17  # also failed in 1-comp R-cube fit
+
+29, 4
+29, 9
+30, 11
+26, 9
+
+25, 18
+26, 16--17
+
+
+
+
+
+
+----------------------------------------------------1-------------------------------------------------------
+***** These should all be 2-comp fits. *****
+-- i.e. I see two components in the line profile. 
+-- Also there is enough SNR in the line that LZIFU should be able to cleanly separate 2-comp
+All ds9 coordinates. If the coords run over a range then both ends are included.
+# for spaxels 
+x,  y 
+43, 20--21
+
+50, 22--24
+51--52, 23
+
+47, 30
+
+49, 30
+50, 29--32
+51--52, 32--33
+
+49, 33--34
+
+41--49, 34--40  # all nan pixels within this box need 2-comp fits
+
+28, 21
+28, 24
+33, 20
+34, 23
+
+34, 30
+33, 28
+34, 26
+36, 27
+36, 29
+37, 29
+37, 30
+
+38, 34
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
