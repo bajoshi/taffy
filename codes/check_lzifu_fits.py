@@ -17,7 +17,7 @@ home = os.getenv('HOME')  # does not have a trailing slash
 desktop = home + '/Desktop/'
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products/'
 taffy_data = '/Users/baj/Desktop/ipac/taffy_lzifu/data/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 ipac_taffy_figdir = ipac_taffy_dir + 'figures/'
@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
+    h = fits.open(taffy_products + 'Taffy_2_comp.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
@@ -94,8 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 35
-    pix_y = 10
+    pix_x = 47
+    pix_y = 40
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 

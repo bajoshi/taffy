@@ -142,10 +142,15 @@ x,  y
 25, 18
 26, 16--17
 
+21, 56  # very low snr. I don't see any lines.
+19, 54--55  # very low snr. I don't see any lines. # also failed in 1-comp fit
+15--16, 52  # very low snr. I don't see any lines. # also failed in 1-comp fit
+17, 53--54  # very low snr. I don't see any lines. # also failed in 1-comp fit
 
+10--13, 36--39  # bright lines but I don't see 2-comp. # also failed in 1-comp fit
 
-
-
+22, 18  # has lines but I don't see 2-comp. # also failed in 1-comp fit
+22-23, 17  # has lines but I don't see 2-comp. # also failed in 1-comp fit
 
 ----------------------------------------------------1-------------------------------------------------------
 ***** These should all be 2-comp fits. *****
@@ -153,27 +158,44 @@ x,  y
 -- Also there is enough SNR in the line that LZIFU should be able to cleanly separate 2-comp
 All ds9 coordinates. If the coords run over a range then both ends are included.
 # for spaxels 
-x,  y 
-43, 20--21
+# ncomp 2 for all
+# indented by 4 spaces here if I'm done patching
+    x,  y,  line_sig_guess
+    43, 20--21, 70
+    50, 22, 50
+    50, 23--24, 70
+    51, 23, 50
+    52, 23, 30
+    47, 30, 50
+    49, 30, 70
+    50, 29, 70
+    50, 30--32, 50
+    51, 32, 70
+    52, 32, 50
+    51--52, 33, 50
+    49, 33, 70
+    49, 34, 20
+    44--47, 35, 50
+    45--46, 36, 50
+    44, 37, 50
+    44, 38, 50
+    46--47, 38, 50
+    43--44, 39, 50
+    46, 39, 50
+    41--42, 40, 50
+    44, 40, 50
+    46--47, 40, 50
 
-50, 22--24
-51--52, 23
-
-47, 30
-
-49, 30
-50, 29--32
-51--52, 32--33
-
-49, 33--34
-
-41--49, 34--40  # all nan pixels within this box need 2-comp fits
-
+    47, 34
+    45, 37
+    45, 38
+    45, 39
+    45, 40
+    43, 40
 28, 21
 28, 24
 33, 20
 34, 23
-
 34, 30
 33, 28
 34, 26
@@ -181,24 +203,53 @@ x,  y
 36, 29
 37, 29
 37, 30
-
 38, 34
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+36, 37
+39, 40
+37, 40
+33, 36
+32, 36
+32, 37
+31, 38
+30, 39
+25, 32
+25, 34
+26--27, 36
+25--28, 37
+27, 38
+29, 43
+28, 42
+29, 41
+35, 43--46
+34, 44
+36, 46--47
+33, 46
+31--32, 45
+33--34, 49
+29, 49
+25, 43
+17, 42
+25, 49
+26, 48
+25, 47
+23, 52
+24, 51
+23, 46
+22, 48--50
+21, 48
+23, 49
+17, 48--51
+18, 49
+18, 52
+19, 51
+19--20, 50
+15, 48
+14, 47
+14, 45
+13, 46--47
+37, 50
+34--38, 51--56  # all nan pixels within this box need 2-comp fits
+38--47, 41--43  # all nan pixels within this box need 2-comp fits
+22, 31
+18--21, 29--35  # all nan pixels within this box need 2-comp fits
 

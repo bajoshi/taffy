@@ -10,8 +10,8 @@ import datetime
 
 home = os.getenv('HOME')  # does not have a trailing slash
 
-taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products/'
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_products = home + '/Desktop/ipac/taffy_lzifu/products/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 
 if __name__ == '__main__':
 
@@ -21,12 +21,13 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in cube that is edited each time a pixel is fixed
-    big_cube_hlist = fits.open(taffy_extdir + 'big_cube_2_comp_velsort.fits')
+    patched_filename = 'Taffy_2_comp_patched.fits'
+    patched_cube_hlist = fits.open(taffy_extdir + patched_filename)
     
     # read in most recent pixel run
     pix_hdu = fits.open(taffy_products + 'Taffy_2_comp.fits')
 
-    curr_pix_x,curr_pix_y = 33,35
+    curr_pix_x,curr_pix_y = 47,40
     arr_x,arr_y = curr_pix_y-1,curr_pix_x-1
     # 2 lines above arent' quite pythonic syntax but 
     # it is easier to read coordinates this way.
@@ -46,18 +47,18 @@ if __name__ == '__main__':
 
     # loop over each extension and replace nan data with new fit data
     for i in range(38):
-        shape = big_cube_hlist[extnames[i]].data.shape
+        shape = patched_cube_hlist[extnames[i]].data.shape
         if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
-            big_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = pix_hdu[extnames[i]].data[:,arr_x,arr_y]
-            #big_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = np.zeros(shape[0])
+            patched_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = pix_hdu[extnames[i]].data[:,arr_x,arr_y]
+            #patched_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = np.zeros(shape[0])
             # use this second line above to replce the line fits 
             # with zeros if LZIFU refuses to give you an answer for a pixel.
         elif shape == (58, 58):
-            big_cube_hlist[extnames[i]].data[arr_x,arr_y] = pix_hdu[extnames[i]].data[arr_x,arr_y]
+            patched_cube_hlist[extnames[i]].data[arr_x,arr_y] = pix_hdu[extnames[i]].data[arr_x,arr_y]
 
-    big_cube_hlist.writeto(taffy_extdir + 'big_cube_2_comp_velsort.fits', clobber=True, output_verify='fix')
+    patched_cube_hlist.writeto(taffy_extdir + patched_filename, clobber=True, output_verify='fix')
 
-    big_cube_hlist.close()
+    patched_cube_hlist.close()
     pix_hdu.close()
 
     print "Done."
