@@ -21,13 +21,13 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in cube that is edited each time a pixel is fixed
-    patched_filename = 'Taffy_2_comp_patched.fits'
+    patched_filename = 'Taffy_1_comp_patched.fits'
     patched_cube_hlist = fits.open(taffy_extdir + patched_filename)
     
     # read in most recent pixel run
-    pix_hdu = fits.open(taffy_products + 'Taffy_2_comp.fits')
+    pix_hdu = fits.open(taffy_products + patched_filename.replace('_patched.fits', '.fits'))
 
-    curr_pix_x,curr_pix_y = 47,40
+    curr_pix_x,curr_pix_y = 37,57
     arr_x,arr_y = curr_pix_y-1,curr_pix_x-1
     # 2 lines above arent' quite pythonic syntax but 
     # it is easier to read coordinates this way.
@@ -37,22 +37,30 @@ if __name__ == '__main__':
     # get extanmes
     extnames = []
     
-    for i in range(1,39):
-        extnames.append(pix_hdu[i].header['EXTNAME'])
+    if '1' in patched_filename:
+        for i in range(1,37):
+            extnames.append(pix_hdu[i].header['EXTNAME'])
+        total_ext = 36
+        line_shape = (2, 58, 58)
+    elif '2' in patched_filename:
+        for i in range(1,39):
+            extnames.append(pix_hdu[i].header['EXTNAME'])
+        total_ext = 38
+        line_shape = (3, 58, 58)
 
     # define shapes because the extensions in the fits file have diff shapes
     blue_shape = (2227, 58, 58)
     red_shape = (2350, 58, 58)
-    line_shape = (3, 58, 58)
 
     # loop over each extension and replace nan data with new fit data
-    for i in range(38):
+    for i in range(total_ext):
         shape = patched_cube_hlist[extnames[i]].data.shape
         if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
             patched_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = pix_hdu[extnames[i]].data[:,arr_x,arr_y]
             #patched_cube_hlist[extnames[i]].data[:,arr_x,arr_y] = np.zeros(shape[0])
             # use this second line above to replce the line fits 
             # with zeros if LZIFU refuses to give you an answer for a pixel.
+            # comment out the first line if you use the second
         elif shape == (58, 58):
             patched_cube_hlist[extnames[i]].data[arr_x,arr_y] = pix_hdu[extnames[i]].data[arr_x,arr_y]
 

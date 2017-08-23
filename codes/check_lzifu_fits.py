@@ -34,7 +34,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_products + 'Taffy_2_comp.fits')
+    h = fits.open(taffy_products + 'Taffy_1_comp.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
@@ -94,8 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 47
-    pix_y = 40
+    pix_x = 37
+    pix_y = 57
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 
@@ -126,6 +126,7 @@ if __name__ == '__main__':
     else:
         ax1.plot(lam_b, cont_fit_b, color='b', zorder=10)
 
+    # to show line and continuum fits by themselves
     #ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
     #ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
     
