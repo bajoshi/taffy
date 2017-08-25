@@ -94,8 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 37
-    pix_y = 57
+    pix_x = 11
+    pix_y = 39
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 

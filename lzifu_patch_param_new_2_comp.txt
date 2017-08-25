@@ -140,11 +140,16 @@ x,  y
 # indented by 4 spaces here if I'm done patching
     x,  y,  line_sig_guess
 
-    36, 51--52, 70  # bright lines; also failed in 1-comp
-    36, 54--56, 70  # bright lines; also failed in 1-comp
-    37, 48--57,   # bright lines; also failed in 1-comp
+    36, 51--52, 70
+    36, 54--56, 70
+    37, 48--57, 150
+    9--10, 39, 150
+    11, 39, 90
 
-48, 16--17  # also failed in 1-comp R-cube fit
+10--13, 36--39  # bright lines but I don't see 2-comp. # also failed in 1-comp fit
+
+22, 18  # has lines but I don't see 2-comp. # also failed in 1-comp fit
+22-23, 17  # has lines but I don't see 2-comp. # also failed in 1-comp fit
 
 41, 2   # also failed in 1-comp fit
 42, 10  # only failed in 1-comp fit
@@ -154,10 +159,7 @@ x,  y
 15--16, 52  # very low snr. I don't see any lines. # also failed in 1-comp fit
 17, 53--54  # very low snr. I don't see any lines. # also failed in 1-comp fit
 
-10--13, 36--39  # bright lines but I don't see 2-comp. # also failed in 1-comp fit
-
-22, 18  # has lines but I don't see 2-comp. # also failed in 1-comp fit
-22-23, 17  # has lines but I don't see 2-comp. # also failed in 1-comp fit
+48, 16--17  # also failed in 1-comp R-cube fit
 
 ----------------------------------------------------1-------------------------------------------------------
 ***** These should all be 2-comp fits. *****

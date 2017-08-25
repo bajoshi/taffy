@@ -66,10 +66,10 @@ if __name__ == '__main__':
     #sys.exit(0)
 
     # read in both 1 and 2 comp fitting results
-    single_comp = fits.open(taffy_extdir + 'products/Taffy_1_comp.fits')
-    two_comp = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')
+    single_comp = fits.open(taffy_extdir + 'Taffy_1_comp_patched.fits')
+    two_comp = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
 
-    stitched_cube = fits.open(savedir + 'stitched_cube.fits')
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     # loop over all pixels and stitch them according 
     # to whether they need a one or two comp fit
@@ -90,12 +90,18 @@ if __name__ == '__main__':
     for i in range(58):
         for j in range(58):
 
+            if [i,j] in nan_single_comp_list:
+                single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                continue
+
             if single_idx[i,j]:
                 single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                continue
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
                 if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
                     single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                    continue
 
                 else:
                     # loop over each extension
@@ -108,5 +114,8 @@ if __name__ == '__main__':
 
     stitched_cube.writeto(savedir + 'stitched_cube.fits', clobber=True, output_verify='fix')
     stitched_cube.close()
+
+    single_comp.close()
+    two_comp.close()
 
     sys.exit(0)
