@@ -12,10 +12,10 @@ import datetime
 import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
-taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
+taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_data = '/Users/baj/Desktop/ipac/taffy_lzifu/data/'
 taffydir = home + '/Desktop/ipac/taffy/'
-savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
+savedir = '/Users/baj/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
     red_wav_arr = np.asarray(red_wav_arr)
 
-    # find hbeta index in wavelength array
+    # find line index in wavelength array
     redshift = 0.0145  # average z
     linename = 'halpha'
     line_air_wav = 6562.80  # 6562.80 for halpha  # 5006.84 for oiii5007  # 4861.363 for hbeta
@@ -255,8 +255,6 @@ if __name__ == '__main__':
     np.save(savedir + 'vel_' + linename + '_onecomp.npy', vel_onecomp)
     np.save(savedir + 'std_' + linename + '_onecomp.npy', std_onecomp)
 
-    sys.exit(0)
-
     # get mask and set all masked elements to np.nan
     all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
 
@@ -285,13 +283,13 @@ if __name__ == '__main__':
     #std_comp2 = np.absolute(std_comp2)
 
     # 1. if mean and std are not too different ==> there is only a single comp
-    single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1))
+    single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
     plot_indices(single_idx)
     single_idx_arr = np.zeros((58,58))
     single_idx_arr[single_idx] = 1.0
 
     # 2. Different mean but same std ==> There are two components
-    diffmean_idx = np.where((mean_diff >= 35) & (std_comp2 < 1.5 * std_comp1))
+    diffmean_idx = np.where((mean_diff >= 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
     #large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) * delt >= data_res)
 
     #for k in range(len(large_stddiff_idx[0])):
@@ -306,13 +304,13 @@ if __name__ == '__main__':
     diffmean_idx_arr[diffmean_idx] = 1.0
 
     # 3. Different std but same mean ==> There are two components
-    diffstd_idx = np.where((mean_diff < 35) & (std_comp2 >= 1.5 * std_comp1))
+    diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) or (std_comp1 >= 1.5 * std_comp2)))
     plot_indices(diffstd_idx)
     diffstd_idx_arr = np.zeros((58,58))
     diffstd_idx_arr[diffstd_idx] = 1.0
 
     # 4. Different mean and std ==> There are two components
-    diffboth_idx = np.where((mean_diff >= 35) & (std_comp2 >= 1.5 * std_comp1))
+    diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) or (std_comp1 >= 1.5 * std_comp2)))
     plot_indices(diffboth_idx)
     diffboth_idx_arr = np.zeros((58,58))
     diffboth_idx_arr[diffboth_idx] = 1.0
@@ -334,6 +332,8 @@ if __name__ == '__main__':
     hdr['EXTNAME'] = 'DIFFBOTH_IDX'
     all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
     all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', clobber=True)
+
+    sys.exit(0)
 
     # save differences as fits file
     new_hdu = fits.PrimaryHDU(data=amp_diff)

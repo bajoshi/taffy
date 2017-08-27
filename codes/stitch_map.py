@@ -84,6 +84,14 @@ if __name__ == '__main__':
     red_shape = (2350, 58, 58)
     line_shape = (3, 58, 58)
 
+    # define the list of spaxels which are nan in the 2-comp fit but
+    # the data only shows a single comp so the code stitches the 1-comp fit
+    nan_single_comp_list = [[33, 15],[35, 13],[34, 12],[35, 12],[36, 12],[34, 11],\
+    [35, 11],[36, 11],[37, 11],[38, 11],[35, 10],[36, 10],[35, 9],[36, 9],[37, 9],\
+    [35, 8],[40, 8],[41, 9],[39, 5], [39, 6],[40, 5], [40, 6],[41, 5],[40, 4],\
+    [39, 3],[38, 4],[45, 12],[44, 11],[44, 10],[45, 10],[45, 14],[29, 4],[29, 9],\
+    [30, 11],[26, 9],[25, 18],[26, 16],[26, 17],[34, 56], [35, 56],[21, 56],[17, 53],[17, 54]]
+
     # loop over all pixels 
     # My goal here is to keep the shapes of the stitched cube 
     # extensions to be the same as those of the two comp fit results.
