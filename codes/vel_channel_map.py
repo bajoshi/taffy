@@ -20,14 +20,12 @@ from matplotlib.colors import LinearSegmentedColormap
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_dir = home + '/Desktop/ipac/taffy/'
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 
 sys.path.append(taffy_dir + 'codes/')
 import bpt_plots as bpt
 
 def make_halpha_based_mask():
-
-    taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
 
     halpha = fits.open(taffy_extdir + "products_big_cube_velsort/big_cube_2_comp_velsort_HALPHA.fits")
     

@@ -12,10 +12,11 @@ import datetime
 import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products_work/'
-taffy_data = '/Users/baj/Desktop/ipac/taffy_lzifu/data/'
+taffy_products = home + '/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+taffy_data = home + '/Desktop/ipac/taffy_lzifu/data/'
 taffydir = home + '/Desktop/ipac/taffy/'
-savedir = '/Users/baj/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
+savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     obs_data_r = obs_r[0].data
 
     # read in lzifu output file
-    h = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')
+    h = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
 
     # assign line arrays
     # Each one of these cubes has the shape 
@@ -304,13 +305,13 @@ if __name__ == '__main__':
     diffmean_idx_arr[diffmean_idx] = 1.0
 
     # 3. Different std but same mean ==> There are two components
-    diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) or (std_comp1 >= 1.5 * std_comp2)))
+    diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
     plot_indices(diffstd_idx)
     diffstd_idx_arr = np.zeros((58,58))
     diffstd_idx_arr[diffstd_idx] = 1.0
 
     # 4. Different mean and std ==> There are two components
-    diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) or (std_comp1 >= 1.5 * std_comp2)))
+    diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
     plot_indices(diffboth_idx)
     diffboth_idx_arr = np.zeros((58,58))
     diffboth_idx_arr[diffboth_idx] = 1.0
@@ -333,6 +334,7 @@ if __name__ == '__main__':
     all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
     all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', clobber=True)
 
+    h.close()
     sys.exit(0)
 
     # save differences as fits file

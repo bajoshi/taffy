@@ -9,8 +9,8 @@ import os
 home = os.getenv('HOME')  # does not have a trailing slash
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
-taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+taffy_products = home + '/Desktop/ipac/taffy_lzifu/products_work/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_products + 'Taffy_1_comp_patched.fits'
+    filepath = taffy_products + 'stitched_cube.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
