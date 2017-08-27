@@ -285,13 +285,13 @@ if __name__ == '__main__':
     #std_comp2 = np.absolute(std_comp2)
 
     # 1. if mean and std are not too different ==> there is only a single comp
-    single_idx = np.where((mean_diff < 45) & (std_comp2 < 1.5 * std_comp1))
+    single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1))
     plot_indices(single_idx)
     single_idx_arr = np.zeros((58,58))
     single_idx_arr[single_idx] = 1.0
 
     # 2. Different mean but same std ==> There are two components
-    diffmean_idx = np.where((mean_diff >= 45) & (std_comp2 < 1.5 * std_comp1))
+    diffmean_idx = np.where((mean_diff >= 35) & (std_comp2 < 1.5 * std_comp1))
     #large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) * delt >= data_res)
 
     #for k in range(len(large_stddiff_idx[0])):
@@ -306,13 +306,13 @@ if __name__ == '__main__':
     diffmean_idx_arr[diffmean_idx] = 1.0
 
     # 3. Different std but same mean ==> There are two components
-    diffstd_idx = np.where((mean_diff < 45) & (std_comp2 >= 1.5 * std_comp1))
+    diffstd_idx = np.where((mean_diff < 35) & (std_comp2 >= 1.5 * std_comp1))
     plot_indices(diffstd_idx)
     diffstd_idx_arr = np.zeros((58,58))
     diffstd_idx_arr[diffstd_idx] = 1.0
 
     # 4. Different mean and std ==> There are two components
-    diffboth_idx = np.where((mean_diff >= 45) & (std_comp2 >= 1.5 * std_comp1))
+    diffboth_idx = np.where((mean_diff >= 35) & (std_comp2 >= 1.5 * std_comp1))
     plot_indices(diffboth_idx)
     diffboth_idx_arr = np.zeros((58,58))
     diffboth_idx_arr[diffboth_idx] = 1.0

@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # read in most recent pixel run
     pix_hdu = fits.open(taffy_products + patched_filename.replace('_patched.fits', '.fits'))
 
-    curr_pix_x,curr_pix_y = 11,39
+    curr_pix_x,curr_pix_y = 16,52
     arr_x,arr_y = curr_pix_y-1,curr_pix_x-1
     # 2 lines above arent' quite pythonic syntax but 
     # it is easier to read coordinates this way.
