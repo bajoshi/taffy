@@ -5,6 +5,8 @@ from astropy.io import fits
 
 import os
 import sys
+import time
+import datetime
 
 import matplotlib.pyplot as plt
 
@@ -45,6 +47,11 @@ def single_comp_stitch(extnames, stitched_cube, single_comp, arr_x, arr_y, blue_
 
 if __name__ == '__main__':
     
+    # Start time
+    start = time.time()
+    dt = datetime.datetime
+    print "Starting at --", dt.now()
+
     # read in indices file
     h = fits.open(savedir + 'all_cases_indices.fits')
 
@@ -90,7 +97,13 @@ if __name__ == '__main__':
     [35, 11],[36, 11],[37, 11],[38, 11],[35, 10],[36, 10],[35, 9],[36, 9],[37, 9],\
     [35, 8],[40, 8],[41, 9],[39, 5], [39, 6],[40, 5], [40, 6],[41, 5],[40, 4],\
     [39, 3],[38, 4],[45, 12],[44, 11],[44, 10],[45, 10],[45, 14],[29, 4],[29, 9],\
-    [30, 11],[26, 9],[25, 18],[26, 16],[26, 17],[34, 56], [35, 56],[21, 56],[17, 53],[17, 54]]
+    [30, 11],[26, 9],[25, 18],[26, 16],[26, 17],[34, 56], [35, 56],[21, 56],\
+    [17, 53],[17, 54],[19, 54],[19, 55],[36, 51],[36, 52],[36, 53],[36, 54],\
+    [36, 55],[36, 56],[37, 48],[37, 49],[37, 50],[37, 51],[37, 52],[37, 53],\
+    [37, 54],[37, 55],[37, 56],[37, 57],[9, 39],[10, 39],[11, 39],[13, 38],\
+    [9, 38],[10, 38],[11, 38],[12, 38],[10, 37],[11, 37],[12, 37],[10, 36],\
+    [11, 36],[9, 36],[9, 37],[24, 17],[42, 10],[19, 54],[20, 55],[35, 54],\
+    [12, 36],[13, 36],[21, 18],[22, 18],[21, 17],[22, 17],[23, 17],[21, 14],[22, 14]]
 
     nan_arr_list_x = []
     nan_arr_list_y = []
@@ -134,4 +147,7 @@ if __name__ == '__main__':
     single_comp.close()
     two_comp.close()
 
+    print "Done Stitching."
+    # total run time
+    print "Total time taken --", time.time() - start, "seconds."
     sys.exit(0)
