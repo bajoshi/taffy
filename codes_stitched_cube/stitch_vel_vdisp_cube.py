@@ -41,8 +41,8 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vel'
-    comp = 2
+    mapname = 'vdisp'
+    comp = 1
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
@@ -148,10 +148,10 @@ if __name__ == '__main__':
     if mapname == 'vdisp':
         # now nan all spaxels that are not within an acceptable physical range
         min_idx = np.where(map_cube < 0)
-        max_idx = np.where(map_cube > 350)
+        #max_idx = np.where(map_cube > 2000)
 
         map_cube[min_idx] = np.nan
-        map_cube[max_idx] = np.nan
+        #map_cube[max_idx] = np.nan
 
     # write out map
     # get header from lzifu output

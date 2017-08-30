@@ -147,8 +147,8 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 27
-    pix_y = 43
+    pix_x = 40
+    pix_y = 19
     arr_x = pix_y - 1
     arr_y = pix_x - 1
     box_size = 2
@@ -186,20 +186,21 @@ if __name__ == '__main__':
 
             # also fit raw data by a single gaussian
             line_y_arr_data = obs_data[line_idx-linepad_left:line_idx+linepad_right, i, j]
-            g = fit_gauss(gauss_init_lowcomp, line_x_arr_comp1, line_y_arr_data)
+            gauss_init_onecomp = models.Gaussian1D(amplitude=np.nanmean(line_y_arr_data), mean=line_idx-10, stddev=5.0)
+            g = fit_gauss(gauss_init_onecomp, line_x_arr_comp1, line_y_arr_data)
 
             # save in arrays
             amp_comp1[i,j] = g1.parameters[0]
             vel_comp1[i,j] = g1.parameters[1]
-            std_comp1[i,j] = g1.parameters[2]
+            std_comp1[i,j] = abs(g1.parameters[2])
 
             amp_comp2[i,j] = g2.parameters[0]
             vel_comp2[i,j] = g2.parameters[1]
-            std_comp2[i,j] = g2.parameters[2]
+            std_comp2[i,j] = abs(g2.parameters[2])
 
             amp_onecomp[i,j] = g.parameters[0]
             vel_onecomp[i,j] = g.parameters[1]
-            std_onecomp[i,j] = g.parameters[2]
+            std_onecomp[i,j] = abs(g.parameters[2])
 
             isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-4)
             isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-4)
@@ -210,6 +211,7 @@ if __name__ == '__main__':
             if isinvalid_comp2_fit:
                 comp2_inv_idx[i,j] = 1.0
 
+            # uncomment the follwing block to run 
             """
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
