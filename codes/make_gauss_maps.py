@@ -147,11 +147,11 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 50
-    pix_y = 33
+    pix_x = 27
+    pix_y = 43
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 3
+    box_size = 2
 
     comp1_inv_idx = np.zeros((58,58))
     comp2_inv_idx = np.zeros((58,58))
@@ -162,7 +162,7 @@ if __name__ == '__main__':
         for j in range(58):  # (arr_y, arr_y + box_size):
 
             # slice array to get only region containing line
-            linepad_left = 35
+            linepad_left = 50
             linepad_right = 50
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -201,8 +201,8 @@ if __name__ == '__main__':
             vel_onecomp[i,j] = g.parameters[1]
             std_onecomp[i,j] = g.parameters[2]
 
-            isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))))
-            isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))))
+            isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-4)
+            isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-4)
 
             if isinvalid_comp1_fit:
                 comp1_inv_idx[i,j] = 1.0
@@ -212,11 +212,13 @@ if __name__ == '__main__':
 
             """
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
-            print "at pixel", i, j
-            print "mean diff", (((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light
-            print "std devs", std_comp2[i,j], std_comp1[i,j]
-            print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))))
-            print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))))
+            print "at pixel", j+1, i+1
+            print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
+            print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f')
+            print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
+            print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
+            print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-4)
+            print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-4)
             print '\n' 
 
             # plot to check
@@ -257,7 +259,7 @@ if __name__ == '__main__':
     np.save(savedir + 'std_' + linename + '_onecomp.npy', std_onecomp)
 
     # get mask and set all masked elements to np.nan
-    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
+    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
 
     amp_diff = np.absolute(amp_comp2 - amp_comp1)
     mean_diff = np.absolute(vel_comp2 - vel_comp1)

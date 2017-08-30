@@ -9,11 +9,11 @@ import sys
 import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
-taffy_data = '/Volumes/Bhavins_backup/ipac/TAFFY/data/'
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_products = home + '/Desktop/ipac/taffy_lzifu/products_work/'
+taffy_data = home + '/Desktop/ipac/taffy_lzifu/data/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 taffydir = home + '/Desktop/ipac/taffy/'
-savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
+savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -35,30 +35,22 @@ if __name__ == '__main__':
 
     # read in velocity and vdisp maps for each component
     # and also read in lzifu result for single comp fit
-    one_comp = fits.open(taffy_extdir + 'products/Taffy_1_comp.fits')
+    one_comp = fits.open(taffy_products + 'Taffy_1_comp_patched.fits')
     # put red line fit in array
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
     mapname = 'vel'
-    comp = '2'
+    comp = 1
     if mapname == 'vel':
-        vel_comp1_hdu = fits.open(savedir + 'vel_halpha_comp1.fits')
-        vel_comp2_hdu = fits.open(savedir + 'vel_halpha_comp2.fits')
-        vel_onecomp_hdu = fits.open(savedir + 'vel_halpha_onecomp.fits')
-
-        map_comp1 = vel_comp1_hdu[0].data
-        map_comp2 = vel_comp2_hdu[0].data
-        map_onecomp = vel_onecomp_hdu[0].data
+        map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
+        map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
+        map_onecomp = np.load(savedir + 'vel_halpha_onecomp.npy')
 
     elif mapname == 'vdisp':
-        vdisp_comp1_hdu = fits.open(savedir + 'std_halpha_comp1.fits')
-        vdisp_comp2_hdu = fits.open(savedir + 'std_halpha_comp2.fits')
-        vdisp_onecomp_hdu = fits.open(savedir + 'std_halpha_onecomp.fits')
-
-        map_comp1 = vdisp_comp1_hdu[0].data
-        map_comp2 = vdisp_comp2_hdu[0].data
-        map_onecomp = vdisp_onecomp_hdu[0].data
+        map_comp1 = np.load(savedir + 'std_halpha_comp1.npy')
+        map_comp2 = np.load(savedir + 'std_halpha_comp2.npy')
+        map_onecomp = np.load(savedir + 'std_halpha_onecomp.npy')
 
     # red wav arr
     delt_r = 0.3  # i.e. the wav axis is sampled at 0.3A
@@ -72,7 +64,7 @@ if __name__ == '__main__':
     halpha_air_wav = 6562.8
 
     # get mask of all possible not NaN pixels
-    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
+    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
 
     # loop over all spaxels and check case and save in array
     map_cube = np.ones((58,58)) * -9999.0
@@ -88,9 +80,9 @@ if __name__ == '__main__':
                     map_cube[i,j] = map_onecomp[i,j]
 
                 else:
-                    if comp == '1':
+                    if comp == 1:
                         map_cube[i,j] = map_comp1[i,j]
-                    elif comp == '2':
+                    elif comp == 2:
                         map_cube[i,j] = map_comp2[i,j]
 
             # convert velocities to physical units
@@ -143,8 +135,12 @@ if __name__ == '__main__':
     # write out map
     # get header from lzifu output
     hdr = one_comp['CHI2'].header
-    hdr['EXTNAME'] = mapname + '_comp' + comp
+    hdr['EXTNAME'] = mapname + '_comp' + str(comp)
     hdu = fits.PrimaryHDU(data=map_cube, header=hdr)
-    hdu.writeto(savedir + mapname + '_cube_comp' + comp + '.fits', clobber=True)
+    hdu.writeto(savedir + mapname + '_cube_comp' + str(comp) + '.fits', clobber=True)
+
+    # close fits files
+    one_comp.close()
+    h.close()
 
     sys.exit(0)

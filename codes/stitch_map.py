@@ -45,6 +45,46 @@ def single_comp_stitch(extnames, stitched_cube, single_comp, arr_x, arr_y, blue_
 
     return stitched_cube
 
+def two_comp_stitch(extnames, stitched_cube, two_comp, arr_x, arr_y, blue_shape, red_shape, line_shape):
+
+    # loop over each extension
+    for k in range(38):
+        shape = stitched_cube[extnames[k]].data.shape
+        if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
+            stitched_cube[extnames[k]].data[:,arr_x,arr_y] = two_comp[extnames[k]].data[:,arr_x,arr_y]
+        elif shape == (58, 58):
+            stitched_cube[extnames[k]].data[arr_x,arr_y] = two_comp[extnames[k]].data[arr_x,arr_y]
+
+    return stitched_cube
+
+def get_nan_arr():
+
+    # define the list of spaxels which are nan in the 2-comp fit but
+    # the data only shows a single comp so the code stitches the 1-comp fit
+    nan_single_comp_list = [[33, 15],[35, 13],[34, 12],[35, 12],[36, 12],[34, 11],\
+    [35, 11],[36, 11],[37, 11],[38, 11],[35, 10],[36, 10],[35, 9],[36, 9],[37, 9],\
+    [35, 8],[40, 8],[41, 9],[39, 5],[39, 6],[40, 5],[40, 6],[41, 5],[40, 4],\
+    [39, 3],[38, 4],[45, 12],[44, 11],[44, 10],[45, 10],[45, 14],[29, 4],[29, 9],\
+    [30, 11],[26, 9],[25, 18],[26, 16],[26, 17],[34, 56], [35, 56],[21, 56],\
+    [17, 53],[17, 54],[19, 54],[19, 55],[36, 51],[36, 52],[36, 53],[36, 54],\
+    [36, 55],[36, 56],[37, 48],[37, 49],[37, 50],[37, 51],[37, 52],[37, 53],\
+    [37, 54],[37, 55],[37, 56],[37, 57],[9, 39],[10, 39],[11, 39],[13, 38],\
+    [9, 38],[10, 38],[11, 38],[12, 38],[10, 37],[11, 37],[12, 37],[10, 36],\
+    [11, 36],[9, 36],[9, 37],[24, 17],[42, 10],[19, 54],[20, 55],[35, 54],\
+    [12, 36],[13, 36],[21, 18],[22, 18],[21, 17],[22, 17],[23, 17],[21, 14],[22, 14]]
+
+    nan_arr_list_x = []
+    nan_arr_list_y = []
+
+    for u in range(len(nan_single_comp_list)):
+
+        nan_arr_list_x.append(nan_single_comp_list[u][1] - 1)
+        nan_arr_list_y.append(nan_single_comp_list[u][0] - 1)
+
+    nan_single_comp_arr = zip(nan_arr_list_x, nan_arr_list_y)
+
+    return nan_single_comp_arr
+
 if __name__ == '__main__':
     
     # Start time
@@ -91,29 +131,13 @@ if __name__ == '__main__':
     red_shape = (2350, 58, 58)
     line_shape = (3, 58, 58)
 
-    # define the list of spaxels which are nan in the 2-comp fit but
-    # the data only shows a single comp so the code stitches the 1-comp fit
-    nan_single_comp_list = [[33, 15],[35, 13],[34, 12],[35, 12],[36, 12],[34, 11],\
-    [35, 11],[36, 11],[37, 11],[38, 11],[35, 10],[36, 10],[35, 9],[36, 9],[37, 9],\
-    [35, 8],[40, 8],[41, 9],[39, 5], [39, 6],[40, 5], [40, 6],[41, 5],[40, 4],\
-    [39, 3],[38, 4],[45, 12],[44, 11],[44, 10],[45, 10],[45, 14],[29, 4],[29, 9],\
-    [30, 11],[26, 9],[25, 18],[26, 16],[26, 17],[34, 56], [35, 56],[21, 56],\
-    [17, 53],[17, 54],[19, 54],[19, 55],[36, 51],[36, 52],[36, 53],[36, 54],\
-    [36, 55],[36, 56],[37, 48],[37, 49],[37, 50],[37, 51],[37, 52],[37, 53],\
-    [37, 54],[37, 55],[37, 56],[37, 57],[9, 39],[10, 39],[11, 39],[13, 38],\
-    [9, 38],[10, 38],[11, 38],[12, 38],[10, 37],[11, 37],[12, 37],[10, 36],\
-    [11, 36],[9, 36],[9, 37],[24, 17],[42, 10],[19, 54],[20, 55],[35, 54],\
-    [12, 36],[13, 36],[21, 18],[22, 18],[21, 17],[22, 17],[23, 17],[21, 14],[22, 14]]
+    nan_single_comp_arr = get_nan_arr()
 
-    nan_arr_list_x = []
-    nan_arr_list_y = []
-
-    for u in range(len(nan_single_comp_list)):
-
-        nan_arr_list_x.append(nan_single_comp_list[u][1] - 1)
-        nan_arr_list_y.append(nan_single_comp_list[u][0] - 1)
-
-    nan_single_comp_arr = zip(nan_arr_list_x, nan_arr_list_y)
+    # set up counters
+    nan_count = 0
+    onecomp_count = 0
+    invalid_fit_count = 0
+    twocomp_count = 0
 
     # loop over all pixels 
     # My goal here is to keep the shapes of the stitched cube 
@@ -123,23 +147,35 @@ if __name__ == '__main__':
 
             if (i,j) in nan_single_comp_arr:
                 stitched_cube = single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                nan_count += 1
                 continue
 
             if single_idx[i,j]:
                 stitched_cube = single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                onecomp_count += 1
+                continue
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
-                if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
+                if comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
                     stitched_cube = single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
+                    invalid_fit_count += 1
+
+                elif comp1_inv_idx[i,j] and ~comp2_inv_idx[i,j]:
+                    stitched_cube = two_comp_stitch(extnames, stitched_cube, two_comp, i, j, blue_shape, red_shape, line_shape)
+                    twocomp_count += 1
+
+                elif ~comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
+                    stitched_cube = two_comp_stitch(extnames, stitched_cube, two_comp, i, j, blue_shape, red_shape, line_shape)
+                    twocomp_count += 1
 
                 else:
-                    # loop over each extension
-                    for k in range(38):
-                        shape = stitched_cube[extnames[k]].data.shape
-                        if (shape == blue_shape) or (shape == red_shape) or (shape == line_shape):
-                            stitched_cube[extnames[k]].data[:,i,j] = two_comp[extnames[k]].data[:,i,j]
-                        elif shape == (58, 58):
-                            stitched_cube[extnames[k]].data[i,j] = two_comp[extnames[k]].data[i,j]
+                    stitched_cube = two_comp_stitch(extnames, stitched_cube, two_comp, i, j, blue_shape, red_shape, line_shape)
+                    twocomp_count += 1
+
+    print "total nan spaxels in two comp result", nan_count
+    print "total single comp classified spaxels", onecomp_count
+    print "total invalid fit spaxels", invalid_fit_count
+    print "total two comp classified spaxels", twocomp_count
 
     stitched_cube.writeto(taffy_extdir + 'stitched_cube.fits', clobber=True, output_verify='fix')
     stitched_cube.close()

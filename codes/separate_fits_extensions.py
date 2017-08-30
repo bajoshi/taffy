@@ -28,7 +28,7 @@ if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_products + 'Taffy_1_comp_patched.fits'
+    filepath = taffy_products + 'Taffy_2_comp_patched.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
