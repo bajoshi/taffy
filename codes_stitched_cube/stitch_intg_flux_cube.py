@@ -135,19 +135,6 @@ if __name__ == '__main__':
     for i in range(58):
         for j in range(58):
 
-            #if [i,j] == [arr_x, arr_y]:
-            #    if ((i,j) in nan_single_comp_arr) or single_idx[i,j] or comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
-            #        print single_idx[i,j], comp1_inv_idx[i,j], comp2_inv_idx[i,j]
-            #        print amp_onecomp[i,j]
-            #        print vdisp_onecomp[i,j]
-            #        print i, j, 'stitches single comp with flux', one_comp_flux(i, j, amp_onecomp, vdisp_onecomp)
-            #    else:
-            #        vdisp_comp1[i,j] = ((vdisp_comp1[i,j] * 0.3) / halpha_air_wav) * speed_of_light
-            #        intg_flux_map[i,j] = amp_comp1[i,j] * np.sqrt(2 * np.pi * vdisp_comp1[i,j]**2)
-            #        print i,j, 'stitches twocomp fit with flux', intg_flux_map[i,j]
-            #    sys.exit(0)
-            #continue
-
             if (i,j) in nan_single_comp_arr:
                 intg_flux_map[i,j] = one_comp_flux(i, j, amp_onecomp, vdisp_onecomp)
                 continue

@@ -17,6 +17,7 @@ savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
+import stitch_map as sm
 
 speed_of_light = 299792.458
 redshift = 0.0145
@@ -66,18 +67,31 @@ if __name__ == '__main__':
     # get mask of all possible not NaN pixels
     all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
 
+    # get nana spaxel array from stich_map code
+    nan_single_comp_arr = sm.get_nan_arr()
+
     # loop over all spaxels and check case and save in array
     map_cube = np.ones((58,58)) * -9999.0
 
     for i in range(58):
         for j in range(58):
 
+            if (i,j) in nan_single_comp_arr:
+                map_cube[i,j] = map_onecomp[i,j]
+                continue
+
             if single_idx[i,j]:
                 map_cube[i,j] = map_onecomp[i,j]
 
             elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
-                if comp1_inv_idx[i,j] or comp2_inv_idx[i,j]:
+                if comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
                     map_cube[i,j] = map_onecomp[i,j]
+
+                elif comp1_inv_idx[i,j] and not comp2_inv_idx[i,j]:
+                    map_cube[i,j] = map_comp2[i,j]
+
+                elif not comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
+                    map_cube[i,j] = map_comp1[i,j]
 
                 else:
                     if comp == 1:
@@ -85,31 +99,37 @@ if __name__ == '__main__':
                     elif comp == 2:
                         map_cube[i,j] = map_comp2[i,j]
 
-            # convert velocities to physical units
-            if mapname == 'vel':
-                try:
-                    wavidx = int(map_cube[i,j])
-                    # heliocentric
-                    map_cube[i,j] = ((red_wav_arr[wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
-                    # relative to systemic
-                    map_cube[i,j] -= speed_of_light * redshift
+        # convert velocities and velocity dispersions to physical units
+        # this has to be done separately because of the continue statement
+        # in the previous for loop that causes it to skip converting units 
+        # for pixels that were in the nan_single_comp_arr. This means that
+        # the values in those pixels are not within the physical range and
+        # later on get replaced by np.nan
+        for u in range(58):
+            for v in range(58):
+                if mapname == 'vel':
+                    try:
+                        current_wavidx = int(map_cube[u,v])
+                        # heliocentric
+                        map_cube[u,v] = ((red_wav_arr[current_wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
+                        # relative to systemic
+                        map_cube[u,v] -= speed_of_light * redshift
 
-                except IndexError as e:
-                    map_cube[i,j] = np.nan
+                    except IndexError as e:
+                        map_cube[u,v] = np.nan
 
-            # convert vel dispersions to physical units
-            if mapname == 'vdisp':
-                try:
-                    map_cube[i,j] = ((map_cube[i,j] * 0.3) / halpha_air_wav) * speed_of_light
-                except IndexError as e:
-                    map_cube[i,j] = np.nan
+                if mapname == 'vdisp':
+                    try:
+                        map_cube[u,v] = ((map_cube[u,v] * 0.3) / halpha_air_wav) * speed_of_light
+                    except IndexError as e:
+                        map_cube[u,v] = np.nan
 
     # apply mask
     # first nan all spaxels outside of region of interest
     all_mask = np.logical_not(all_mask)
-    map_cube = np.multiply(map_cube, all_mask)
-    mask_idx = np.where(map_cube == 0)
-    map_cube[mask_idx] = np.nan
+    #map_cube = np.multiply(map_cube, all_mask)
+    #mask_idx = np.where(map_cube == 0)  # this shouldn't be here. since it is a vel or vdisp, 0 is a perfectly acceptable value
+    #map_cube[mask_idx] = np.nan
 
     if mapname == 'vel':
         # now nan all spaxels that are not within an acceptable physical range
