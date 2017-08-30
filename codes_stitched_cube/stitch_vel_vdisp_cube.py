@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # read in linefits
     mapname = 'vel'
-    comp = 1
+    comp = 2
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
@@ -76,6 +76,9 @@ if __name__ == '__main__':
     for i in range(58):
         for j in range(58):
 
+            if all_mask[i,j]:
+                continue
+
             if (i,j) in nan_single_comp_arr:
                 map_cube[i,j] = map_onecomp[i,j]
                 continue
@@ -99,50 +102,48 @@ if __name__ == '__main__':
                     elif comp == 2:
                         map_cube[i,j] = map_comp2[i,j]
 
-        # convert velocities and velocity dispersions to physical units
-        # this has to be done separately because of the continue statement
-        # in the previous for loop that causes it to skip converting units 
-        # for pixels that were in the nan_single_comp_arr. This means that
-        # the values in those pixels are not within the physical range and
-        # later on get replaced by np.nan
-        for u in range(58):
-            for v in range(58):
-                if mapname == 'vel':
-                    try:
-                        current_wavidx = int(map_cube[u,v])
-                        # heliocentric
-                        map_cube[u,v] = ((red_wav_arr[current_wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
-                        # relative to systemic
-                        map_cube[u,v] -= speed_of_light * redshift
+    # convert velocities and velocity dispersions to physical units
+    # this has to be done separately because of the continue statement
+    # in the previous for loop that causes it to skip converting units 
+    # for pixels that were in the nan_single_comp_arr. This means that
+    # the values in those pixels are not within the physical range and
+    # later on get replaced by np.nan
+    for u in range(58):
+        for v in range(58):
+            if mapname == 'vel':
+                try:
+                    current_wavidx = int(map_cube[u,v])
+                    # heliocentric
+                    map_cube[u,v] = ((red_wav_arr[current_wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
+                    # relative to systemic
+                    map_cube[u,v] -= speed_of_light * redshift
 
-                    except IndexError as e:
-                        map_cube[u,v] = np.nan
+                except IndexError as e:
+                    map_cube[u,v] = np.nan
 
-                if mapname == 'vdisp':
-                    try:
-                        map_cube[u,v] = ((map_cube[u,v] * 0.3) / halpha_air_wav) * speed_of_light
-                    except IndexError as e:
-                        map_cube[u,v] = np.nan
+            if mapname == 'vdisp':
+                try:
+                    map_cube[u,v] = ((map_cube[u,v] * 0.3) / halpha_air_wav) * speed_of_light
+                except IndexError as e:
+                    map_cube[u,v] = np.nan
 
     # apply mask
-    # first nan all spaxels outside of region of interest
-    all_mask = np.logical_not(all_mask)
-    #map_cube = np.multiply(map_cube, all_mask)
-    #mask_idx = np.where(map_cube == 0)  # this shouldn't be here. since it is a vel or vdisp, 0 is a perfectly acceptable value
-    #map_cube[mask_idx] = np.nan
+    # first nan all spaxels that still have -9999.0
+    mask_idx = np.where(map_cube == -9999.0) 
+    map_cube[mask_idx] = np.nan
 
-    if mapname == 'vel':
-        # now nan all spaxels that are not within an acceptable physical range
-        min_idx = np.where(map_cube < -400)
-        max_idx = np.where(map_cube > 400)
+    #if mapname == 'vel':
+    #    # now nan all spaxels that are not within an acceptable physical range
+    #    min_idx = np.where(map_cube < -400)
+    #    max_idx = np.where(map_cube > 400)
 
-        map_cube[min_idx] = np.nan
-        map_cube[max_idx] = np.nan
+    #    map_cube[min_idx] = np.nan
+    #    map_cube[max_idx] = np.nan
 
-        #plt.imshow(map_cube, origin='lower', vmin=-250, vmax=250)
-        #plt.colorbar()
-        #plt.show()
-        #sys.exit(0)
+    #    #plt.imshow(map_cube, origin='lower', vmin=-250, vmax=250)
+    #    #plt.colorbar()
+    #    #plt.show()
+    #    #sys.exit(0)
 
     if mapname == 'vdisp':
         # now nan all spaxels that are not within an acceptable physical range
