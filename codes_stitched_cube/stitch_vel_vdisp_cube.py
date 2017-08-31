@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # read in linefits
     mapname = 'vdisp'
-    comp = 1
+    comp = 2
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')

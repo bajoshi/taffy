@@ -234,14 +234,14 @@ def get_sdss(band):
 
     # make sure that this cutout exists!
     # check code called create_sdss_cutout.py to make cutout
-    sdss_hdu = fits.open(taffy_dir + 'SDSS/sdss_' + band + '_cutout.fits')
+    sdss_hdu = fits.open(taffy_extdir + 'taffy_xliners_figs_misc_data/taffy/SDSS/sdss_' + band + '_cutout.fits')
     wcs_sdss = WCS(sdss_hdu[0].header)
 
     return sdss_hdu, wcs_sdss
 
 def get_lzifu_products():
 
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    h = fits.open(taffy_extdir + 'stitched_cube.fits')
     wcs_lzifu = WCS(h['B_LINE'].header)
     wcs_lzifu = wcs_lzifu.sub(['longitude', 'latitude'])
     # from the header it seems like the wcs is same for both red and blue channel products; as it should be
