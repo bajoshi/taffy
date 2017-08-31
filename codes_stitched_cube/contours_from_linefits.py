@@ -170,7 +170,7 @@ if __name__ == '__main__':
     vdisp_comp2 = vdisp_comp2_hdu[0].data
 
     # Make figure
-    fig = plt.figure(figsize=(6,6))
+    fig = plt.figure(figsize=(8,8))
 
     # color palette from colorbrewer2.org
     cm = vcm.get_colorbrewer_cm()
@@ -180,6 +180,9 @@ if __name__ == '__main__':
 
     # read in lzifu output file
     h, wcs_lzifu = vcm.get_lzifu_products()
+
+    # create axes in figure with wcs
+    ax = fig.add_subplot(111, projection=wcs_sdss)
 
     # overlay the contours on sdss image
     # get the correct sized image and normalization and plot
@@ -209,24 +212,29 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x,y)
 
     # Levels taken interactively from ds9
-    levels = np.array([1500, 2500, 6000, 12000, 20000, 35000, 50000, 75000])
+    #levels = np.array([1500, 2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
+    #levels = np.array([1500, 3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
+    #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
+    #levels = np.array([-250, -200, -110, 0, 100, 150, 220, 350])  # vel comp2
+    levels = np.array([60, 80, 110, 160, 220])  # vdisp comp 1 and 2
 
-    c = ax.contour(X, Y, intg_flux_comp1, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
-    ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=3, ls='-')
+    c = ax.contour(X, Y, vdisp_comp2, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
+    ax.clabel(c, inline=False, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
-    plt.show()
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/vdisp_comp2_contour.eps', dpi=150, bbox_inches='tight')
+    #plt.show()
 
     # close all open fits files
     stitched_cube.close()
     all_cases.close()
 
-    intg_flux_comp1.close()
-    vel_comp1.close()
-    vdisp_comp1.close()
+    intg_flux_comp1_hdu.close()
+    vel_comp1_hdu.close()
+    vdisp_comp1_hdu.close()
 
-    intg_flux_comp2.close()
-    vel_comp2.close()
-    vdisp_comp2.close()
+    intg_flux_comp2_hdu.close()
+    vel_comp2_hdu.close()
+    vdisp_comp2_hdu.close()
 
     # total run time
     print "Total time taken --", time.time() - start, "seconds."
