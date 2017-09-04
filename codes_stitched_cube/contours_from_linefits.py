@@ -124,19 +124,6 @@ if __name__ == '__main__':
     dt = datetime.datetime
     print "Starting at --", dt.now()
 
-    # Read in stitched cube
-    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
-
-    # read in masks for single and two comp fit
-    all_cases = fits.open(savedir + 'all_cases_indices.fits')
-
-    comp1_inv_idx = all_cases['COMP1_INV'].data
-    comp2_inv_idx = all_cases['COMP2_INV'].data
-    single_idx = all_cases['SINGLE_IDX'].data
-    diffmean_idx = all_cases['DIFFMEAN_IDX'].data
-    diffstd_idx = all_cases['DIFFSTD_IDX'].data
-    diffboth_idx = all_cases['DIFFBOTH_IDX'].data
-
     # make contours for all derived quantities from the line fits
     # read in saved fit params
     amp1 = np.load(savedir + 'amp_halpha_comp1.npy')
@@ -212,22 +199,47 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x,y)
 
     # Levels taken interactively from ds9
+    # uncomment as needed
     #levels = np.array([1500, 2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
     #levels = np.array([1500, 3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
-    #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
+    levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
     #levels = np.array([-250, -200, -110, 0, 100, 150, 220, 350])  # vel comp2
-    levels = np.array([60, 80, 110, 160, 220])  # vdisp comp 1 and 2
+    #levels = np.array([70, 85, 120, 180, 240, 400, 500])  # vdisp comp 1 
+    #levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
 
-    c = ax.contour(X, Y, vdisp_comp2, transform=ax.get_transform(wcs_lzifu), levels=levels, cmap=cm)
-    ax.clabel(c, inline=False, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
+    # select contour map to plot and set the variables 
+    con_map_type = 'vel'
+    con_map_comp = 'comp2'
+    con_map = vel_comp2
 
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/vdisp_comp2_contour.eps', dpi=150, bbox_inches='tight')
+    # apply min and max limits
+    minlim = -500
+    maxlim = 500
+    minidx = np.where(con_map < minlim)
+    maxidx = np.where(con_map > maxlim)
+    con_map[minidx] = np.nan
+    con_map[maxidx] = np.nan
+
+    # change all nan to None to get closed contours
+    # this will go wrong for velocities because 0 is a perfectly valid velocity
+    # this is only good for integrated fluxes and velocity dispersion maps
+    #con_map = np.nan_to_num(con_map)
+
+    # try smoothing the map to get smoother contours
+    from astropy.convolution import convolve, Gaussian2DKernel
+    # define kernel
+    kernel = Gaussian2DKernel(stddev=0.65)
+    con_map = convolve(con_map, kernel, boundary='extend')
+
+    c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
+     levels=levels, cmap=cm, linewidths=1.5, interpolation='None')
+    ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
+
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/' \
+        + con_map_type + '_' + con_map_comp + '_contour_smooth.eps', dpi=150, bbox_inches='tight')
     #plt.show()
 
     # close all open fits files
-    stitched_cube.close()
-    all_cases.close()
-
     intg_flux_comp1_hdu.close()
     vel_comp1_hdu.close()
     vdisp_comp1_hdu.close()
