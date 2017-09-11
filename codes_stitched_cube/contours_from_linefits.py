@@ -177,6 +177,7 @@ if __name__ == '__main__':
         mask_y = np.append(mask_y, nan_y)
 
         # get rid of some repeated x,y pairs
+        # from SO solution: https://stackoverflow.com/questions/16970982/find-unique-rows-in-numpy-array
         zipped_mask = zip(mask_x, mask_y)
         mask_unique = np.vstack({tuple(row) for row in zipped_mask})
 
