@@ -26,24 +26,6 @@ import bpt_plots as bpt
 import bpt_velo_comp as bptv
 import vel_channel_map as vcm
 
-def overplot_mask(mask_idx):
-
-    # read in i band SDSS image
-    sdss_i, wcs_sdss = vcm.get_sdss('i')
-
-    # only need the IFU WCS here
-    h, wcs_lzifu = vcm.get_lzifu_products()
-
-    # plot sdss image
-    fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
-
-    im = ax.scatter(mask_idx[1], mask_idx[0], s=34, c='r', marker='s',\
-     alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
-    # had to use scatter instead of using another imshow on the same axes
-    # it was ignoring the transform on the second imshow
-
-    return fig, ax
-
 def save_npy_to_fits(fullpath, clobber=False):
 
     # read in arr
@@ -124,6 +106,16 @@ if __name__ == '__main__':
     dt = datetime.datetime
     print "Starting at --", dt.now()
 
+    # read in indices file
+    h = fits.open(savedir + 'all_cases_indices.fits')
+
+    comp1_inv_idx = h['COMP1_INV'].data
+    comp2_inv_idx = h['COMP2_INV'].data
+    single_idx = h['SINGLE_IDX'].data
+    diffmean_idx = h['DIFFMEAN_IDX'].data
+    diffstd_idx = h['DIFFSTD_IDX'].data
+    diffboth_idx = h['DIFFBOTH_IDX'].data
+
     # make contours for all derived quantities from the line fits
     # read in saved fit params
     amp1 = np.load(savedir + 'amp_halpha_comp1.npy')
@@ -156,65 +148,52 @@ if __name__ == '__main__':
     vel_comp2 = vel_comp2_hdu[0].data
     vdisp_comp2 = vdisp_comp2_hdu[0].data
 
-    # Make figure
-    fig = plt.figure(figsize=(8,8))
-
-    # color palette from colorbrewer2.org
-    cm = vcm.get_colorbrewer_cm()
-
+    # Plotting
     # read in i band SDSS image
     sdss_i, wcs_sdss = vcm.get_sdss('i')
 
     # read in lzifu output file
-    h, wcs_lzifu = vcm.get_lzifu_products()
+    lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
 
-    # create axes in figure with wcs
-    ax = fig.add_subplot(111, projection=wcs_sdss)
+    # plot sdss image
+    fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
 
-    # overlay the contours on sdss image
-    # get the correct sized image and normalization and plot
-    norm = ImageNormalize(sdss_i[0].data, interval=ZScaleInterval(), stretch=LogStretch())
-    orig_cmap = mpl.cm.Greys
-    shifted_cmap = vcm.shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
-    im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=-0.2, vmax=6, norm=norm)
-    # FYI it looks okay even without the shifted cmap but the ability to shift it is awesome.
+    # get x and y coords in mask
+    mask_to_plot = single_idx
+    mask_x = np.where(mask_to_plot)[1]
+    mask_y = np.where(mask_to_plot)[0]
 
-    ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level and able actually overplot the image and contours
-
-    lon = ax.coords[0]
-    lat = ax.coords[1]
-
-    lon.set_ticks_visible(False)
-    lon.set_ticklabel_visible(False)
-    lat.set_ticks_visible(False)
-    lat.set_ticklabel_visible(False)
-    lon.set_axislabel('')
-    lat.set_axislabel('')
-
-    ax.coords.frame.set_color('None')
+    # highlight spaxels based on mask
+    im = ax.scatter(mask_x, mask_y, s=34, c='r', marker='s',\
+     alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+    # had to use scatter instead of using another imshow on the same axes
+    # it was ignoring the transform on the second imshow
 
     # draw contours
     x = np.arange(58)
     y = np.arange(58)
     X, Y = np.meshgrid(x,y)
 
+    # get colormap
+    cm = vcm.get_colorbrewer_cm()
+
     # Levels taken interactively from ds9
     # uncomment as needed
-    #levels = np.array([1500, 2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
-    #levels = np.array([1500, 3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
-    levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
+    levels = np.array([2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
+    #levels = np.array([3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
+    #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
     #levels = np.array([-250, -200, -110, 0, 100, 150, 220, 350])  # vel comp2
     #levels = np.array([70, 85, 120, 180, 240, 400, 500])  # vdisp comp 1 
     #levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
 
     # select contour map to plot and set the variables 
-    con_map_type = 'vel'
-    con_map_comp = 'comp2'
-    con_map = vel_comp2
+    con_map_type = 'intg_flux'
+    con_map_comp = 'comp1'
+    con_map = intg_flux_comp1
 
     # apply min and max limits
-    minlim = -500
-    maxlim = 500
+    minlim = 0
+    maxlim = 1e5
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
@@ -228,15 +207,16 @@ if __name__ == '__main__':
     # try smoothing the map to get smoother contours
     from astropy.convolution import convolve, Gaussian2DKernel
     # define kernel
-    kernel = Gaussian2DKernel(stddev=0.65)
+    kernel = Gaussian2DKernel(stddev=0.9)
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
      levels=levels, cmap=cm, linewidths=1.5, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
+    # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \
-        + con_map_type + '_' + con_map_comp + '_contour_smooth.eps', dpi=150, bbox_inches='tight')
+        + con_map_type + '_' + con_map_comp + '_contour_smooth.png', dpi=150, bbox_inches='tight')
     #plt.show()
 
     # close all open fits files
@@ -247,6 +227,8 @@ if __name__ == '__main__':
     intg_flux_comp2_hdu.close()
     vel_comp2_hdu.close()
     vdisp_comp2_hdu.close()
+
+    h.close()
 
     # total run time
     print "Total time taken --", time.time() - start, "seconds."
