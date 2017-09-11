@@ -25,6 +25,7 @@ sys.path.append(taffydir + 'codes/')
 import bpt_plots as bpt
 import bpt_velo_comp as bptv
 import vel_channel_map as vcm
+import stitch_map as sm
 
 def save_npy_to_fits(fullpath, clobber=False):
 
@@ -158,16 +159,31 @@ if __name__ == '__main__':
     # plot sdss image
     fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
 
-    # get x and y coords in mask
-    mask_to_plot = single_idx
-    mask_x = np.where(mask_to_plot)[1]
-    mask_y = np.where(mask_to_plot)[0]
+    # plot mask if desired; will also have to set which mask to plot
+    plot_mask = True
+    if plot_mask == True:
+        # get x and y coords in mask
+        mask_to_plot = single_idx
+        mask_x = np.where(mask_to_plot)[1]
+        mask_y = np.where(mask_to_plot)[0]
 
-    # highlight spaxels based on mask
-    im = ax.scatter(mask_x, mask_y, s=34, c='r', marker='s',\
-     alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
-    # had to use scatter instead of using another imshow on the same axes
-    # it was ignoring the transform on the second imshow
+        # also get the 2-comp nan pixels which one show 1-comp
+        nan_single_comp_arr = sm.get_nan_arr()
+
+        nan_x =  zip(*nan_single_comp_arr)[1]
+        nan_y =  zip(*nan_single_comp_arr)[0]
+
+        mask_x = np.append(mask_x, nan_x)
+        mask_y = np.append(mask_y, nan_y)
+
+        # get rid of some repeated x,y pairs
+
+
+        # highlight spaxels based on mask
+        im = ax.scatter(mask_x, mask_y, s=34, c='r', marker='s',\
+         alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+        # had to use scatter instead of using another imshow on the same axes
+        # it was ignoring the transform on the second imshow
 
     # draw contours
     x = np.arange(58)
