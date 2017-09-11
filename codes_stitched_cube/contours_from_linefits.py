@@ -177,7 +177,8 @@ if __name__ == '__main__':
         mask_y = np.append(mask_y, nan_y)
 
         # get rid of some repeated x,y pairs
-
+        zipped_mask = zip(mask_x, mask_y)
+        mask_unique = np.vstack({tuple(row) for row in zipped_mask})
 
         # highlight spaxels based on mask
         im = ax.scatter(mask_x, mask_y, s=34, c='r', marker='s',\
