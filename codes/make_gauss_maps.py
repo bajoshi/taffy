@@ -147,28 +147,36 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 40
-    pix_y = 19
+    pix_x = 41
+    pix_y = 22
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 2
+    box_size = 3
 
     comp1_inv_idx = np.zeros((58,58))
     comp2_inv_idx = np.zeros((58,58))
 
     # start looping
     count = 0
-    for i in range(58):  # (arr_x, arr_x + box_size):  # If you want to analyze a 3x3 block enter the pix coords of the low left corner above
-        for j in range(58):  # (arr_y, arr_y + box_size):
+    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a 3x3 block enter the pix coords of the low left corner above
+        for j in range(arr_y, arr_y + box_size):
 
-            # slice array to get only region containing line
-            linepad_left = 50
-            linepad_right = 50
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
             line_idx = np.argmin(abs(wav_arr - line_wav))
-            max_val_idx = np.argmax(obs_data[line_idx-80: line_idx+80, i, j])
-            line_idx = line_idx-80+max_val_idx
+            max_val_idx = np.argmax(obs_data[line_idx-45: line_idx+45, i, j])
+            # it searches 45 spectral elements on each side of line idx 
+            # for the peak because 45 spectral elements at Halpha corresponds to
+            # about 600 km/s which is the max velocity I'm willing to believe.
+            # Also, another issue with giving it a larger width to search for the
+            # peak runs into the risk of confusing NII6584 with Halpha and 
+            # consequently getting a wrong high velocity.
+            line_idx = line_idx-45+max_val_idx
+
+            # generate arrays that will be given to fitting function
+            # slice array to get only region containing line
+            linepad_left = 50
+            linepad_right = 50
 
             line_y_arr_comp1 = line_comp1[line_idx-linepad_left:line_idx+linepad_right, i, j]
             line_x_arr_comp1 = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_comp1))
@@ -211,8 +219,9 @@ if __name__ == '__main__':
             if isinvalid_comp2_fit:
                 comp2_inv_idx[i,j] = 1.0
 
-            # uncomment the follwing block to run checks and exit right after for loop is done
-            """
+            # uncomment the follwing block to run checks and 
+            # add sys.exit(0) right after for loop is done
+            # also uncomment the for loop range
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
@@ -243,9 +252,10 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-            """
 
             count += 1
+
+    sys.exit(0)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
