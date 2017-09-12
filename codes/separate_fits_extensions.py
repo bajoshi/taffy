@@ -16,19 +16,21 @@ ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
 
-def print_extnames(hdu, total_ext):
+def get_extnames(hdu, total_ext):
+
+    extname_list = []
 
     for i in range(total_ext):
         extname = hdu[i+1].header['EXTNAME']
-        print extname
+        extname_list.append(extname)
 
-    return None
+    return extname_list
 
 if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_products + 'Taffy_2_comp_patched.fits'
+    filepath = taffy_products + 'stitched_cube.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
@@ -38,15 +40,26 @@ if __name__ == '__main__':
 
     total_ext = fcj.get_total_extensions(hdulist)
 
+    # Put in a list here to extract only the specific extensions 
+    # which are in the list or change the get_specific_ext 
+    # variable to 'all' which will extract all extensions.
+    get_specific_ext = ['V']
+    if get_specific_ext == 'all':
+        get_specific_ext = get_extnames(hdulist, total_ext)
+
     for i in range(total_ext-1):  # the -1 is there because i don't need the last extension
 
         extname = hdulist[i+1].header['EXTNAME']
-        print i, extname
-        ext_filename = filename_noext + '_' + extname + '.fits'
+        
+        if extname in get_specific_ext:
+            print i, extname
+            ext_filename = filename_noext + '_' + extname + '.fits'
 
-        new_hdulist = fits.HDUList()
-        new_hdulist.append(fits.ImageHDU(data=hdulist[i+1].data, header=hdulist[i+1].header))
-        new_hdulist.writeto(basedir + ext_filename, clobber=True)
+            new_hdulist = fits.HDUList()
+            new_hdulist.append(fits.ImageHDU(data=hdulist[i+1].data, header=hdulist[i+1].header))
+            new_hdulist.writeto(basedir + ext_filename, clobber=True)
+        else:
+            continue
 
     hdulist.close()
     sys.exit(0)

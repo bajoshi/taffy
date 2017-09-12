@@ -211,7 +211,7 @@ if __name__ == '__main__':
             if isinvalid_comp2_fit:
                 comp2_inv_idx[i,j] = 1.0
 
-            # uncomment the follwing block to run 
+            # uncomment the follwing block to run checks and exit right after for loop is done
             """
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
