@@ -147,19 +147,30 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 23
-    pix_y = 46
+    pix_x = 28
+    pix_y = 20
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 1
+    box_size = 3
 
+    # I'm forcing some low SNR spaxels to get the one comp fit
+    force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22]]
+    force_onecomp_arr_x = []
+    force_onecomp_arr_y = []
+    for u in range(len(force_onecomp_list)):
+        force_onecomp_arr_x.append(force_onecomp_list[u][1] - 1)
+        force_onecomp_arr_y.append(force_onecomp_list[u][0] - 1)
+
+    force_onecomp_arr = zip(force_onecomp_arr_x, force_onecomp_arr_y)
+
+    # set up arrays to flag invalid fits
     comp1_inv_idx = np.zeros((58,58))
     comp2_inv_idx = np.zeros((58,58))
 
     # start looping
     count = 0
-    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
-        for j in range(arr_y, arr_y + box_size):
+    for i in range(58):  # (arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
+        for j in range(58):  # (arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -228,6 +239,7 @@ if __name__ == '__main__':
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
+            """
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
@@ -257,10 +269,9 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
+            """
 
             count += 1
-
-    sys.exit(0)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
