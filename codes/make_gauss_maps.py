@@ -147,18 +147,18 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 41
-    pix_y = 22
+    pix_x = 23
+    pix_y = 46
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 3
+    box_size = 1
 
     comp1_inv_idx = np.zeros((58,58))
     comp2_inv_idx = np.zeros((58,58))
 
     # start looping
     count = 0
-    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a 3x3 block enter the pix coords of the low left corner above
+    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
         for j in range(arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
@@ -177,6 +177,10 @@ if __name__ == '__main__':
             # slice array to get only region containing line
             linepad_left = 50
             linepad_right = 50
+
+            # some spaxels need special treatment
+            if i == 35 and j == 30:
+                linepad_left = 25
 
             line_y_arr_comp1 = line_comp1[line_idx-linepad_left:line_idx+linepad_right, i, j]
             line_x_arr_comp1 = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_comp1))
@@ -210,8 +214,9 @@ if __name__ == '__main__':
             vel_onecomp[i,j] = g.parameters[1]
             std_onecomp[i,j] = abs(g.parameters[2])
 
-            isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-4)
-            isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-4)
+            # the fit is invalid if either one of hte line fits gave all zeros
+            isinvalid_comp1_fit = np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-3)
+            isinvalid_comp2_fit = np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-3)
 
             if isinvalid_comp1_fit:
                 comp1_inv_idx[i,j] = 1.0
@@ -225,11 +230,11 @@ if __name__ == '__main__':
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
-            print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f')
+            print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
             print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
-            print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-4)
-            print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-4)
+            print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-3)
+            print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-3)
             print '\n' 
 
             # plot to check

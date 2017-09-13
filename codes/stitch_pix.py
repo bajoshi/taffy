@@ -21,13 +21,13 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in cube that is edited each time a pixel is fixed
-    patched_filename = 'Taffy_1_comp_patched.fits'
+    patched_filename = 'Taffy_2_comp_patched.fits'
     patched_cube_hlist = fits.open(taffy_extdir + patched_filename)
     
     # read in most recent pixel run
     pix_hdu = fits.open(taffy_products + patched_filename.replace('_patched.fits', '.fits'))
 
-    curr_pix_x,curr_pix_y = 16,52
+    curr_pix_x,curr_pix_y = 31,36
     arr_x,arr_y = curr_pix_y-1,curr_pix_x-1
     # 2 lines above arent' quite pythonic syntax but 
     # it is easier to read coordinates this way.
