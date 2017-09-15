@@ -15,7 +15,7 @@ from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 
 sys.path.append(taffydir + 'codes/')
 import bpt_plots as bpt
@@ -227,9 +227,9 @@ if __name__ == '__main__':
     # read in lzifu output file
     stitched = True
     if stitched:
-        savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
-        h = fits.open(savedir + 'stitched_cube.fits')
-        ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures_stitched_cube/"
+        savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
+        h = fits.open(taffy_extdir + 'stitched_cube.fits')
+        ipac_taffy_figdir = home + "/Desktop/ipac/taffy_lzifu/figures_stitched_cube/"
 
         # read in masks for single and two comp fit
         all_cases = fits.open(savedir + 'all_cases_indices.fits')
@@ -242,7 +242,7 @@ if __name__ == '__main__':
         diffboth_idx = all_cases['DIFFBOTH_IDX'].data.astype(bool)
 
         # also get mask for all possible not nan spaxels
-        all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
+        all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
 
         # make masks for single comp and two comp
         comp_inv_mask = np.ma.mask_or(comp1_inv_idx, comp2_inv_idx)
@@ -331,7 +331,7 @@ if __name__ == '__main__':
 
     # get region mask for region defined first in ds9
     # see process to do this detailed in the comments in the bpt_plots.py code.
-    region_file = open(taffy_extdir + 'bridge_bpt.reg')
+    region_file = open(taffy_extdir + 'bridge_bpt_new.reg')
     region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
     region_list = region_list.astype(np.float64)
     region_file.close()

@@ -166,11 +166,11 @@ if __name__ == '__main__':
                     stitched_cube = single_comp_stitch(extnames, stitched_cube, single_comp, i, j, blue_shape, red_shape, line_shape)
                     invalid_fit_count += 1
 
-                elif comp1_inv_idx[i,j] and ~comp2_inv_idx[i,j]:
+                elif comp1_inv_idx[i,j] and not comp2_inv_idx[i,j]:
                     stitched_cube = two_comp_stitch(extnames, stitched_cube, two_comp, i, j, blue_shape, red_shape, line_shape)
                     twocomp_count += 1
 
-                elif ~comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
+                elif not comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
                     stitched_cube = two_comp_stitch(extnames, stitched_cube, two_comp, i, j, blue_shape, red_shape, line_shape)
                     twocomp_count += 1
 

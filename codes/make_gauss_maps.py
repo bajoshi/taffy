@@ -207,10 +207,18 @@ if __name__ == '__main__':
             g1 = fit_gauss(gauss_init_lowcomp, line_x_arr_comp1, line_y_arr_comp1)
             g2 = fit_gauss(gauss_init_highcomp, line_x_arr_comp2, line_y_arr_comp2)
 
+            # save lzifu total fit to array for plotting
+            line_y_arr_total = line_total[line_idx-linepad_left:line_idx+linepad_right, i, j]
+
             # also fit raw data by a single gaussian
+            if (i,j) in force_onecomp_arr:
+                linepad_left = 25
+                linepad_right = 25
+
             line_y_arr_data = obs_data[line_idx-linepad_left:line_idx+linepad_right, i, j]
+            line_x_arr_data = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_data))
             gauss_init_onecomp = models.Gaussian1D(amplitude=np.nanmean(line_y_arr_data), mean=line_idx-10, stddev=5.0)
-            g = fit_gauss(gauss_init_onecomp, line_x_arr_comp1, line_y_arr_data)
+            g = fit_gauss(gauss_init_onecomp, line_x_arr_data, line_y_arr_data)
 
             # save in arrays
             amp_comp1[i,j] = g1.parameters[0]
@@ -253,17 +261,20 @@ if __name__ == '__main__':
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
+            # plot first comp fit
             ax.plot(line_x_arr_comp1, line_y_arr_comp1, '.', color='b')
             ax.plot(line_x_arr_comp1, g1(line_x_arr_comp1), ls='--', color='b', lw=2)
 
+            # plot second comp fit
             ax.plot(line_x_arr_comp2, line_y_arr_comp2, '.', color='r')
             ax.plot(line_x_arr_comp2, g2(line_x_arr_comp2), ls='--', color='r', lw=2)
 
-            ax.plot(line_x_arr_comp1, line_total[line_idx-linepad_left:line_idx+linepad_right, i, j], color='k')
+            # plot lzifu total fit
+            ax.plot(line_x_arr_comp1, line_y_arr_total, color='k')
 
-            # also showing the raw data and *MY* single gaussian fit to the raw data
-            ax.plot(line_x_arr_comp1, line_y_arr_data, color='gray')
-            ax.plot(line_x_arr_comp1, g(line_x_arr_comp1), ls='--', color='g', lw=2)
+            # also show the raw data and *MY* single gaussian fit to the raw data
+            ax.plot(line_x_arr_data, line_y_arr_data, color='gray')
+            ax.plot(line_x_arr_data, g(line_x_arr_data), ls='--', color='g', lw=2)
 
             plt.show()
             plt.clf()
@@ -315,7 +326,7 @@ if __name__ == '__main__':
 
     # 1. if mean and std are not too different ==> there is only a single comp
     single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
-    plot_indices(single_idx)
+    #plot_indices(single_idx)
     single_idx_arr = np.zeros((58,58))
     single_idx_arr[single_idx] = 1.0
 
@@ -330,19 +341,19 @@ if __name__ == '__main__':
     #        print "   ", large_stddiff_idx[0][k], large_stddiff_idx[1][k]
 
     #sys.exit(0)
-    plot_indices(diffmean_idx)
+    #plot_indices(diffmean_idx)
     diffmean_idx_arr = np.zeros((58,58))
     diffmean_idx_arr[diffmean_idx] = 1.0
 
     # 3. Different std but same mean ==> There are two components
     diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
-    plot_indices(diffstd_idx)
+    #plot_indices(diffstd_idx)
     diffstd_idx_arr = np.zeros((58,58))
     diffstd_idx_arr[diffstd_idx] = 1.0
 
     # 4. Different mean and std ==> There are two components
     diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
-    plot_indices(diffboth_idx)
+    #plot_indices(diffboth_idx)
     diffboth_idx_arr = np.zeros((58,58))
     diffboth_idx_arr[diffboth_idx] = 1.0
 

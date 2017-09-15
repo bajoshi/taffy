@@ -6,6 +6,7 @@ from astropy.io import fits
 import Polygon as pg
 from astropy.wcs import WCS
 from astropy.visualization import ManualInterval, ZScaleInterval, LogStretch, ImageNormalize
+from astropy.convolution import convolve, Gaussian2DKernel
 
 import os
 import sys
@@ -14,6 +15,7 @@ import datetime
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
@@ -170,8 +172,8 @@ if __name__ == '__main__':
         # also get the 2-comp nan pixels which one show 1-comp
         nan_single_comp_arr = sm.get_nan_arr()
 
-        nan_x =  zip(*nan_single_comp_arr)[1]
-        nan_y =  zip(*nan_single_comp_arr)[0]
+        nan_x = zip(*nan_single_comp_arr)[1]
+        nan_y = zip(*nan_single_comp_arr)[0]
 
         mask_x = np.append(mask_x, nan_x)
         mask_y = np.append(mask_y, nan_y)
@@ -181,11 +183,22 @@ if __name__ == '__main__':
         zipped_mask = zip(mask_x, mask_y)
         mask_unique = np.vstack({tuple(row) for row in zipped_mask})
 
+        mask_unique_x = zip(*mask_unique)[0]
+        mask_unique_y = zip(*mask_unique)[1]
+
         # highlight spaxels based on mask
-        im = ax.scatter(mask_x, mask_y, s=34, c='r', marker='s',\
+        im = ax.scatter(mask_unique_x, mask_unique_y, s=34, c='r', marker='s',\
          alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
         # had to use scatter instead of using another imshow on the same axes
         # it was ignoring the transform on the second imshow
+
+        # get mask for spaxels with high standard deviation
+        mask_to_plot = diffstd_idx
+        mask_x = np.where(mask_to_plot)[1]
+        mask_y = np.where(mask_to_plot)[0]
+
+        im = ax.scatter(mask_x, mask_y, s=34, c='g', marker='s',\
+         alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
 
     # draw contours
     x = np.arange(58)
@@ -197,21 +210,21 @@ if __name__ == '__main__':
 
     # Levels taken interactively from ds9
     # uncomment as needed
-    levels = np.array([2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
+    #levels = np.array([2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
     #levels = np.array([3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
     #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
-    #levels = np.array([-250, -200, -110, 0, 100, 150, 220, 350])  # vel comp2
+    #levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel comp2
     #levels = np.array([70, 85, 120, 180, 240, 400, 500])  # vdisp comp 1 
-    #levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
+    levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
 
     # select contour map to plot and set the variables 
-    con_map_type = 'intg_flux'
-    con_map_comp = 'comp1'
-    con_map = intg_flux_comp1
+    con_map_type = 'vdisp'
+    con_map_comp = 'comp2'
+    con_map = vdisp_comp2
 
     # apply min and max limits
     minlim = 0
-    maxlim = 1e5
+    maxlim = 1e3
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
@@ -223,14 +236,17 @@ if __name__ == '__main__':
     #con_map = np.nan_to_num(con_map)
 
     # try smoothing the map to get smoother contours
-    from astropy.convolution import convolve, Gaussian2DKernel
     # define kernel
-    kernel = Gaussian2DKernel(stddev=0.9)
+    kernel = Gaussian2DKernel(stddev=1.0)
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
      levels=levels, cmap=cm, linewidths=1.5, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
+
+    # add colorbar inside figure
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=3)
+    plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
 
     # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \

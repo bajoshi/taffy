@@ -13,10 +13,10 @@ import datetime
 import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-taffydir = home + "/Desktop/ipac/taffy/"
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
-ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures_stitched_cube/"
-savedir = '/Volumes/Bhavins_backup/ipac/TAFFY/baj_gauss_fits_to_lzifu_linefits/'
+taffydir = home + '/Desktop/ipac/taffy/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+ipac_taffy_figdir = home + '/Desktop/ipac/taffy_lzifu/figures_stitched_cube/'
+savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import bpt_plots as bpt
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # Read in stitched cube
-    stitched_cube = fits.open(savedir + 'stitched_cube.fits')
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     # read in masks for single and two comp fit
     all_cases = fits.open(savedir + 'all_cases_indices.fits')
@@ -64,7 +64,7 @@ if __name__ == '__main__':
     diffboth_idx = all_cases['DIFFBOTH_IDX'].data.astype(bool)
 
     # also get mask for all possible not nan spaxels
-    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels')
+    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
 
     # make masks for single comp and two comp
     comp_inv_mask = np.ma.mask_or(comp1_inv_idx, comp2_inv_idx)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 
     # get the region masks
     #bridge_mask, north_mask, south_mask = bpt.getallmasks(halpha.shape)
-    bridge_mask = vcm.get_region_mask('bridge_bpt')
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
@@ -203,8 +203,7 @@ if __name__ == '__main__':
     yarr_s = oiii_hbeta_for_sii_onecomp_south
     bptv.plotbpt('sii', 'single', xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, valid_idx, ipac_taffy_figdir)
 
-    # plot bpt diagrams for two comp fits
-
+    # bpt diagrams for spaxels with two comp fits should be plotted using the bpt_velo_comp.py code
 
     stitched_cube.close()
     # total run time

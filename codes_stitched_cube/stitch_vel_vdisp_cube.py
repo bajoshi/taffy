@@ -41,8 +41,8 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vel'
-    comp = 1
+    mapname = 'vdisp'
+    comp = 2
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
