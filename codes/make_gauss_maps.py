@@ -224,14 +224,29 @@ if __name__ == '__main__':
             gauss_init_onecomp = models.Gaussian1D(amplitude=np.nanmean(line_y_arr_data), mean=line_idx-10, stddev=5.0)
             g = fit_gauss(gauss_init_onecomp, line_x_arr_data, line_y_arr_data)
 
-            # save in arrays
-            amp_comp1[i,j] = g1.parameters[0]
-            vel_comp1[i,j] = g1.parameters[1]
-            std_comp1[i,j] = abs(g1.parameters[2])
+            # make sure that the component you are calling the second component
+            # is indeed at a higher velocity that the first component. This is 
+            # how LZIFU sorts them i.e. by increasing order of velocity.
+            # This has to be done before the numbers are saved in arrays.
+            if phys_vel_comp2 < phys_vel_comp1:
+                # if it found a low vel fit for the fit for comp 2
+                # then switch the fits for 1 and 2 components
+                amp_comp1[i,j] = g2.parameters[0]
+                vel_comp1[i,j] = g2.parameters[1]
+                std_comp1[i,j] = abs(g2.parameters[2])
 
-            amp_comp2[i,j] = g2.parameters[0]
-            vel_comp2[i,j] = g2.parameters[1]
-            std_comp2[i,j] = abs(g2.parameters[2])
+                amp_comp2[i,j] = g1.parameters[0]
+                vel_comp2[i,j] = g1.parameters[1]
+                std_comp2[i,j] = abs(g1.parameters[2])
+
+            elif phys_vel_comp2 >= phys_vel_comp1:
+                amp_comp1[i,j] = g1.parameters[0]
+                vel_comp1[i,j] = g1.parameters[1]
+                std_comp1[i,j] = abs(g1.parameters[2])
+
+                amp_comp2[i,j] = g2.parameters[0]
+                vel_comp2[i,j] = g2.parameters[1]
+                std_comp2[i,j] = abs(g2.parameters[2])
 
             amp_onecomp[i,j] = g.parameters[0]
             vel_onecomp[i,j] = g.parameters[1]
@@ -253,7 +268,8 @@ if __name__ == '__main__':
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
-            print "mean vel 1 and 2", format(((vel_comp1[i,j] * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s", format(((vel_comp2[i,j] * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
+            print "mean vel 1 and 2", format(((vel_comp1[i,j] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'), "km/s",\
+             format(((vel_comp2[i,j] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'), "km/s"
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
             print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
