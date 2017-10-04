@@ -147,11 +147,11 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 28
-    pix_y = 20
+    pix_x = 27
+    pix_y = 48
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 3
+    box_size = 2
 
     # I'm forcing some low SNR spaxels to get the one comp fit
     force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22]]
@@ -169,8 +169,8 @@ if __name__ == '__main__':
 
     # start looping
     count = 0
-    for i in range(58):  # (arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
-        for j in range(58):  # (arr_y, arr_y + box_size):
+    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
+        for j in range(arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -192,6 +192,10 @@ if __name__ == '__main__':
             # some spaxels need special treatment
             if i == 35 and j == 30:
                 linepad_left = 25
+            if i == 47 and j == 26:
+                linepad_left = 75
+            if i == 48 and j == 26:
+                linepad_left = 75
 
             line_y_arr_comp1 = line_comp1[line_idx-linepad_left:line_idx+linepad_right, i, j]
             line_x_arr_comp1 = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_comp1))
@@ -247,9 +251,9 @@ if __name__ == '__main__':
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
-            """
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
+            print "mean vel 1 and 2", format(((vel_comp1[i,j] * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s", format(((vel_comp2[i,j] * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
             print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
@@ -280,9 +284,10 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-            """
 
             count += 1
+
+    sys.exit(0)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)

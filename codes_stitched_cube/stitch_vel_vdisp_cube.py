@@ -37,11 +37,12 @@ if __name__ == '__main__':
     # read in velocity and vdisp maps for each component
     # and also read in lzifu result for single comp fit
     one_comp = fits.open(taffy_products + 'Taffy_1_comp_patched.fits')
+    one_comp_vel = one_comp['V'].data[1]
     # put red line fit in array
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vdisp'
+    mapname = 'vel'
     comp = 2
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
@@ -152,6 +153,16 @@ if __name__ == '__main__':
 
         map_cube[min_idx] = np.nan
         #map_cube[max_idx] = np.nan
+
+    # for the 6 pixels that still don't fit I'm stiching in the answer from the 1-comp fit cube
+    if mapname == 'vel':
+        # the pixels are --
+        one_comp_to_stitch = [[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22]]
+        for k in range(len(one_comp_to_stitch)):
+            arr_x = one_comp_to_stitch[k][1] - 1
+            arr_y = one_comp_to_stitch[k][0] - 1
+
+            map_cube[arr_x, arr_y] = one_comp_vel[arr_x, arr_y]
 
     # write out map
     # get header from lzifu output
