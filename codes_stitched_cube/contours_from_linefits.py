@@ -213,18 +213,19 @@ if __name__ == '__main__':
     #levels = np.array([2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
     #levels = np.array([3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
     #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
-    #levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel comp2
+    levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel comp2
     #levels = np.array([70, 85, 120, 180, 240, 400, 500])  # vdisp comp 1 
-    levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
+    #levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
 
     # select contour map to plot and set the variables 
-    con_map_type = 'vdisp'
+    # set the variables and limtis below and also the levels above
+    con_map_type = 'vel'
     con_map_comp = 'comp2'
-    con_map = vdisp_comp2
+    con_map = vel_comp2
 
     # apply min and max limits
-    minlim = 0
-    maxlim = 1e3
+    minlim = -600
+    maxlim = 600
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan

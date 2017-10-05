@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # read in linefits
     mapname = 'vel'
-    comp = 2
+    comp = 1
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
@@ -167,14 +167,7 @@ if __name__ == '__main__':
             map_cube[arr_x, arr_y] = one_comp_vel[arr_x, arr_y]
 
         # some spaxels have to be interpolated over
-        pix_interp_list = [[25,11]]
-
-        # only do this for specific components
-        if comp == 1:
-            pix_interp_list.append([45,38])
-
-        if comp == 2:
-            pix_interp_list.append([23,14])
+        pix_interp_list = [[25,11], [45,38], [23,14]]
 
         for w in range(len(pix_interp_list)):
             s = []

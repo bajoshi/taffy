@@ -276,11 +276,9 @@ if __name__ == '__main__':
     lightspeed = 299792.458  # km/s
 
     # read in velocity and velocity dispersion maps
-    vel_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_V.fits')
-    vdisp_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
-
-    create_vel_vdisp_maps(vel_hdu, vdisp_hdu)
-    sys.exit(0)
+    #vel_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_V.fits')
+    #vdisp_hdu = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort_VDISP.fits')
+    #create_vel_vdisp_maps(vel_hdu, vdisp_hdu)
 
     # read in i band SDSS image
     sdss_i, wcs_sdss = get_sdss('i')
@@ -363,6 +361,9 @@ if __name__ == '__main__':
     vel_step = 100.0
     
     vel_range_arr = np.arange(low_vel_lim, high_vel_lim+vel_step, vel_step)
+    print vel_range_arr
+    print len(vel_range_arr)
+    sys.exit(0)
 
     for j in range(len(vel_range_arr)):
 
