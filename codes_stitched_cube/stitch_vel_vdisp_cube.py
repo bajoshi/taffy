@@ -154,8 +154,10 @@ if __name__ == '__main__':
         map_cube[min_idx] = np.nan
         #map_cube[max_idx] = np.nan
 
-    # for the 6 pixels that still don't fit I'm stiching in the answer from the 1-comp fit cube
+    # ---------------------- Special Stuff ----------------------- # 
+    
     if mapname == 'vel':
+        # for the 6 pixels that still don't fit I'm stiching in the answer from the 1-comp fit cube
         # the pixels are --
         one_comp_to_stitch = [[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22]]
         for k in range(len(one_comp_to_stitch)):
@@ -163,6 +165,33 @@ if __name__ == '__main__':
             arr_y = one_comp_to_stitch[k][0] - 1
 
             map_cube[arr_x, arr_y] = one_comp_vel[arr_x, arr_y]
+
+        # some spaxels have to be interpolated over
+        pix_interp_list = [[25,11]]
+
+        # only do this for specific components
+        if comp == 1:
+            pix_interp_list.append([45,38])
+
+        if comp == 2:
+            pix_interp_list.append([23,14])
+
+        for w in range(len(pix_interp_list)):
+            s = []
+            # the additional -1 is to get to the lower left corner of the 
+            # 3x3 block centered on the pixel you want to interpolate
+            arr_x_cen = pix_interp_list[w][1] - 1
+            arr_y_cen = pix_interp_list[w][0] - 1
+            arr_x = pix_interp_list[w][1] - 1 - 1
+            arr_y = pix_interp_list[w][0] - 1 - 1
+
+            for i in range(arr_x, arr_x + 3):
+                for j in range(arr_y, arr_y + 3):
+
+                    if (i,j) != (arr_x_cen, arr_y_cen):
+                        s.append(map_cube[i,j])
+
+            map_cube[arr_x_cen, arr_y_cen] = np.nanmean(s)
 
     # write out map
     # get header from lzifu output

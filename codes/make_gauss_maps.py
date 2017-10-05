@@ -169,8 +169,8 @@ if __name__ == '__main__':
 
     # start looping
     count = 0
-    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
-        for j in range(arr_y, arr_y + box_size):
+    for i in range(58): # (arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
+        for j in range(58): # (arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -228,6 +228,8 @@ if __name__ == '__main__':
             # is indeed at a higher velocity that the first component. This is 
             # how LZIFU sorts them i.e. by increasing order of velocity.
             # This has to be done before the numbers are saved in arrays.
+            phys_vel_comp1 = float(format(((g1.parameters[1] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'))
+            phys_vel_comp2 = float(format(((g2.parameters[1] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'))
             if phys_vel_comp2 < phys_vel_comp1:
                 # if it found a low vel fit for the fit for comp 2
                 # then switch the fits for 1 and 2 components
@@ -266,10 +268,10 @@ if __name__ == '__main__':
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
             #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
+            """
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
-            print "mean vel 1 and 2", format(((vel_comp1[i,j] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'), "km/s",\
-             format(((vel_comp2[i,j] * 0.3 + red_wav_start - line_air_wav) / line_air_wav) * speed_of_light - speed_of_light*redshift, '.2f'), "km/s"
+            print "mean vel 1 and 2 [km/s]", phys_vel_comp1, phys_vel_comp2
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
             print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
@@ -300,10 +302,9 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
+            """
 
             count += 1
-
-    sys.exit(0)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
