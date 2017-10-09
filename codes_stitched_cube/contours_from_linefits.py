@@ -230,7 +230,7 @@ if __name__ == '__main__':
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
     con_map[maxidx] = np.nan
-
+    
     # change all nan to None to get closed contours
     # this will go wrong for velocities because 0 is a perfectly valid velocity
     # this is only good for integrated fluxes and velocity dispersion maps

@@ -147,14 +147,15 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 27
-    pix_y = 48
+    pix_x = 43
+    pix_y = 20
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 2
+    box_size = 3
 
     # I'm forcing some low SNR spaxels to get the one comp fit
-    force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22]]
+    force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22],\
+    [38,11]]
     force_onecomp_arr_x = []
     force_onecomp_arr_y = []
     for u in range(len(force_onecomp_list)):
@@ -169,8 +170,8 @@ if __name__ == '__main__':
 
     # start looping
     count = 0
-    for i in range(58): # (arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
-        for j in range(58): # (arr_y, arr_y + box_size):
+    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
+        for j in range(arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -221,6 +222,13 @@ if __name__ == '__main__':
 
             line_y_arr_data = obs_data[line_idx-linepad_left:line_idx+linepad_right, i, j]
             line_x_arr_data = np.linspace(line_idx-linepad_left, line_idx+linepad_right, len(line_y_arr_data))
+
+            # find pseudo continuum and subtract
+            pseudo_cont_arr_left = obs_data[line_idx-10-(linepad_left-10):line_idx-10, i, j]
+            pseudo_cont_arr_right = obs_data[line_idx+10:line_idx+10+(linepad_right-10), i, j]
+            cont_level = np.nanmean(np.concatenate((pseudo_cont_arr_left, pseudo_cont_arr_right)))
+
+            line_y_arr_data -= cont_level  # subtract the continuum level before trying to fit the single comp gaussian directly to the data
             gauss_init_onecomp = models.Gaussian1D(amplitude=np.nanmean(line_y_arr_data), mean=line_idx-10, stddev=5.0)
             g = fit_gauss(gauss_init_onecomp, line_x_arr_data, line_y_arr_data)
 
@@ -267,14 +275,13 @@ if __name__ == '__main__':
             # uncomment the follwing block to run checks and 
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
-            #print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
-            """
+            print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
             print "mean vel 1 and 2 [km/s]", phys_vel_comp1, phys_vel_comp2
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
             print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
-            print "amp and vdisp for onecomp fit", format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
+            print "continuum level, amp and vdisp for onecomp fit", format(cont_level, '.2f'), format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
             print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-3)
             print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-3)
             print '\n' 
@@ -302,9 +309,10 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-            """
 
             count += 1
+
+    sys.exit(0)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
@@ -395,22 +403,22 @@ if __name__ == '__main__':
     all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr, header=hdr))
     hdr['EXTNAME'] = 'DIFFBOTH_IDX'
     all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
-    all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', clobber=True)
+    all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', overwrite=True)
 
     h.close()
     sys.exit(0)
 
     # save differences as fits file
     new_hdu = fits.PrimaryHDU(data=amp_diff)
-    new_hdu.writeto(savedir + 'amp_diff_' + linename + '_2m1.fits', clobber=True)
+    new_hdu.writeto(savedir + 'amp_diff_' + linename + '_2m1.fits', overwrite=True)
     del new_hdu
 
     new_hdu = fits.PrimaryHDU(data=mean_diff)
-    new_hdu.writeto(savedir + 'mean_diff_' + linename + '_2m1.fits', clobber=True)
+    new_hdu.writeto(savedir + 'mean_diff_' + linename + '_2m1.fits', overwrite=True)
     del new_hdu
     
     new_hdu = fits.PrimaryHDU(data=std_diff)
-    new_hdu.writeto(savedir + 'std_diff_' + linename + '_2m1.fits', clobber=True)
+    new_hdu.writeto(savedir + 'std_diff_' + linename + '_2m1.fits', overwrite=True)
     del new_hdu
 
     # total run time

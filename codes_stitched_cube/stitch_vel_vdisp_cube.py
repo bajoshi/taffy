@@ -42,8 +42,8 @@ if __name__ == '__main__':
     r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
-    mapname = 'vel'
-    comp = 1
+    mapname = 'vdisp'
+    comp = 2
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
@@ -191,7 +191,7 @@ if __name__ == '__main__':
     hdr = one_comp['CHI2'].header
     hdr['EXTNAME'] = mapname + '_comp' + str(comp)
     hdu = fits.PrimaryHDU(data=map_cube, header=hdr)
-    hdu.writeto(savedir + mapname + '_cube_comp' + str(comp) + '.fits', clobber=True)
+    hdu.writeto(savedir + mapname + '_cube_comp' + str(comp) + '.fits', overwrite=True)
 
     # close fits files
     one_comp.close()
