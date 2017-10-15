@@ -147,11 +147,11 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 43
-    pix_y = 20
+    pix_x = 36
+    pix_y = 25
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 3
+    box_size = 5
 
     # I'm forcing some low SNR spaxels to get the one comp fit
     force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22],\

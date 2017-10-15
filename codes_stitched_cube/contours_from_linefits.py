@@ -210,22 +210,19 @@ if __name__ == '__main__':
 
     # Levels taken interactively from ds9
     # uncomment as needed
-    #levels = np.array([2500, 6000, 12000, 20000, 35000, 50000, 75000])  # intg flux comp1
-    #levels = np.array([3000, 6000, 12000, 20000, 30000, 60000])  # intg flux comp2
-    #levels = np.array([-250, -200, -100, 0, 100, 150, 200, 350])  # vel comp1
-    levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel comp2
-    #levels = np.array([70, 85, 120, 180, 240, 400, 500])  # vdisp comp 1 
-    #levels = np.array([70, 90, 110, 180, 240, 400, 500])  # vdisp comp 2
+    levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
+    #levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel 
+    #levels = np.array([30, 50, 70, 90, 110, 150, 180, 240, 270, 300, 350])  # vdisp 
 
     # select contour map to plot and set the variables 
     # set the variables and limtis below and also the levels above
-    con_map_type = 'vel'
+    con_map_type = 'intg_flux'
     con_map_comp = 'comp2'
-    con_map = vel_comp2
+    con_map = intg_flux_comp2
 
     # apply min and max limits
-    minlim = -600
-    maxlim = 600
+    minlim = 0
+    maxlim = 5e4
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
@@ -238,7 +235,7 @@ if __name__ == '__main__':
 
     # try smoothing the map to get smoother contours
     # define kernel
-    kernel = Gaussian2DKernel(stddev=1.0)
+    kernel = Gaussian2DKernel(stddev=0.9)
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
