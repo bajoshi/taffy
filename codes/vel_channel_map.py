@@ -204,8 +204,8 @@ def plot_sdss_image(sdss_hdu, wcs_sdss):
 
     norm = ImageNormalize(sdss_hdu[0].data, interval=ZScaleInterval(), stretch=LogStretch())
     orig_cmap = mpl.cm.Greys
-    shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.4, name='shifted')
-    im = ax.imshow(sdss_hdu[0].data, origin='lower', cmap=shifted_cmap, vmin=0.07, vmax=5, norm=norm)
+    shifted_cmap = shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
+    im = ax.imshow(sdss_hdu[0].data, origin='lower', cmap=shifted_cmap, vmin=0, vmax=3, norm=norm)
 
     ax.set_autoscale_on(False)
 

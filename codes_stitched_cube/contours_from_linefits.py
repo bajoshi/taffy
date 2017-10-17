@@ -206,7 +206,7 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x,y)
 
     # get colormap
-    cm = vcm.get_colorbrewer_cm()
+    colorbrewer_cm = vcm.get_colorbrewer_cm()
 
     # Levels taken interactively from ds9
     # uncomment as needed
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
-     levels=levels, cmap=cm, linewidths=2.0, interpolation='None')
+     levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
@@ -251,6 +251,7 @@ if __name__ == '__main__':
     #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
     #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
     cb.ax.set_xlabel(r'$\mathrm{Velocity [km\, s^{-1}]}$', fontsize=12)
+    # uncomment one of the above lines as required for the contour colorbar label
     # linewidths required
     # this depends on the number of levels you want
     # so if you change the number of levels then 
