@@ -210,19 +210,19 @@ if __name__ == '__main__':
 
     # Levels taken interactively from ds9
     # uncomment as needed
-    levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
+    #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
     #levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel 
-    #levels = np.array([30, 50, 70, 90, 110, 150, 180, 240, 270, 300, 350])  # vdisp 
+    levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
 
     # select contour map to plot and set the variables 
     # set the variables and limtis below and also the levels above
-    con_map_type = 'intg_flux'
+    con_map_type = 'vdisp'
     con_map_comp = 'comp2'
-    con_map = intg_flux_comp2
+    con_map = vdisp_comp2
 
     # apply min and max limits
     minlim = 0
-    maxlim = 5e4
+    maxlim = 500
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
@@ -239,12 +239,21 @@ if __name__ == '__main__':
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
-     levels=levels, cmap=cm, linewidths=1.5, interpolation='None')
+     levels=levels, cmap=cm, linewidths=2.0, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
-    cbaxes = inset_axes(ax, width='30%', height='3%', loc=3)
-    plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.07, 1, 1], bbox_transform=ax.transAxes)
+    cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
+    cb.ax.get_children()[0].set_linewidths(22.0)
+    cb.ax.set_xlabel('Velocity dispersion [km/s]', fontsize=12)
+    # linewidths required
+    # this depends on the number of levels you want
+    # so if you change the number of levels then 
+    # this will have to change too (by trial and error)
+    # 20.0 for intg_flux
+    # 
+
 
     # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \
