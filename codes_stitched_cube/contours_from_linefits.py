@@ -211,17 +211,19 @@ if __name__ == '__main__':
     # Levels taken interactively from ds9
     # uncomment as needed
     #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
-    #levels = np.array([-250, -200, -110, 0, 100, 140, 180, 220, 350])  # vel 
-    levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
+    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250])  # vel comp 1
+    levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 2 
+    # velocity comp 2 has an additonal contour level at the highest level
+    #levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
 
     # select contour map to plot and set the variables 
     # set the variables and limtis below and also the levels above
-    con_map_type = 'vdisp'
+    con_map_type = 'vel'
     con_map_comp = 'comp2'
-    con_map = vdisp_comp2
+    con_map = vel_comp2
 
     # apply min and max limits
-    minlim = 0
+    minlim = -500
     maxlim = 500
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
@@ -243,17 +245,20 @@ if __name__ == '__main__':
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
-    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.07, 1, 1], bbox_transform=ax.transAxes)
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
     cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
-    cb.ax.get_children()[0].set_linewidths(22.0)
-    cb.ax.set_xlabel('Velocity dispersion [km/s]', fontsize=12)
+    cb.ax.get_children()[0].set_linewidths(15.0)
+    #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
+    #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
+    cb.ax.set_xlabel(r'$\mathrm{Velocity [km\, s^{-1}]}$', fontsize=12)
     # linewidths required
     # this depends on the number of levels you want
     # so if you change the number of levels then 
     # this will have to change too (by trial and error)
     # 20.0 for intg_flux
-    # 
-
+    # 27.0 for vdisp
+    # 17.0 for vel comp 1
+    # 15.0 for vel comp 2
 
     # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \
