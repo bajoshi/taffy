@@ -105,7 +105,7 @@ if __name__ == '__main__':
         norm = ImageNormalize(sdss_i[0].data, interval=ZScaleInterval(), stretch=LogStretch())
         orig_cmap = mpl.cm.Greys
         shifted_cmap = vcm.shiftedColorMap(orig_cmap, midpoint=0.6, name='shifted')
-        im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=-0.2, vmax=6, norm=norm)
+        im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=0, vmax=3, norm=norm)
         # FYI it looks okay even without the shifted cmap but the ability to shift it is awesome.
 
         ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level and able actually overplot the image and contours
