@@ -2,6 +2,7 @@ from __future__ import division
 
 import numpy as np
 from astropy.io import fits
+from astropy.convolution import convolve, Gaussian2DKernel
 
 import os
 import sys
@@ -9,6 +10,7 @@ import time
 import datetime
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_dir = home + '/Desktop/ipac/taffy/'
@@ -47,16 +49,23 @@ if __name__ == '__main__':
     colorbrewer_cm = vcm.get_colorbrewer_cm()
 
     # plot contours
-    levels = np.array([0, 100, 500, 1000])
+    levels = np.array([30, 50, 100, 200, 300, 400, 600, 800, 1000, 1200])
     # try smoothing the map to get smoother contours
     # define kernel
-    #kernel = Gaussian2DKernel(stddev=0.9)
-    #halpha_total = convolve(halpha_total, kernel, boundary='extend')
+    kernel = Gaussian2DKernel(stddev=0.5)
+    halpha_total = convolve(halpha_total, kernel, boundary='extend')
 
     c = ax.contour(X, Y, halpha_total, transform=ax.get_transform(wcs_lzifu),\
      levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
 
-    plt.show()
+    # add colorbar inside figure
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
+    cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
+    cb.ax.get_children()[0].set_linewidths(15.0)
+    cb.ax.set_xlabel(r'$\mathrm{Total\ H\alpha \ flux\ []}$', fontsize=12)
+
+    # save the figure
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/halpha_contour_smooth.png', dpi=150, bbox_inches='tight')
 
     sys.exit(0)
