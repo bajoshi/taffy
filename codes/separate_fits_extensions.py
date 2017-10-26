@@ -30,7 +30,7 @@ if __name__ == '__main__':
     
     # read in taffy lzifu product
     # make sure this is the correct one!!
-    filepath = taffy_products + 'stitched_cube.fits'
+    filepath = taffy_extdir + 'stitched_cube.fits'
     hdulist = fits.open(filepath)
     filename = os.path.basename(filepath)
     filename_noext = filename.split('.')[0]
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     # Put in a list here to extract only the specific extensions 
     # which are in the list or change the get_specific_ext 
     # variable to 'all' which will extract all extensions.
-    get_specific_ext = ['V']
+    get_specific_ext = 'all'  #['V']
     if get_specific_ext == 'all':
         get_specific_ext = get_extnames(hdulist, total_ext)
 
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
             new_hdulist = fits.HDUList()
             new_hdulist.append(fits.ImageHDU(data=hdulist[i+1].data, header=hdulist[i+1].header))
-            new_hdulist.writeto(basedir + ext_filename, clobber=True)
+            new_hdulist.writeto(basedir + ext_filename, overwrite=True)
         else:
             continue
 
