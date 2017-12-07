@@ -17,11 +17,11 @@ home = os.getenv('HOME')  # does not have a trailing slash
 desktop = home + '/Desktop/'
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = '/Users/baj/Desktop/ipac/taffy_lzifu/products/'
-taffy_data = '/Users/baj/Desktop/ipac/taffy_lzifu/data/'
+taffy_products = home + '/Desktop/ipac/taffy_lzifu/products/'
+taffy_data = home + '/Desktop/ipac/taffy_lzifu/data/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 ipac_taffy_figdir = ipac_taffy_dir + 'figures/'
-taffy_extdir = '/Users/baj/Desktop/ipac/taffy_lzifu/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
@@ -94,8 +94,8 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 31
-    pix_y = 36
+    pix_x = 23
+    pix_y = 46
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 

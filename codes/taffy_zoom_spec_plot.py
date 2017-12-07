@@ -35,10 +35,12 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in g band SDSS image
-    sdss_g = fits.open(taffy_dir + 'SDSS/taffyg_sdss.fits')
+    sdss_g = fits.open(home + '/Desktop/ipac/taffy_lzifu/taffy_xliners_figs_misc_data/taffy/SDSS/taffyg_sdss.fits')
     wcs = WCS(sdss_g[0].header)
+    print wcs
 
     # read in all integrated spectra
+    """
     nnuc_blue = np.genfromtxt(taffy_dir + 'raw_spectra_for_ifu_paper_regions/north_gal_nuc_blue_ifu.dat', dtype=None, names=['wav','flux'])
     nnuc_red = np.genfromtxt(taffy_dir + 'raw_spectra_for_ifu_paper_regions/north_gal_nuc_red_ifu.dat', dtype=None, names=['wav','flux'])
 
@@ -59,6 +61,7 @@ if __name__ == '__main__':
 
     xgal_hii_blue = np.genfromtxt(taffy_dir + 'raw_spectra_for_ifu_paper_regions/xgal_hii_blue_ifu.dat', dtype=None, names=['wav','flux'])
     xgal_hii_red = np.genfromtxt(taffy_dir + 'raw_spectra_for_ifu_paper_regions/xgal_hii_red_ifu.dat', dtype=None, names=['wav','flux'])
+    """
 
     # Make figure
     fig = plt.figure(figsize=(12,12))
@@ -111,6 +114,8 @@ if __name__ == '__main__':
     # but the WCS coordinates are incorrect then
 
     ax.set_autoscale_on(False)
+    plt.show()
+    sys.exit(0)
 
     # the format for the coordinates here is 
     # Rectangle((lower_left_x, lower_left_y), width, height, ....)
