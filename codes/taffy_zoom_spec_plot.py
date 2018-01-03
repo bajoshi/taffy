@@ -37,7 +37,8 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
     b_ylow, b_yhigh, r1_ylow, r1_yhigh, r2_ylow, r2_yhigh, \
     b_xlow, b_xhigh, regionname):
 
-    # try smoothing the spectra first so that features are easily visible
+    # try smoothing the spectra first so 
+    # that features are easily visible
     # Create kernel
     gauss1d = Gaussian1DKernel(stddev=4)
     
@@ -66,16 +67,14 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
     # commands to make the plot pretty
     # do not show the spines except at the bottom
     axesblue.spines["top"].set_visible(False)
-    #axesblue.spines["bottom"].set_visible(False)
     axesblue.spines["right"].set_visible(False)
     axesblue.spines["left"].set_visible(False)
 
     axesred1.spines["top"].set_visible(False)
-    #axesred1.spines["bottom"].set_visible(False)
     axesred1.spines["right"].set_visible(False)
     axesred1.spines["left"].set_visible(False)
+
     axesred2.spines["top"].set_visible(False)
-    #axesred2.spines["bottom"].set_visible(False)
     axesred2.spines["right"].set_visible(False)
     axesred2.spines["left"].set_visible(False)
 
@@ -100,11 +99,160 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
     axesred2.tick_params('both', which='major', pad=1)
 
     # show region label
-    box = TextArea(regionname, textprops=dict(color='k', size=9))
-    anc_box = AnchoredOffsetbox(loc=2, child=box, pad=0.0, frameon=False,\
-                                         bbox_to_anchor=(0.03, 0.9),\
-                                         bbox_transform=axesblue.transAxes, borderpad=0.0)
-    axesblue.add_artist(anc_box)
+    axesblue.text(0.03, 0.9, regionname, verticalalignment='top', horizontalalignment='left', \
+        transform=axesblue.transAxes, color='k', size=9)
+
+    # plot line labels according to region name
+    if 'HII' in regionname:
+        axesblue.text(0.3, 0.63, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.34, 0.45, r'$\mathrm{[OIII]}$' + '\n' +  r'$\lambda 4959$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.81, 0.6, r'$\mathrm{[OIII]}$' + '\n' +  r'$\lambda 5007$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.15, 0.65, r'$\mathrm{[OI]\lambda 6300}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred2.text(0.27, 0.75, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(-0.05, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.35, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.6, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'Bridge east' in regionname:
+        axesred1.text(0.15, 0.6, r'$\mathrm{[OI]\lambda}$' + '\n' + r'$6300$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred2.text(0.27, 0.75, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.85, 0.75, r'$\mathrm{[SII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'Bridge west' in regionname:
+        axesred2.text(0.25, 0.75, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(-0.05, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.35, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.75, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'South galaxy east' in regionname:
+        axesblue.text(0.4, 0.57, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.5, 0.43, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred2.text(0.27, 0.85, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.35, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.7, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'South galaxy west' in regionname:
+        axesblue.text(0.24, 0.57, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.47, 0.52, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred2.text(0.23, 0.63, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(-0.05, 0.38, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.33, 0.38, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.5, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'North galaxy east' in regionname:
+        axesblue.text(0.35, 0.15, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.5, 0.3, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred2.text(0.2, 0.72, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.32, 0.65, r'$\mathrm{[NII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.8, 0.65, r'$\mathrm{[SII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'North galaxy west' in regionname:
+        axesblue.text(0.3, 0.15, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.5, 0.2, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.15, 0.7, r'$\mathrm{[OI]\lambda 6300}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred1.text(0.7, 0.6, r'$\mathrm{[OI]\lambda 6364}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred2.text(0.27, 0.85, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.38, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.58, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'nucleus' in regionname and 'South' in regionname:
+        axesblue.text(0.3, 0.2, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.5, 0.2, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.03, 0.15, r'$\mathrm{[OI]\lambda 6300}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred2.text(0.2, 0.9, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0, 0.5, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.35, 0.5, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.8, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+
+    elif 'nucleus' in regionname and 'North' in regionname:
+        axesblue.text(0.3, 0.2, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesblue.text(0.5, 0.3, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.15, 0.65, r'$\mathrm{[OI]\lambda 6300}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred1.text(0.7, 0.5, r'$\mathrm{[OI]\lambda 6364}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
+        axesred2.text(0.27, 0.85, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.38, 0.4, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.53, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
 
     return axesblue, axesred1, axesred2
 
@@ -114,10 +262,6 @@ if __name__ == '__main__':
     start = time.time()
     dt = datetime.datetime
     print "Starting at --", dt.now()
-
-    # read in g band SDSS image
-    #sdss_g = fits.open(home + '/Desktop/ipac/taffy_lzifu/taffy_xliners_figs_misc_data/taffy/SDSS/taffyg_sdss.fits')
-    #wcs = WCS(sdss_g[0].header)
 
     # read in all integrated spectra
     # north nucleus
@@ -144,6 +288,10 @@ if __name__ == '__main__':
     sw_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/sw_blue.dat', dtype=None, names=['wav','flux'])
     sw_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/sw_red.dat', dtype=None, names=['wav','flux'])
 
+    # south galaxy west region 
+    se_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/se_blue.dat', dtype=None, names=['wav','flux'])
+    se_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/se_red.dat', dtype=None, names=['wav','flux'])
+
     # bridge west region 
     bw_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_blue.dat', dtype=None, names=['wav','flux'])
     bw_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_red.dat', dtype=None, names=['wav','flux'])
@@ -169,8 +317,10 @@ if __name__ == '__main__':
     mpl.rcParams["font.sans-serif"] = ["Computer Modern Sans"]
     #mpl.rcParams["text.usetex"] = True  
     # I've kept this above commented out line here as a reminder. 
-    # This line will stop any bold text from appearing anywhere on your figure.
-    # Didn't realize this for a couple hours lol...
+    # This line will stop any bold text from appearing anywhere 
+    # on your figure. Didn't realize this for a couple hours lol...
+    # Also, this single line increases the run time for this code
+    # from ~6 seconds to ~20 seconds.
     mpl.rcParams["text.latex.preamble"] = r"\usepackage{cmbright}"
     mpl.rcParams["xtick.direction"] = "in"
     mpl.rcParams["ytick.direction"] = "in"
@@ -180,46 +330,50 @@ if __name__ == '__main__':
     myred = rgb_to_hex(214, 39, 40)  # tableau 20 red
 
     # create grid to plot
-    gs = gridspec.GridSpec(24,40)
-    gs.update(left=0.1, right=0.95, bottom=0.1, top=0.95, wspace=30, hspace=40)
+    gs = gridspec.GridSpec(60,60)
+    gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=10, hspace=10)
 
     # define axes using above grid
-    ax = fig.add_subplot(gs[5:20,0:20], projection=wcs_sdss)
+    ax = fig.add_subplot(gs[10:40,0:30], projection=wcs_sdss)
 
-    # the axes are ordered here going colockwise on the actual plot
-    # create another axes for each red spectrum axis to show 
-    # broken axes effect
-    ax_nnuc_b = fig.add_subplot(gs[0:4,0:8])
-    ax_nnuc_r1 = fig.add_subplot(gs[0:4,8:14])
-    ax_nnuc_r2 = fig.add_subplot(gs[0:4,14:20])
+    # the axes are ordered here to make sure the
+    # x axis tick labels show up (overlapped) on 
+    # the axis space below.
+    ax_nnuc_b = fig.add_subplot(gs[0:10,0:10])
+    ax_nnuc_r1 = fig.add_subplot(gs[0:10,10:20])
+    ax_nnuc_r2 = fig.add_subplot(gs[0:10,20:30])
 
-    ax_xgal_b = fig.add_subplot(gs[0:4,20:28])
-    ax_xgal_r1 = fig.add_subplot(gs[0:4,28:34])
-    ax_xgal_r2 = fig.add_subplot(gs[0:4,34:40])
+    ax_bw_b = fig.add_subplot(gs[50:60,30:40])
+    ax_bw_r1 = fig.add_subplot(gs[50:60,40:50])
+    ax_bw_r2 = fig.add_subplot(gs[50:60,50:60])
 
-    ax_nw_b = fig.add_subplot(gs[4:8,20:28])
-    ax_nw_r1 = fig.add_subplot(gs[4:8,28:34])
-    ax_nw_r2 = fig.add_subplot(gs[4:8,34:40])
+    ax_se_b = fig.add_subplot(gs[40:50,30:40])
+    ax_se_r1 = fig.add_subplot(gs[40:50,40:50])
+    ax_se_r2 = fig.add_subplot(gs[40:50,50:60])
 
-    ax_ne_b = fig.add_subplot(gs[8:12,20:28])
-    ax_ne_r1 = fig.add_subplot(gs[8:12,28:34])
-    ax_ne_r2 = fig.add_subplot(gs[8:12,34:40])
+    ax_sw_b = fig.add_subplot(gs[30:40,30:40])
+    ax_sw_r1 = fig.add_subplot(gs[30:40,40:50])
+    ax_sw_r2 = fig.add_subplot(gs[30:40,50:60])
 
-    ax_sw_b = fig.add_subplot(gs[12:16,20:28])
-    ax_sw_r1 = fig.add_subplot(gs[12:16,28:34])
-    ax_sw_r2 = fig.add_subplot(gs[12:16,34:40])
+    ax_ne_b = fig.add_subplot(gs[20:30,30:40])
+    ax_ne_r1 = fig.add_subplot(gs[20:30,40:50])
+    ax_ne_r2 = fig.add_subplot(gs[20:30,50:60])
 
-    ax_bw_b = fig.add_subplot(gs[16:20,20:28])
-    ax_bw_r1 = fig.add_subplot(gs[16:20,28:34])
-    ax_bw_r2 = fig.add_subplot(gs[16:20,34:40])
+    ax_nw_b = fig.add_subplot(gs[10:20,30:40])
+    ax_nw_r1 = fig.add_subplot(gs[10:20,40:50])
+    ax_nw_r2 = fig.add_subplot(gs[10:20,50:60])
 
-    ax_snuc_b = fig.add_subplot(gs[20:24,0:8])
-    ax_snuc_r1 = fig.add_subplot(gs[20:24,8:14])
-    ax_snuc_r2 = fig.add_subplot(gs[20:24,14:20])
+    ax_snuc_b = fig.add_subplot(gs[0:10,30:40])
+    ax_snuc_r1 = fig.add_subplot(gs[0:10,40:50])
+    ax_snuc_r2 = fig.add_subplot(gs[0:10,50:60])
 
-    ax_be_b = fig.add_subplot(gs[20:24,20:28])
-    ax_be_r1 = fig.add_subplot(gs[20:24,28:34])
-    ax_be_r2 = fig.add_subplot(gs[20:24,34:40])
+    ax_be_b = fig.add_subplot(gs[50:60,0:10])
+    ax_be_r1 = fig.add_subplot(gs[50:60,10:20])
+    ax_be_r2 = fig.add_subplot(gs[50:60,20:30])
+
+    ax_xgal_b = fig.add_subplot(gs[40:50,0:10])
+    ax_xgal_r1 = fig.add_subplot(gs[40:50,10:20])
+    ax_xgal_r2 = fig.add_subplot(gs[40:50,20:30])
 
     # ------------ Plot galaxy ------------ #
     # SDSS g band image with proper stretch
@@ -271,9 +425,12 @@ if __name__ == '__main__':
         edgecolor='dodgerblue', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
     sw_patch = SphericalCircle((0.4066708406 * u.deg, 23.49171278 * u.deg), 0.0018061 * u.degree, \
         edgecolor='dodgerblue', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
+    se_patch = SphericalCircle((0.4134277924 * u.deg, 23.47796085 * u.deg), 0.0018061 * u.degree, \
+        edgecolor='dodgerblue', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(nw_patch)
     ax.add_patch(ne_patch)
     ax.add_patch(sw_patch)
+    ax.add_patch(se_patch)
 
     bw_patch = SphericalCircle((0.4149416606 * u.deg, 23.49478361 * u.deg), 0.0018061 * u.degree, \
         edgecolor='deeppink', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
@@ -287,72 +444,85 @@ if __name__ == '__main__':
     f.set_weight('bold')
 
     ax.text(0.36, 0.78, 'North galaxy nucleus', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.68, 0.41, 'South galaxy' + '\n' + 'nucleus', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.41, 0.61, 'Extragalactic' + '\n' + 'HII region', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.48, 0.87, 'North galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.05, 0.59, 'North galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.76, 0.64, 'South galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
+
+    ax.text(0.61, 0.29, 'South galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.57, 0.72, 'Bridge west', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.26, 0.49, 'Bridge east', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=11)
+        transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
+    # these spectra are plotted in the same order as the axes above
+    # the axes oreder DOES matter for the x axis ticks labels. 
+    # see above comment on axes ordering.
+    # the plotting order here doesn't really matter. 
+    # I just did it to be consistent with the axes order.
     # ------------ Plot north nuclear region spectrum ------------ #
     ax_nnuc_b, ax_nnuc_r1, ax_nnuc_r2 = \
     plotspectrum(ax_nnuc_b, ax_nnuc_r1, ax_nnuc_r2, nnuc_blue['wav'], nnuc_blue['flux'], nnuc_red['wav'], nnuc_red['flux'],\
-        25,53, 58,78, 48,150, 4700,5320, 'North galaxy nucleus')
-
-    # ------------ Plot south nuclear region spectrum ------------ #
-    ax_snuc_b, ax_snuc_r1, ax_snuc_r2 = \
-    plotspectrum(ax_snuc_b, ax_snuc_r1, ax_snuc_r2, snuc_blue['wav'], snuc_blue['flux'], snuc_red['wav'], snuc_red['flux'],\
-        50,90, 70,105, 88,162, 4700,5320, 'South galaxy nucleus')
-
-    # ------------ Plot X-Galactic HII region spectrum ------------ #
-    ax_xgal_b, ax_xgal_r1, ax_xgal_r2 = \
-    plotspectrum(ax_xgal_b, ax_xgal_r1, ax_xgal_r2, xgal_hii_blue['wav'], xgal_hii_blue['flux'], xgal_hii_red['wav'], xgal_hii_red['flux'],\
-        0,30, 0,50, -10,100, 4850,5150, 'Extragalactic HII region')
-
-    # ------------ Plot north galaxy west region spectrum ------------ #
-    ax_nw_b, ax_nw_r1, ax_nw_r2 = \
-    plotspectrum(ax_nw_b, ax_nw_r1, ax_nw_r2, nw_blue['wav'], nw_blue['flux'], nw_red['wav'], nw_red['flux'],\
-        10,50, 15,40, 10,105, 4700,5320, 'North galaxy west')
-
-    # ------------ Plot north galaxy east region spectrum ------------ #
-    ax_ne_b, ax_ne_r1, ax_ne_r2 = \
-    plotspectrum(ax_ne_b, ax_ne_r1, ax_ne_r2, ne_blue['wav'], ne_blue['flux'], ne_red['wav'], ne_red['flux'],\
-        15,50, 15,45, 10,55, 4700,5320, 'North galaxy east')
-
-    # ------------ Plot south galaxy west region spectrum ------------ #
-    ax_sw_b, ax_sw_r1, ax_sw_r2 = \
-    plotspectrum(ax_sw_b, ax_sw_r1, ax_sw_r2, sw_blue['wav'], sw_blue['flux'], sw_red['wav'], sw_red['flux'],\
-        10,65, 15,30, 10,150, 4700,5320, 'South galaxy west')
+        25,53, 58,78, 48,150, 4700,5320, 'North galaxy' + '\n' + 'nucleus')
 
     # ------------ Plot bridge west region spectrum ------------ #
     ax_bw_b, ax_bw_r1, ax_bw_r2 = \
     plotspectrum(ax_bw_b, ax_bw_r1, ax_bw_r2, bw_blue['wav'], bw_blue['flux'], bw_red['wav'], bw_red['flux'],\
         -5,5, -5,10, -5,20, 4850,5150, 'Bridge west')
 
+    # ------------ Plot south galaxy east region spectrum ------------ #
+    ax_se_b, ax_se_r1, ax_se_r2 = \
+    plotspectrum(ax_se_b, ax_se_r1, ax_se_r2, se_blue['wav'], se_blue['flux'], se_red['wav'], se_red['flux'],\
+        10,60, 28,43, 10,150, 4700,5320, 'South galaxy east')
+
+    # ------------ Plot south galaxy west region spectrum ------------ #
+    ax_sw_b, ax_sw_r1, ax_sw_r2 = \
+    plotspectrum(ax_sw_b, ax_sw_r1, ax_sw_r2, sw_blue['wav'], sw_blue['flux'], sw_red['wav'], sw_red['flux'],\
+        10,65, 20,27, 10,140, 4700,5320, 'South galaxy west')
+
+    # ------------ Plot north galaxy east region spectrum ------------ #
+    ax_ne_b, ax_ne_r1, ax_ne_r2 = \
+    plotspectrum(ax_ne_b, ax_ne_r1, ax_ne_r2, ne_blue['wav'], ne_blue['flux'], ne_red['wav'], ne_red['flux'],\
+        15,50, 25,38, 10,55, 4700,5320, 'North galaxy east')
+
+    # ------------ Plot north galaxy west region spectrum ------------ #
+    ax_nw_b, ax_nw_r1, ax_nw_r2 = \
+    plotspectrum(ax_nw_b, ax_nw_r1, ax_nw_r2, nw_blue['wav'], nw_blue['flux'], nw_red['wav'], nw_red['flux'],\
+        10,50, 15,40, 10,105, 4700,5320, 'North galaxy west')
+
+    # ------------ Plot south nuclear region spectrum ------------ #
+    ax_snuc_b, ax_snuc_r1, ax_snuc_r2 = \
+    plotspectrum(ax_snuc_b, ax_snuc_r1, ax_snuc_r2, snuc_blue['wav'], snuc_blue['flux'], snuc_red['wav'], snuc_red['flux'],\
+        50,90, 85,105, 88,162, 4700,5320, 'South galaxy' + '\n' + 'nucleus')
+
     # ------------ Plot bridge east region spectrum ------------ #
     ax_be_b, ax_be_r1, ax_be_r2 = \
     plotspectrum(ax_be_b, ax_be_r1, ax_be_r2, be_blue['wav'], be_blue['flux'], be_red['wav'], be_red['flux'],\
         -5,5, -5,10, -8,10, 4850,5150, 'Bridge east')
 
+    # ------------ Plot X-Galactic HII region spectrum ------------ #
+    ax_xgal_b, ax_xgal_r1, ax_xgal_r2 = \
+    plotspectrum(ax_xgal_b, ax_xgal_r1, ax_xgal_r2, xgal_hii_blue['wav'], xgal_hii_blue['flux'], xgal_hii_red['wav'], xgal_hii_red['flux'],\
+        0,30, 0,35, -10,100, 4850,5150, 'Extragalactic' + '\n' + 'HII region')
+
     # ------------ Save figure ------------ #
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/taffy_intg_spec.eps', dpi=600, bbox_inches='tight')
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/taffy_intg_spec.eps', dpi=300, bbox_inches='tight')
     #plt.show()
 
     # total run time

@@ -53,9 +53,9 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.3 + 0.61 / (np.arange(-1, 0, 0.01) - 0.05)
         y_liner_seyfert_line = 1.19 + 0.61 / (np.arange(-1, 0.4, 0.01) - 0.47)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='r', markersize=6, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='g', markersize=2, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='b', markersize=2, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
 
         ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -93,9 +93,9 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.33 + 0.73 / (np.arange(-2.5, -0.8, 0.01) + 0.59)
         y_liner_seyfert_line = 1.30 + 1.18 * np.arange(-1.1, 0, 0.01)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='r', markersize=6, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='g', markersize=2, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='b', markersize=2, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
 
         ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -133,9 +133,9 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.3 + 0.72 / (np.arange(-1, 0.1, 0.01) - 0.32)
         y_liner_seyfert_line = 0.76 + 1.89 * np.arange(-0.3, 1, 0.01)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='r', markersize=6, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='g', markersize=2, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='b', markersize=2, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
 
         ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')

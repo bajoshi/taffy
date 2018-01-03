@@ -17,14 +17,13 @@ import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
-stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
-ipac_taffy_figdir = home + "/Desktop/ipac/taffy/figures/"
-taffydir = home + "/Desktop/ipac/taffy/"
-taffy_products = '/Volumes/Bhavins_backup/ipac/TAFFY/products_big_cube_velsort/'
-em_line_dir = '/Volumes/Bhavins_backup/ipac/TAFFY/emission_line_ratios/'
+taffydir = home + '/Desktop/ipac/taffy/'
+taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+ipac_taffy_figdir = home + '/Desktop/ipac/taffy_lzifu/figures_stitched_cube/'
+savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
-sys.path.append(stacking_analysis_dir + 'codes/')
-import fast_chi2_jackknife as fcj
+sys.path.append(taffydir + 'codes/')
+import vel_channel_map as vcm
 
 def getregionmask(pn, final_arr_shape, regionname):
     """
@@ -559,33 +558,27 @@ if __name__ == '__main__':
     dt = datetime.datetime
     print "Starting at --", dt.now()
 
-    # read in lzifu output file
-    h = fits.open(taffy_products + 'big_cube_2_comp_velsort.fits')
-    hdu_vdisp = fits.open(taffy_products + 'big_cube_2_comp_velsort_VDISP.fits')
-
-    # loop over extensions 
-    total_ext = fcj.get_total_extensions(h)
+    # Read in stitched cube
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     # assign line arrays
-    halpha = h['HALPHA'].data[0]
-    hbeta = h['HBETA'].data[0]
-    nii6583 = h['NII6583'].data[0]
-    oiii5007 = h['OIII5007'].data[0]
-    oi6300 = h['OI6300'].data[0]
-    oi6364 = h['OI6364'].data[0]
-    sii6716 = h['SII6716'].data[0]
-    sii6731 = h['SII6731'].data[0]
-    vdisp_line1 = hdu_vdisp[0].data[1]
-    vdisp_line2 = hdu_vdisp[0].data[2]
+    halpha = stitched_cube['HALPHA'].data[0]
+    hbeta = stitched_cube['HBETA'].data[0]
+    nii6583 = stitched_cube['NII6583'].data[0]
+    oiii5007 = stitched_cube['OIII5007'].data[0]
+    oi6300 = stitched_cube['OI6300'].data[0]
+    oi6364 = stitched_cube['OI6364'].data[0]
+    sii6716 = stitched_cube['SII6716'].data[0]
+    sii6731 = stitched_cube['SII6731'].data[0]
 
-    halpha_err = h['HALPHA_ERR'].data[0]
-    hbeta_err = h['HBETA_ERR'].data[0]
-    nii6583_err = h['NII6583_ERR'].data[0]
-    oiii5007_err = h['OIII5007_ERR'].data[0]
-    oi6300_err = h['OI6300_ERR'].data[0]
-    oi6364_err = h['OI6364_ERR'].data[0]
-    sii6716_err = h['SII6716_ERR'].data[0]
-    sii6731_err = h['SII6731_ERR'].data[0]
+    halpha_err = stitched_cube['HALPHA_ERR'].data[0]
+    hbeta_err = stitched_cube['HBETA_ERR'].data[0]
+    nii6583_err = stitched_cube['NII6583_ERR'].data[0]
+    oiii5007_err = stitched_cube['OIII5007_ERR'].data[0]
+    oi6300_err = stitched_cube['OI6300_ERR'].data[0]
+    oi6364_err = stitched_cube['OI6364_ERR'].data[0]
+    sii6716_err = stitched_cube['SII6716_ERR'].data[0]
+    sii6731_err = stitched_cube['SII6731_ERR'].data[0]
 
     # add lines which are doublets
     sii = sii6716 + sii6731
@@ -601,15 +594,13 @@ if __name__ == '__main__':
     nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
     halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
     oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut =\
-     get_arr_withsigcut(2.5, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
+     get_arr_withsigcut(3, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
     nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha.shape)
 
-    # arrays without any cut
-    nii_halpha = np.log10(np.divide(nii6583[0], halpha[0]))
-    oiii_hbeta = np.log10(np.divide(oiii5007[0], hbeta[0]))
-    oi_halpha = np.log10(np.divide(oi6300[0], halpha[0]))
-
-    bridge_mask, north_mask, south_mask = getallmasks(halpha.shape)
+    # get the region masks
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
     # apply bridge mask
     nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
@@ -691,13 +682,11 @@ if __name__ == '__main__':
     y_agn_hii_line = 1.3 + 0.61 / (np.arange(-1, 0, 0.01) - 0.05)
     y_liner_seyfert_line = 1.19 + 0.61 / (np.arange(-1, 0.4, 0.01) - 0.47)
 
-    #ax.plot(nii_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-
     nii_nonzero = np.nonzero(nii_halpha_withcut)
 
-    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
+    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
+    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
@@ -756,9 +745,9 @@ if __name__ == '__main__':
 
     oi_nonzero = np.nonzero(oi_halpha_withcut)
 
-    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
+    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
+    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
@@ -816,9 +805,9 @@ if __name__ == '__main__':
 
     sii_nonzero = np.nonzero(sii_halpha_withcut)
 
-    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], 'x', color='r', markersize=6, markeredgecolor='r')
-    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], 'o', color='g', markersize=2, markeredgecolor='g')
-    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], 'o', color='b', markersize=2, markeredgecolor='b')
+    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
+    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
+    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
@@ -861,6 +850,7 @@ if __name__ == '__main__':
     plt.clf()
     plt.cla()
     plt.close()
+    sys.exit(0)
 
     # map pixel by pixel maps for quantities that go into the BPT diagram
     fig = plt.figure()
