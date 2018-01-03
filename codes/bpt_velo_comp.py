@@ -34,18 +34,22 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     # read in Mappings III models and overplot
     mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
     mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
-    mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+    mappings_oi_halpha_v250, mappings_oi_halpha_v300, mappings_oi_halpha_v500,\
+    mappings_oi_halpha_v800,\
     mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
     mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
     mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
     mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
-        mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
-        mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
-        mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
-        mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
-        mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
-        mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
-        mappings_sii_halpha_v250, mappings_sii_halpha_v300 = bpt.mappings_oi_nii_sii()
+    mappings_nii_halpha_v800,\
+    mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
+    mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
+    mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
+    mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+    mappings_oiii_hbeta_v800,\
+    mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
+    mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
+    mappings_sii_halpha_v250, mappings_sii_halpha_v300, mappings_sii_halpha_v500,\
+    mappings_sii_halpha_v800 = bpt.mappings_oi_nii_sii()
 
     if plottype == 'nii':
         ax.set_xlabel(r'$\mathrm{log\left( \frac{[NII]}{H\alpha} \right)}$', fontsize=15)
@@ -53,17 +57,19 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.3 + 0.61 / (np.arange(-1, 0, 0.01) - 0.05)
         y_liner_seyfert_line = 1.19 + 0.61 / (np.arange(-1, 0.4, 0.01) - 0.47)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
         ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-        ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-        ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-        ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-        ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+        ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+        ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+        ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+        ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+        ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+        ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
         ax.set_xlim(-1,0.3)
         ax.set_ylim(-1,1)
@@ -83,7 +89,7 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
 
         hiibox = TextArea('HII', textprops=dict(color='k', size=16))
         anc_hiibox = AnchoredOffsetbox(loc=2, child=hiibox, pad=0.0, frameon=False,\
-                                             bbox_to_anchor=(0.22, 0.3),\
+                                             bbox_to_anchor=(0.32, 0.3),\
                                              bbox_transform=ax.transAxes, borderpad=0.0)
         ax.add_artist(anc_hiibox)
 
@@ -93,17 +99,19 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.33 + 0.73 / (np.arange(-2.5, -0.8, 0.01) + 0.59)
         y_liner_seyfert_line = 1.30 + 1.18 * np.arange(-1.1, 0, 0.01)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
         ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
-        ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-        ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-        ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-        ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+        ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+        ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+        ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+        ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+        ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+        ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
         ax.set_xlim(-2.0,0)
         ax.set_ylim(-1,1)
@@ -133,17 +141,19 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         y_agn_hii_line = 1.3 + 0.72 / (np.arange(-1, 0.1, 0.01) - 0.32)
         y_liner_seyfert_line = 0.76 + 1.89 * np.arange(-0.3, 1, 0.01)
 
-        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='r')
-        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+        ax.plot(xarr_br[valid_indices], yarr_br[valid_indices], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+        ax.plot(xarr_n[valid_indices], yarr_n[valid_indices], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+        ax.plot(xarr_s[valid_indices], yarr_s[valid_indices], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
         ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
         ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
-        ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-        ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-        ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-        ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+        ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+        ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+        ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+        ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+        ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+        ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
         ax.set_xlim(-1,0.5)
         ax.set_ylim(-1,1)
@@ -331,43 +341,10 @@ if __name__ == '__main__':
 
     # get region mask for region defined first in ds9
     # see process to do this detailed in the comments in the bpt_plots.py code.
-    region_file = open(taffy_extdir + 'bridge_bpt_new.reg')
-    region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
-    region_list = region_list.astype(np.float64)
-    region_file.close()
-
-    pn_list = []
-    for i in range(0,len(region_list),2):
-        pn_list.append([int(round(region_list[i])),int(round(region_list[i+1]))])
-
-    region_pn = pg.Polygon(pn_list)
-    bridge_mask = bpt.getregionmask(region_pn, (58,58), "bridge region.")
-
-    # north galaxy mask
-    region_file = open(taffy_extdir + 'north_galaxy_bpt.reg')
-    region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
-    region_list = region_list.astype(np.float64)
-    region_file.close()
-
-    pn_list = []
-    for i in range(0,len(region_list),2):
-        pn_list.append([int(round(region_list[i])),int(round(region_list[i+1]))])
-
-    region_pn = pg.Polygon(pn_list)
-    north_mask = bpt.getregionmask(region_pn, (58,58), "north galaxy region.")
-
-    # south galaxy mask
-    region_file = open(taffy_extdir + 'south_galaxy_bpt.reg')
-    region_list = np.array(region_file.readlines()[-1].split('(')[1].split(')')[0].split(','))
-    region_list = region_list.astype(np.float64)
-    region_file.close()
-
-    pn_list = []
-    for i in range(0,len(region_list),2):
-        pn_list.append([int(round(region_list[i])),int(round(region_list[i+1]))])
-
-    region_pn = pg.Polygon(pn_list)
-    south_mask = bpt.getregionmask(region_pn, (58,58), "south galaxy region.")
+    # get the region masks
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
     # apply mask
     if stitched:

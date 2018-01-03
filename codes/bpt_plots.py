@@ -21,6 +21,7 @@ taffydir = home + '/Desktop/ipac/taffy/'
 taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 ipac_taffy_figdir = home + '/Desktop/ipac/taffy_lzifu/figures_stitched_cube/'
 savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
+em_line_dir = taffy_extdir + 'emission_line_ratios/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -250,6 +251,8 @@ def mappings_oi_nii_sii():
     mappings_oi_halpha_v225 = []
     mappings_oi_halpha_v250 = []
     mappings_oi_halpha_v300 = []
+    mappings_oi_halpha_v500 = []
+    mappings_oi_halpha_v800 = []
 
     mappings_nii_halpha_v100 = []
     mappings_nii_halpha_v125 = []
@@ -263,6 +266,7 @@ def mappings_oi_nii_sii():
     mappings_nii_halpha_v400 = []
     mappings_nii_halpha_v450 = []
     mappings_nii_halpha_v500 = []
+    mappings_nii_halpha_v800 = []
 
     mappings_oiii_hbeta_v100 = []
     mappings_oiii_hbeta_v125 = []
@@ -276,6 +280,7 @@ def mappings_oi_nii_sii():
     mappings_oiii_hbeta_v400 = []
     mappings_oiii_hbeta_v450 = []
     mappings_oiii_hbeta_v500 = []
+    mappings_oiii_hbeta_v800 = []
 
     mappings_sii_halpha_v100 = []
     mappings_sii_halpha_v125 = []
@@ -285,6 +290,8 @@ def mappings_oi_nii_sii():
     mappings_sii_halpha_v225 = []
     mappings_sii_halpha_v250 = []
     mappings_sii_halpha_v300 = []
+    mappings_sii_halpha_v500 = []
+    mappings_sii_halpha_v800 = []
 
     for curr_n in all_n:
         
@@ -397,24 +404,37 @@ def mappings_oi_nii_sii():
                 mappings_oiii_hbeta_v450.append(np.log10(float(mappings_oiii_line['450'])))
 
             if check_mappings_field(mappings_model, '500'):
+                mappings_oi_halpha_v500.append(np.log10(float(mappings_oi_line['500']) / float(mappings_halpha_line['500'])))
                 mappings_nii_halpha_v500.append(np.log10((float(mappings_nii6583_line['500']) + float(mappings_nii6547_line['500'])) / float(mappings_halpha_line['500'])))
                 mappings_oiii_hbeta_v500.append(np.log10(float(mappings_oiii_line['500'])))
+                sii_sum = float(mappings_sii6716_line['500']) + float(mappings_sii6731_line['500'])
+                mappings_sii_halpha_v500.append(np.log10(sii_sum / float(mappings_halpha_line['500'])))
 
+            if check_mappings_field(mappings_model, '800'):
+                mappings_oi_halpha_v800.append(np.log10(float(mappings_oi_line['800']) / float(mappings_halpha_line['800'])))
+                mappings_nii_halpha_v800.append(np.log10((float(mappings_nii6583_line['800']) + float(mappings_nii6547_line['800'])) / float(mappings_halpha_line['800'])))
+                mappings_oiii_hbeta_v800.append(np.log10(float(mappings_oiii_line['800'])))
+                sii_sum = float(mappings_sii6716_line['800']) + float(mappings_sii6731_line['800'])
+                mappings_sii_halpha_v800.append(np.log10(sii_sum / float(mappings_halpha_line['800'])))
 
     return mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
            mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
-           mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+           mappings_oi_halpha_v250, mappings_oi_halpha_v300, mappings_oi_halpha_v500,\
+           mappings_oi_halpha_v800,\
            mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
            mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
            mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
            mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
+           mappings_nii_halpha_v800,\
         mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
         mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
         mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
         mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+        mappings_oiii_hbeta_v800,\
         mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
         mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
-        mappings_sii_halpha_v250, mappings_sii_halpha_v300
+        mappings_sii_halpha_v250, mappings_sii_halpha_v300, mappings_sii_halpha_v500,\
+        mappings_sii_halpha_v800
 
 def bpt_to_spatial():
 
@@ -653,18 +673,22 @@ if __name__ == '__main__':
     # read in Mappings III models and overplot
     mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
     mappings_oi_halpha_v175, mappings_oi_halpha_v200, mappings_oi_halpha_v225,\
-    mappings_oi_halpha_v250, mappings_oi_halpha_v300,\
+    mappings_oi_halpha_v250, mappings_oi_halpha_v300, mappings_oi_halpha_v500,\
+    mappings_oi_halpha_v800,\
     mappings_nii_halpha_v100, mappings_nii_halpha_v125, mappings_nii_halpha_v150,\
     mappings_nii_halpha_v175, mappings_nii_halpha_v200, mappings_nii_halpha_v225,\
     mappings_nii_halpha_v250, mappings_nii_halpha_v300, mappings_nii_halpha_v350,\
     mappings_nii_halpha_v400, mappings_nii_halpha_v450, mappings_nii_halpha_v500,\
-        mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
-        mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
-        mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
-        mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
-        mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
-        mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
-        mappings_sii_halpha_v250, mappings_sii_halpha_v300 = mappings_oi_nii_sii()
+    mappings_nii_halpha_v800,\
+    mappings_oiii_hbeta_v100, mappings_oiii_hbeta_v125, mappings_oiii_hbeta_v150,\
+    mappings_oiii_hbeta_v175, mappings_oiii_hbeta_v200, mappings_oiii_hbeta_v225,\
+    mappings_oiii_hbeta_v250, mappings_oiii_hbeta_v300, mappings_oiii_hbeta_v350,\
+    mappings_oiii_hbeta_v400, mappings_oiii_hbeta_v450, mappings_oiii_hbeta_v500,\
+    mappings_oiii_hbeta_v800,\
+    mappings_sii_halpha_v100, mappings_sii_halpha_v125, mappings_sii_halpha_v150,\
+    mappings_sii_halpha_v175, mappings_sii_halpha_v200, mappings_sii_halpha_v225,\
+    mappings_sii_halpha_v250, mappings_sii_halpha_v300, mappings_sii_halpha_v500,\
+    mappings_sii_halpha_v800 = mappings_oi_nii_sii()
 
     # plot bpt diagrams
     # BPT with [NII]
@@ -684,18 +708,20 @@ if __name__ == '__main__':
 
     nii_nonzero = np.nonzero(nii_halpha_withcut)
 
-    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
-    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-    ax.plot(mappings_nii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
-    ax.legend(loc=0, prop={'size':8})
+    ax.legend(loc=0, prop={'size':10})
 
     ax.set_xlim(-1,0.3)
     ax.set_ylim(-1,1)
@@ -720,7 +746,7 @@ if __name__ == '__main__':
 
     hiibox = TextArea('HII', textprops=dict(color='k', size=16))
     anc_hiibox = AnchoredOffsetbox(loc=2, child=hiibox, pad=0.0, frameon=False,\
-                                         bbox_to_anchor=(0.22, 0.3),\
+                                         bbox_to_anchor=(0.32, 0.3),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
 
@@ -741,22 +767,22 @@ if __name__ == '__main__':
     y_agn_hii_line = 1.33 + 0.73 / (np.arange(-2.5, -0.8, 0.01) + 0.59)
     y_liner_seyfert_line = 1.30 + 1.18 * np.arange(-1.1, 0, 0.01)
 
-    #ax.plot(oi_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-
     oi_nonzero = np.nonzero(oi_halpha_withcut)
 
-    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
-    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-    ax.plot(mappings_oi_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
-    ax.legend(loc=0, prop={'size':8})
+    ax.legend(loc=0, prop={'size':10})
 
     ax.set_xlim(-2.0,0)
     ax.set_ylim(-1,1)
@@ -801,22 +827,22 @@ if __name__ == '__main__':
     y_agn_hii_line = 1.3 + 0.72 / (np.arange(-1, 0.1, 0.01) - 0.32)
     y_liner_seyfert_line = 0.76 + 1.89 * np.arange(-0.3, 1, 0.01)
 
-    #ax.plot(sii_halpha_withcut, oiii_hbeta_withcut, 'o', color='k', markersize=2, markeredgecolor='k')
-
     sii_nonzero = np.nonzero(sii_halpha_withcut)
 
-    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='r')
-    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], 'o', color='forestgreen', markersize=4, markeredgecolor='g')
-    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], 'o', color='midnightblue', markersize=4, markeredgecolor='b')
+    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=1.25, label='125 km/s')
-    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=1.25, label='175 km/s')
-    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=1.25, label='200 km/s')
-    ax.plot(mappings_sii_halpha_v250, mappings_oiii_hbeta_v250, '.-', lw=1.25, label='250 km/s')
+    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
-    ax.legend(loc=0, prop={'size':8})
+    ax.legend(loc=0, prop={'size':10})
 
     ax.set_xlim(-1,0.5)
     ax.set_ylim(-1,1)
