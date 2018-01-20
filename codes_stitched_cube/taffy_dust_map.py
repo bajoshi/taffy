@@ -64,6 +64,8 @@ if __name__ == '__main__':
     ax.imshow(ebv_map, vmin=0, vmax=2, origin='lower')
     #plt.colorbar(ax)
 
+    fig.savefig(ipac_taffy_figdir + 'ebv_map.eps', dpi=150, bbox_inches='tight')
+
     plt.show()
 
     sys.exit(0)

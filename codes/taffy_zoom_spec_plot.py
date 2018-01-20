@@ -315,7 +315,7 @@ if __name__ == '__main__':
     # modify rc Params
     mpl.rcParams["font.family"] = "serif"
     mpl.rcParams["font.sans-serif"] = ["Computer Modern Sans"]
-    #mpl.rcParams["text.usetex"] = True  
+    #mpl.rcParams["text.usetex"] = True
     # I've kept this above commented out line here as a reminder. 
     # This line will stop any bold text from appearing anywhere 
     # on your figure. Didn't realize this for a couple hours lol...
