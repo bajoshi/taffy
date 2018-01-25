@@ -43,7 +43,11 @@ if __name__ == '__main__':
     lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
 
     # assign array for the total line flux
-    r_line_total = lzifu_hdulist['R_LINE'].data
+    #r_line_total = lzifu_hdulist['R_LINE'].data
+
+    # Using my own line fits instead of lzifu
+    # calling it r_line_total so I don't have to change any of the rest of the code
+    r_line_total = np.load(taffy_extdir + 'halpha_profile_mylinefits.npy')
 
     # create wavelength array
     # I read these data from the corresponding headers

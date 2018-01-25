@@ -16,6 +16,7 @@ import datetime
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+import matplotlib.cm as cm
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
@@ -208,19 +209,11 @@ if __name__ == '__main__':
     # get colormap
     colorbrewer_cm = vcm.get_colorbrewer_cm()
 
-    # Levels taken interactively from ds9
-    # uncomment as needed
-    #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
-    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250])  # vel comp 1
-    levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 2 
-    # velocity comp 2 has an additonal contour level at the highest level
-    #levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
-
     # select contour map to plot and set the variables 
-    # set the variables and limtis below and also the levels above
+    # set the variables, levels, and limits below
     con_map_type = 'vel'
-    con_map_comp = 'comp2'
-    con_map = vel_comp2
+    con_map_comp = 'comp1'
+    con_map = vel_comp1
 
     # apply min and max limits
     minlim = -500
@@ -229,6 +222,16 @@ if __name__ == '__main__':
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
     con_map[maxidx] = np.nan
+
+    # Levels taken interactively from ds9
+    # uncomment as needed
+    #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
+    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250])  # vel comp 1
+
+    levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 1
+    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 2 
+    # velocity comp 2 has an additonal contour level at the highest level
+    #levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
     
     # change all nan to None to get closed contours
     # this will go wrong for velocities because 0 is a perfectly valid velocity
@@ -241,13 +244,13 @@ if __name__ == '__main__':
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
-     levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
-    ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
+     levels=levels, cmap=cm.plasma, linewidths=2.0, interpolation='None', alpha=0.8)
+    ax.clabel(c, inline=True, inline_spacing=2, fontsize=8, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
     cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
     cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
-    cb.ax.get_children()[0].set_linewidths(15.0)
+    cb.ax.get_children()[0].set_linewidths(17.0)
     #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
     #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
     cb.ax.set_xlabel(r'$\mathrm{Velocity [km\, s^{-1}]}$', fontsize=12)

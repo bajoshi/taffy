@@ -20,6 +20,7 @@ savedir = home + '/Desktop/ipac/taffy_lzifu/baj_gauss_fits_to_lzifu_linefits/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
+import stitch_map as sm
 
 speed_of_light = 299792.458  # km/s
 
@@ -68,6 +69,7 @@ if __name__ == '__main__':
     r_line_comp1 = h['R_LINE_COMP1'].data
     r_line_comp2 = h['R_LINE_COMP2'].data
 
+    # old text
     # I'm choosing to fit a gaussian to just hte [OIII]5007 line.
     # This is because I think this line has high enough SNR and 
     # also is not contaminated by any other lines. I would've 
@@ -145,13 +147,7 @@ if __name__ == '__main__':
     vel_onecomp = np.ones((58,58)) * -9999.0
     std_onecomp = np.ones((58,58)) * -9999.0
 
-    # conv ds9 coords to array coords 
-    # to be able to check with ds9
-    pix_x = 36
-    pix_y = 25
-    arr_x = pix_y - 1
-    arr_y = pix_x - 1
-    box_size = 5
+    halpha_profile_mylinefits = np.zeros(r_line.shape)
 
     # I'm forcing some low SNR spaxels to get the one comp fit
     force_onecomp_list = [[28, 20],[29, 20],[30, 20],[29, 21],[30, 21],[29, 22],[30, 22],\
@@ -168,10 +164,37 @@ if __name__ == '__main__':
     comp1_inv_idx = np.zeros((58,58))
     comp2_inv_idx = np.zeros((58,58))
 
-    # start looping
-    count = 0
-    for i in range(arr_x, arr_x + box_size):  # If you want to analyze a block enter the pix coords of the low left corner above
-        for j in range(arr_y, arr_y + box_size):
+    # if this run is being used to save the line profiles
+    save_profile = True
+    if save_profile:
+        # read in indices file
+        all_cases = fits.open(savedir + 'all_cases_indices.fits')
+
+        comp1_inv_idx = all_cases['COMP1_INV'].data
+        comp2_inv_idx = all_cases['COMP2_INV'].data
+        single_idx = all_cases['SINGLE_IDX'].data
+        diffmean_idx = all_cases['DIFFMEAN_IDX'].data
+        diffstd_idx = all_cases['DIFFSTD_IDX'].data
+        diffboth_idx = all_cases['DIFFBOTH_IDX'].data
+
+        # also get the pixels which need to be forced to the single component solution
+        nan_single_comp_arr = sm.get_nan_arr()
+
+        # get mask of all possible not NaN pixels
+        all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
+
+    # conv ds9 coords to array coords 
+    # to be able to check with ds9
+    pix_x = 36
+    pix_y = 25
+    arr_x = pix_y - 1
+    arr_y = pix_x - 1
+    box_size = 5
+
+    # If you want to analyze a block enter the pix coords of the low left corner above
+    # Otherwise you need to loop both i and j over range(58)
+    for i in range(58):  #arr_x, arr_x + box_size):
+        for j in range(58):  #arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -272,9 +295,52 @@ if __name__ == '__main__':
             if isinvalid_comp2_fit:
                 comp2_inv_idx[i,j] = 1.0
 
+            # save the profile
+            if save_profile:
+                # FIRST run the code with save_profile 
+                # set to False and then set it to True.
+
+                # The code must run at least once with this block 
+                # to save the profile commented out. This first run
+                # will generate the all_cases_indices.fits file
+                # which is to be used to figure out if the fit to be
+                # saved is a single or double component one.
+
+                # first stitch the x values to make sure that they form a 
+                # 1d array of spectrum length in the required channel.
+                #x_lineprofile_bluestitch = np.linspace()
+                #x_lineprofile_redstitch  = 
+                x_lineprofile = np.arange(2350)
+
+                # now check if the fit is a single or double 
+                # component fit and save the appropriate result.
+
+                # first check that the pixel is within the area 
+                # where you could get reasonable results.
+                if not all_mask[i,j]:
+
+                    # if it is to be forced to the single component fit
+                    if (i,j) in nan_single_comp_arr:
+                        halpha_profile_mylinefits[:, i, j] = g(x_lineprofile)
+                        continue
+
+                    # is it a single component fit
+                    if single_idx[i,j]:
+                        halpha_profile_mylinefits[:, i, j] = g(x_lineprofile)
+
+                    # is it a double component fit
+                    elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
+                        # first check that either or both of the component fits are not invalid
+                        if comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
+                            halpha_profile_mylinefits[:, i, j] = g(x_lineprofile)
+
+                        else:
+                            halpha_profile_mylinefits[:, i, j] = g1(x_lineprofile) + g2(x_lineprofile)
+
             # uncomment the follwing block to run checks and 
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
+            """
             print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
@@ -309,10 +375,10 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
+            """
 
-            count += 1
-
-    sys.exit(0)
+    if save_profile:
+        np.save(taffy_extdir + 'halpha_profile_mylinefits.npy', halpha_profile_mylinefits)
 
     # save fit parameters
     np.save(savedir + 'amp_' + linename + '_comp1.npy', amp_comp1)
@@ -342,68 +408,69 @@ if __name__ == '__main__':
     mean_diff = np.ma.filled(mean_diff, fill_value=np.nan)
     std_diff = np.ma.filled(std_diff, fill_value=np.nan)
 
-    # now save the different cases separately (see action_items.txt for more details)
-    # first convert mean diff arr to units of km/s
-    # currently it is sampled at 0.3A so multiplying by that gives the diff in Angstroms
-    # convert angstroms to km/s by using line wav and speed of light
-    mean_diff *= 0.3
-    mean_diff = (mean_diff / line_air_wav) * speed_of_light
+    if not save_profile:
+        # now save the different cases separately (see action_items.txt for more details)
+        # first convert mean diff arr to units of km/s
+        # currently it is sampled at 0.3A so multiplying by that gives the diff in Angstroms
+        # convert angstroms to km/s by using line wav and speed of light
+        mean_diff *= 0.3
+        mean_diff = (mean_diff / line_air_wav) * speed_of_light
 
-    # I'm puting the std values in abs() because I noticed that some std 
-    # values are negative. I have no idea why, for now.
-    #std_comp1 = np.absolute(std_comp1)
-    #std_comp2 = np.absolute(std_comp2)
+        # I'm puting the std values in abs() because I noticed that some std 
+        # values are negative. I have no idea why, for now.
+        #std_comp1 = np.absolute(std_comp1)
+        #std_comp2 = np.absolute(std_comp2)
 
-    # 1. if mean and std are not too different ==> there is only a single comp
-    single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
-    #plot_indices(single_idx)
-    single_idx_arr = np.zeros((58,58))
-    single_idx_arr[single_idx] = 1.0
+        # 1. if mean and std are not too different ==> there is only a single comp
+        single_idx = np.where((mean_diff < 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
+        #plot_indices(single_idx)
+        single_idx_arr = np.zeros((58,58))
+        single_idx_arr[single_idx] = 1.0
 
-    # 2. Different mean but same std ==> There are two components
-    diffmean_idx = np.where((mean_diff >= 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
-    #large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) * delt >= data_res)
+        # 2. Different mean but same std ==> There are two components
+        diffmean_idx = np.where((mean_diff >= 35) & (std_comp2 < 1.5 * std_comp1) & (std_comp1 < 1.5 * std_comp2))
+        #large_stddiff_idx = np.where(np.absolute(std_comp1 - std_comp2) * delt >= data_res)
 
-    #for k in range(len(large_stddiff_idx[0])):
-    #    print large_stddiff_idx[0][k], large_stddiff_idx[1][k]
+        #for k in range(len(large_stddiff_idx[0])):
+        #    print large_stddiff_idx[0][k], large_stddiff_idx[1][k]
 
-    #    if (large_stddiff_idx[0][k], large_stddiff_idx[1][k]) in zip(diffmean_idx[0], diffmean_idx[1]):
-    #        print "   ", large_stddiff_idx[0][k], large_stddiff_idx[1][k]
+        #    if (large_stddiff_idx[0][k], large_stddiff_idx[1][k]) in zip(diffmean_idx[0], diffmean_idx[1]):
+        #        print "   ", large_stddiff_idx[0][k], large_stddiff_idx[1][k]
 
-    #sys.exit(0)
-    #plot_indices(diffmean_idx)
-    diffmean_idx_arr = np.zeros((58,58))
-    diffmean_idx_arr[diffmean_idx] = 1.0
+        #sys.exit(0)
+        #plot_indices(diffmean_idx)
+        diffmean_idx_arr = np.zeros((58,58))
+        diffmean_idx_arr[diffmean_idx] = 1.0
 
-    # 3. Different std but same mean ==> There are two components
-    diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
-    #plot_indices(diffstd_idx)
-    diffstd_idx_arr = np.zeros((58,58))
-    diffstd_idx_arr[diffstd_idx] = 1.0
+        # 3. Different std but same mean ==> There are two components
+        diffstd_idx = np.where((mean_diff < 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
+        #plot_indices(diffstd_idx)
+        diffstd_idx_arr = np.zeros((58,58))
+        diffstd_idx_arr[diffstd_idx] = 1.0
 
-    # 4. Different mean and std ==> There are two components
-    diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
-    #plot_indices(diffboth_idx)
-    diffboth_idx_arr = np.zeros((58,58))
-    diffboth_idx_arr[diffboth_idx] = 1.0
+        # 4. Different mean and std ==> There are two components
+        diffboth_idx = np.where((mean_diff >= 35) & ((std_comp2 >= 1.5 * std_comp1) | (std_comp1 >= 1.5 * std_comp2)))
+        #plot_indices(diffboth_idx)
+        diffboth_idx_arr = np.zeros((58,58))
+        diffboth_idx_arr[diffboth_idx] = 1.0
 
-    # save all cases
-    all_cases_hdu = fits.PrimaryHDU()
-    hdr = fits.Header()
-    all_cases_hdulist = fits.HDUList(all_cases_hdu)
-    hdr['EXTNAME'] = 'COMP1_INV'
-    all_cases_hdulist.append(fits.ImageHDU(data=comp1_inv_idx, header=hdr))
-    hdr['EXTNAME'] = 'COMP2_INV'
-    all_cases_hdulist.append(fits.ImageHDU(data=comp2_inv_idx, header=hdr))
-    hdr['EXTNAME'] = 'SINGLE_IDX'
-    all_cases_hdulist.append(fits.ImageHDU(data=single_idx_arr, header=hdr))
-    hdr['EXTNAME'] = 'DIFFMEAN_IDX'
-    all_cases_hdulist.append(fits.ImageHDU(data=diffmean_idx_arr, header=hdr))
-    hdr['EXTNAME'] = 'DIFFSTD_IDX'
-    all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr, header=hdr))
-    hdr['EXTNAME'] = 'DIFFBOTH_IDX'
-    all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
-    all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', overwrite=True)
+        # save all cases
+        all_cases_hdu = fits.PrimaryHDU()
+        hdr = fits.Header()
+        all_cases_hdulist = fits.HDUList(all_cases_hdu)
+        hdr['EXTNAME'] = 'COMP1_INV'
+        all_cases_hdulist.append(fits.ImageHDU(data=comp1_inv_idx, header=hdr))
+        hdr['EXTNAME'] = 'COMP2_INV'
+        all_cases_hdulist.append(fits.ImageHDU(data=comp2_inv_idx, header=hdr))
+        hdr['EXTNAME'] = 'SINGLE_IDX'
+        all_cases_hdulist.append(fits.ImageHDU(data=single_idx_arr, header=hdr))
+        hdr['EXTNAME'] = 'DIFFMEAN_IDX'
+        all_cases_hdulist.append(fits.ImageHDU(data=diffmean_idx_arr, header=hdr))
+        hdr['EXTNAME'] = 'DIFFSTD_IDX'
+        all_cases_hdulist.append(fits.ImageHDU(data=diffstd_idx_arr, header=hdr))
+        hdr['EXTNAME'] = 'DIFFBOTH_IDX'
+        all_cases_hdulist.append(fits.ImageHDU(data=diffboth_idx_arr, header=hdr))
+        all_cases_hdulist.writeto(savedir + 'all_cases_indices.fits', overwrite=True)
 
     h.close()
     sys.exit(0)

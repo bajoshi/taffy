@@ -36,14 +36,14 @@ if __name__ == '__main__':
 
     # read in velocity and vdisp maps for each component
     # and also read in lzifu result for single comp fit
-    one_comp = fits.open(taffy_products + 'Taffy_1_comp_patched.fits')
+    one_comp = fits.open(taffy_extdir + 'Taffy_1_comp_patched.fits')
     one_comp_vel = one_comp['V'].data[1]
     # put red line fit in array
-    r_line = one_comp['R_LINE_COMP1'].data
+    #r_line = one_comp['R_LINE_COMP1'].data
 
     # read in linefits
     mapname = 'vdisp'
-    comp = 2
+    comp = 1
     if mapname == 'vel':
         map_comp1 = np.load(savedir + 'vel_halpha_comp1.npy')
         map_comp2 = np.load(savedir + 'vel_halpha_comp2.npy')
