@@ -189,7 +189,7 @@ if __name__ == '__main__':
 
         # highlight spaxels based on mask
         im = ax.scatter(mask_unique_x, mask_unique_y, s=34, c='r', marker='s',\
-         alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+         alpha=0.2, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
         # had to use scatter instead of using another imshow on the same axes
         # it was ignoring the transform on the second imshow
 
@@ -199,7 +199,7 @@ if __name__ == '__main__':
         mask_y = np.where(mask_to_plot)[0]
 
         im = ax.scatter(mask_x, mask_y, s=34, c='g', marker='s',\
-         alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+         alpha=0.25, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
 
     # draw contours
     x = np.arange(58)
@@ -207,7 +207,7 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x,y)
 
     # get colormap
-    colorbrewer_cm = vcm.get_colorbrewer_cm()
+    colorbrewer_cm = vcm.get_colorbrewer_cm('coolwarm')
 
     # select contour map to plot and set the variables 
     # set the variables, levels, and limits below
@@ -226,12 +226,10 @@ if __name__ == '__main__':
     # Levels taken interactively from ds9
     # uncomment as needed
     #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
-    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250])  # vel comp 1
-
-    levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 1
-    #levels = np.array([-250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel comp 2 
-    # velocity comp 2 has an additonal contour level at the highest level
-    #levels = np.array([50, 70, 90, 130, 180, 230])  # vdisp 
+    levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel both comp
+    # both velocity compoennts have the same levels to be consistent. 
+    # The ds9 maps also have the same range i.e. -350 to +350 km/s
+    #levels = np.array([50, 70, 90, 130, 160, 190, 230])  # vdisp 
     
     # change all nan to None to get closed contours
     # this will go wrong for velocities because 0 is a perfectly valid velocity
@@ -244,25 +242,24 @@ if __name__ == '__main__':
     con_map = convolve(con_map, kernel, boundary='extend')
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
-     levels=levels, cmap=cm.plasma, linewidths=2.0, interpolation='None', alpha=0.8)
+     levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
     ax.clabel(c, inline=True, inline_spacing=2, fontsize=8, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
     cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
     cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
-    cb.ax.get_children()[0].set_linewidths(17.0)
+    cb.ax.get_children()[0].set_linewidths(10.0)
     #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
     #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
-    cb.ax.set_xlabel(r'$\mathrm{Velocity [km\, s^{-1}]}$', fontsize=12)
+    cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
     # uncomment one of the above lines as required for the contour colorbar label
     # linewidths required
     # this depends on the number of levels you want
     # so if you change the number of levels then 
     # this will have to change too (by trial and error)
     # 20.0 for intg_flux
-    # 27.0 for vdisp
-    # 17.0 for vel comp 1
-    # 15.0 for vel comp 2
+    # 23.0 for vdisp
+    # 16.0 for vel
 
     # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \

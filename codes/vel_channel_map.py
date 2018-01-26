@@ -223,10 +223,19 @@ def plot_sdss_image(sdss_hdu, wcs_sdss):
 
     return fig, ax
 
-def get_colorbrewer_cm():
+def get_colorbrewer_cm(whichmap):
 
-    colors = ['#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#084594','#08306b']
-    cm = LinearSegmentedColormap.from_list('blues', colors, N=8)
+    if whichmap == 'blues':
+        colors = ['#f7fbff','#deebf7','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b']
+
+    elif whichmap == 'blue2yellow': 
+        colors = ['#ffffd9','#edf8b1','#c7e9b4','#7fcdbb','#41b6c4','#1d91c0','#225ea8','#253494','#081d58']
+
+    elif whichmap == 'coolwarm':
+        #colors = ['#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d1e5f0','#92c5de','#4393c3','#2166ac']
+        colors = ['#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#f7f7f7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061']
+
+    cm = LinearSegmentedColormap.from_list(whichmap, colors, N=11)
 
     return cm
 

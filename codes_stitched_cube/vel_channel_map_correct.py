@@ -85,7 +85,7 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(12,12))
 
     # color palette from colorbrewer2.org
-    cm = vcm.get_colorbrewer_cm()
+    cm = vcm.get_colorbrewer_cm('blues')
 
     # arbitrarily choosing -450 to +450 km/s as the velo range over which to show channel maps 
     # --> and the step I want for channel maps is 35 km/s to Nyquist sample the channels since the resolution 
