@@ -240,8 +240,8 @@ def check_mappings_field(model, fieldname):
 def mappings_oi_nii_sii():
 
     all_n = ['M_n1_', 'T_n0_01_', 'U_n0_1_', 'V_n10_', 'L_n100_', 'S_n1000_']  # all solar abundances
-    # the T model (n=0.01) doesn't have a 
-    # B=5 microgauss model so it will not be considered.
+    # the T model (n=0.01) doesn't have a B=5 microgauss model so it will not be considered,
+    # even though it is part of this list.
 
     mappings_oi_halpha_v100 = []
     mappings_oi_halpha_v125 = []
