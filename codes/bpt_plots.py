@@ -95,7 +95,8 @@ def getregionmask(pn, final_arr_shape, regionname):
     return regionmask
 
 def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, \
-    halpha, hbeta, oiii5007, nii6583, oi6300, sii, orig_shape):
+    halpha, hbeta, oiii5007, nii6583, oi6300, sii, \
+    halpha_err, hbeta_err, oiii5007_err, nii6583_err, oi6300_err, sii_err, orig_shape):
     """
     The arrays that this function expects are of the same shape as orig_shape.
     """
@@ -122,6 +123,23 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
     oi6300_withcut = np.ones(orig_shape) * -9999.0
     nii6583_withcut = np.ones(orig_shape) * -9999.0
     sii_withcut = np.ones(orig_shape) * -9999.0
+    
+    #----Error arrays----#
+    nii_halpha_err_withcut = np.ones(orig_shape) * -9999.0
+    oi_halpha_err_withcut = np.ones(orig_shape) * -9999.0
+    sii_halpha_err_withcut = np.ones(orig_shape) * -9999.0
+
+    oiii_hbeta_for_nii_err_withcut = np.ones(orig_shape) * -9999.0
+    oiii_hbeta_for_oi_err_withcut = np.ones(orig_shape) * -9999.0
+    oiii_hbeta_for_sii_err_withcut = np.ones(orig_shape) * -9999.0
+
+    # Put error arrays in the form you want them 
+    halpha_err = halpha_err / halpha
+    nii6583_err = nii6583_err / nii6583
+    oi6300_err = oi6300_err / oi6300
+    sii_err = sii_err / sii
+    oiii5007_err = oiii5007_err / oiii5007
+    hbeta_err = hbeta_err / hbeta
 
     # Loop for [NII]
     for i in range(len(zipped_ha_ind)):
@@ -130,11 +148,17 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
             if zipped_ha_ind[i] in zipped_hb_ind:
                 if zipped_ha_ind[i] in zipped_oiii_ind:
 
-                    nii_halpha_withcut[zipped_ha_ind[i]] =\
-                     np.log10(nii6583[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+                    nii_halpha_withcut[zipped_ha_ind[i]] = \
+                    np.log10(nii6583[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
 
-                    oiii_hbeta_for_nii_withcut[zipped_ha_ind[i]] =\
-                     np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+                    nii_halpha_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(halpha_err[zipped_ha_ind[i]]**2 + nii6583_err[zipped_ha_ind[i]]**2) / np.log(10)
+
+                    oiii_hbeta_for_nii_withcut[zipped_ha_ind[i]] = \
+                    np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+                    
+                    oiii_hbeta_for_nii_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(oiii5007_err[zipped_ha_ind[i]]**2 + hbeta_err[zipped_ha_ind[i]]**2) / np.log(10)
 
                     halpha_withcut[zipped_ha_ind[i]] = halpha[zipped_ha_ind[i]]
                     hbeta_withcut[zipped_ha_ind[i]] = hbeta[zipped_ha_ind[i]]
@@ -148,11 +172,17 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
             if zipped_ha_ind[i] in zipped_hb_ind:
                 if zipped_ha_ind[i] in zipped_oiii_ind:
 
-                    oi_halpha_withcut[zipped_ha_ind[i]] =\
-                     np.log10(oi6300[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+                    oi_halpha_withcut[zipped_ha_ind[i]] = \
+                    np.log10(oi6300[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
 
-                    oiii_hbeta_for_oi_withcut[zipped_ha_ind[i]] =\
-                     np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+                    oi_halpha_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(halpha_err[zipped_ha_ind[i]]**2 + oi6300_err[zipped_ha_ind[i]]**2) / np.log(10)
+
+                    oiii_hbeta_for_oi_withcut[zipped_ha_ind[i]] = \
+                    np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+
+                    oiii_hbeta_for_oi_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(oiii5007_err[zipped_ha_ind[i]]**2 + hbeta_err[zipped_ha_ind[i]]**2) / np.log(10)
 
                     halpha_withcut[zipped_ha_ind[i]] = halpha[zipped_ha_ind[i]]
                     hbeta_withcut[zipped_ha_ind[i]] = hbeta[zipped_ha_ind[i]]
@@ -166,11 +196,17 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
             if zipped_ha_ind[i] in zipped_oiii_ind:
                 if zipped_ha_ind[i] in zipped_sii_ind:
 
-                    oiii_hbeta_for_sii_withcut[zipped_ha_ind[i]] =\
-                     np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+                    sii_halpha_withcut[zipped_ha_ind[i]] = \
+                    np.log10(sii[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
 
-                    sii_halpha_withcut[zipped_ha_ind[i]] =\
-                     np.log10(sii[zipped_ha_ind[i]] / halpha[zipped_ha_ind[i]])
+                    sii_halpha_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(halpha_err[zipped_ha_ind[i]]**2 + sii_err[zipped_ha_ind[i]]**2) / np.log(10)
+
+                    oiii_hbeta_for_sii_withcut[zipped_ha_ind[i]] = \
+                    np.log10(oiii5007[zipped_ha_ind[i]] / hbeta[zipped_ha_ind[i]])
+
+                    oiii_hbeta_for_sii_err_withcut[zipped_ha_ind[i]] = \
+                    np.sqrt(oiii5007_err[zipped_ha_ind[i]]**2 + hbeta_err[zipped_ha_ind[i]]**2) / np.log(10)
 
                     halpha_withcut[zipped_ha_ind[i]] = halpha[zipped_ha_ind[i]]
                     hbeta_withcut[zipped_ha_ind[i]] = hbeta[zipped_ha_ind[i]]
@@ -178,8 +214,10 @@ def zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi
                     sii_withcut[zipped_ha_ind[i]] = sii[zipped_ha_ind[i]]
 
     return nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
+    nii_halpha_err_withcut, oi_halpha_err_withcut, sii_halpha_err_withcut, \
     halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
-    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut 
+    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut, \
+    oiii_hbeta_for_nii_err_withcut, oiii_hbeta_for_oi_err_withcut, oiii_hbeta_for_sii_err_withcut 
 
 def get_arr_withsigcut(sig_cut, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
     nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, orig_shape):
@@ -195,15 +233,21 @@ def get_arr_withsigcut(sig_cut, halpha, halpha_err, hbeta, hbeta_err, oiii5007, 
     oi_valid_ind = np.where((oi6300/oi6300_err) > sig_cut)
     sii_valid_ind = np.where((sii/sii_err) > sig_cut)
 
-    nii_halpha_withsigcut, oi_halpha_withsigcut, sii_halpha_withsigcut, \
-    halpha_withsigcut, hbeta_withsigcut, oiii5007_withsigcut, oi6300_withsigcut, nii6583_withsigcut, sii_withsigcut, \
-    oiii_hbeta_for_nii_withsigcut, oiii_hbeta_for_oi_withsigcut, oiii_hbeta_for_sii_withsigcut =\
+    nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
+    nii_halpha_err_withcut, oi_halpha_err_withcut, sii_halpha_err_withcut, \
+    halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
+    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut, \
+    oiii_hbeta_for_nii_err_withcut, oiii_hbeta_for_oi_err_withcut, oiii_hbeta_for_sii_err_withcut = \
     zip_and_append(ha_valid_ind, hb_valid_ind, oiii_valid_ind, nii_valid_ind, oi_valid_ind, sii_valid_ind, \
-    halpha, hbeta, oiii5007, nii6583, oi6300, sii, orig_shape)
+    halpha, hbeta, oiii5007, nii6583, oi6300, sii, \
+    halpha_err, hbeta_err, oiii5007_err, nii6583_err, oi6300_err, sii_err, \
+    orig_shape)
 
-    return nii_halpha_withsigcut, oi_halpha_withsigcut, sii_halpha_withsigcut, \
-    halpha_withsigcut, hbeta_withsigcut, oiii5007_withsigcut, oi6300_withsigcut, nii6583_withsigcut, sii_withsigcut, \
-    oiii_hbeta_for_nii_withsigcut, oiii_hbeta_for_oi_withsigcut, oiii_hbeta_for_sii_withsigcut
+    return nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
+    nii_halpha_err_withcut, oi_halpha_err_withcut, sii_halpha_err_withcut, \
+    halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
+    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut, \
+    oiii_hbeta_for_nii_err_withcut, oiii_hbeta_for_oi_err_withcut, oiii_hbeta_for_sii_err_withcut
 
 def get_arr_basecut(halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
     nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, orig_shape):
@@ -612,8 +656,10 @@ if __name__ == '__main__':
 
     # get arrays with significance cut applied
     nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
+    nii_halpha_err_withcut, oi_halpha_err_withcut, sii_halpha_err_withcut, \
     halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
-    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut =\
+    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut, \
+    oiii_hbeta_for_nii_err_withcut, oiii_hbeta_for_oi_err_withcut, oiii_hbeta_for_sii_err_withcut =\
      get_arr_withsigcut(3, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err,\
     nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha.shape)
 
@@ -631,6 +677,15 @@ if __name__ == '__main__':
     oiii_hbeta_for_oi_withcut_bridge = ma.array(oiii_hbeta_for_oi_withcut, mask=bridge_mask)
     oiii_hbeta_for_sii_withcut_bridge = ma.array(oiii_hbeta_for_sii_withcut, mask=bridge_mask)
 
+    # on errors
+    nii_halpha_err_withcut_bridge = ma.array(nii_halpha_err_withcut, mask=bridge_mask)
+    oi_halpha_err_withcut_bridge = ma.array(oi_halpha_err_withcut, mask=bridge_mask)
+    sii_halpha_err_withcut_bridge = ma.array(sii_halpha_err_withcut, mask=bridge_mask)
+
+    oiii_hbeta_for_nii_err_withcut_bridge = ma.array(oiii_hbeta_for_nii_err_withcut, mask=bridge_mask)
+    oiii_hbeta_for_oi_err_withcut_bridge = ma.array(oiii_hbeta_for_oi_err_withcut, mask=bridge_mask)
+    oiii_hbeta_for_sii_err_withcut_bridge = ma.array(oiii_hbeta_for_sii_err_withcut, mask=bridge_mask)
+
     halpha_withcut_bridge = ma.array(halpha_withcut, mask=bridge_mask)
     hbeta_withcut_bridge = ma.array(hbeta_withcut, mask=bridge_mask)
     oiii5007_withcut_bridge = ma.array(oiii5007_withcut, mask=bridge_mask)
@@ -647,6 +702,15 @@ if __name__ == '__main__':
     oiii_hbeta_for_oi_withcut_north = ma.array(oiii_hbeta_for_oi_withcut, mask=north_mask)
     oiii_hbeta_for_sii_withcut_north = ma.array(oiii_hbeta_for_sii_withcut, mask=north_mask)
 
+    # on errors
+    nii_halpha_err_withcut_north = ma.array(nii_halpha_err_withcut, mask=north_mask)
+    oi_halpha_err_withcut_north = ma.array(oi_halpha_err_withcut, mask=north_mask)
+    sii_halpha_err_withcut_north = ma.array(sii_halpha_err_withcut, mask=north_mask)
+
+    oiii_hbeta_for_nii_err_withcut_north = ma.array(oiii_hbeta_for_nii_err_withcut, mask=north_mask)
+    oiii_hbeta_for_oi_err_withcut_north = ma.array(oiii_hbeta_for_oi_err_withcut, mask=north_mask)
+    oiii_hbeta_for_sii_err_withcut_north = ma.array(oiii_hbeta_for_sii_err_withcut, mask=north_mask)
+
     halpha_withcut_north = ma.array(halpha_withcut, mask=north_mask)
     hbeta_withcut_north = ma.array(hbeta_withcut, mask=north_mask)
     oiii5007_withcut_north = ma.array(oiii5007_withcut, mask=north_mask)
@@ -662,6 +726,15 @@ if __name__ == '__main__':
     oiii_hbeta_for_nii_withcut_south = ma.array(oiii_hbeta_for_nii_withcut, mask=south_mask)
     oiii_hbeta_for_oi_withcut_south = ma.array(oiii_hbeta_for_oi_withcut, mask=south_mask)
     oiii_hbeta_for_sii_withcut_south = ma.array(oiii_hbeta_for_sii_withcut, mask=south_mask)
+
+    # on errors
+    nii_halpha_err_withcut_south = ma.array(nii_halpha_err_withcut, mask=south_mask)
+    oi_halpha_err_withcut_south = ma.array(oi_halpha_err_withcut, mask=south_mask)
+    sii_halpha_err_withcut_south = ma.array(sii_halpha_err_withcut, mask=south_mask)
+
+    oiii_hbeta_for_nii_err_withcut_south = ma.array(oiii_hbeta_for_nii_err_withcut, mask=south_mask)
+    oiii_hbeta_for_oi_err_withcut_south = ma.array(oiii_hbeta_for_oi_err_withcut, mask=south_mask)
+    oiii_hbeta_for_sii_err_withcut_south = ma.array(oiii_hbeta_for_sii_err_withcut, mask=south_mask)
 
     halpha_withcut_south = ma.array(halpha_withcut, mask=south_mask)
     hbeta_withcut_south = ma.array(hbeta_withcut, mask=south_mask)
@@ -708,18 +781,32 @@ if __name__ == '__main__':
 
     nii_nonzero = np.nonzero(nii_halpha_withcut)
 
-    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
+        'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
+        'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
+        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+
+    #ax.errorbar(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
+    #    xerr=nii_halpha_err_withcut_bridge[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_bridge[nii_nonzero], \
+    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    #ax.errorbar(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
+    #    xerr=nii_halpha_err_withcut_north[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_north[nii_nonzero], \
+    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    #ax.errorbar(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
+    #    xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
+    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
-    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
-    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
-    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
-    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
-    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -751,6 +838,7 @@ if __name__ == '__main__':
     ax.add_artist(anc_hiibox)
 
 
+    #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
     fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -769,18 +857,32 @@ if __name__ == '__main__':
 
     oi_nonzero = np.nonzero(oi_halpha_withcut)
 
-    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
+        'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
+        'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
+        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+
+    #ax.errorbar(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
+    #    xerr=oi_halpha_err_withcut_bridge[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_bridge[oi_nonzero], \
+    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    #ax.errorbar(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
+    #    xerr=oi_halpha_err_withcut_north[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_north[oi_nonzero], \
+    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    #ax.errorbar(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
+    #    xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
+    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
-    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
-    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
-    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
-    ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
-    ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
+    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -811,6 +913,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
+    #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
     fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -829,18 +932,32 @@ if __name__ == '__main__':
 
     sii_nonzero = np.nonzero(sii_halpha_withcut)
 
-    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], 'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], 'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], 'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
+        'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
+        'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
+        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+
+    #ax.errorbar(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
+    #    xerr=sii_halpha_err_withcut_bridge[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_bridge[sii_nonzero], \
+    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    #ax.errorbar(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
+    #    xerr=sii_halpha_err_withcut_north[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_north[sii_nonzero], \
+    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    #ax.errorbar(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
+    #    xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
+    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
-    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
-    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
-    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
-    ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
-    ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
+    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -871,6 +988,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
+    #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
     fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()

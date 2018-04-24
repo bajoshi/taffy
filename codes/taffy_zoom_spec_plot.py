@@ -127,14 +127,25 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             transform=axesred2.transAxes, color='k', size=7)
 
     elif 'Bridge east' in regionname:
-        axesred1.text(0.15, 0.6, r'$\mathrm{[OI]\lambda}$' + '\n' + r'$6300$', verticalalignment='top', horizontalalignment='left', \
+        axesred1.text(0.15, 0.75, r'$\mathrm{[OI]\lambda}$' + '\n' + r'$6300$', verticalalignment='top', horizontalalignment='left', \
             transform=axesred1.transAxes, color='k', size=7)
-        axesred2.text(0.27, 0.75, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
+        axesred2.text(0.25, 0.84, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
-        axesred2.text(0.85, 0.75, r'$\mathrm{[SII]}$', verticalalignment='top', horizontalalignment='left', \
+        axesred2.text(-0.05, 0.7, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.33, 0.7, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
+            verticalalignment='top', horizontalalignment='left', \
+            transform=axesred2.transAxes, color='k', size=7)
+        axesred2.text(0.75, 0.84, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
     elif 'Bridge west' in regionname:
+        axesblue.text(0.3, 0.63, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.1, 0.3, r'$\mathrm{[OI]\lambda}$' + '\n' + r'$6300$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
         axesred2.text(0.25, 0.75, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
         axesred2.text(-0.05, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
@@ -143,7 +154,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
         axesred2.text(0.35, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' +  r'$6583$', \
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
-        axesred2.text(0.75, 0.75, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+        axesred2.text(0.75, 0.78, r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
@@ -152,6 +163,8 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.43, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
+        axesred1.text(0.25, 0.6, r'$\mathrm{[OI]\lambda}$' + '\n' + r'$6300$', verticalalignment='top', horizontalalignment='left', \
+            transform=axesred1.transAxes, color='k', size=7)
         axesred2.text(0.27, 0.85, r'$\mathrm{H\alpha}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
         axesred2.text(0, 0.55, r'$\mathrm{[NII]}\lambda$' + '\n' + r'$6548$', \
@@ -293,12 +306,12 @@ if __name__ == '__main__':
     se_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/se_red.dat', dtype=None, names=['wav','flux'])
 
     # bridge west region 
-    bw_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_blue.dat', dtype=None, names=['wav','flux'])
-    bw_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_red.dat', dtype=None, names=['wav','flux'])
+    bw_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_new_blue.dat', dtype=None, names=['wav','flux'])
+    bw_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/bw_new_red.dat', dtype=None, names=['wav','flux'])
 
     # bridge east region
-    be_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/be_blue.dat', dtype=None, names=['wav','flux'])
-    be_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/be_red.dat', dtype=None, names=['wav','flux'])
+    be_blue = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/be_new_blue.dat', dtype=None, names=['wav','flux'])
+    be_red = np.genfromtxt(taffy_extdir + 'rawspectra_for_paperplot/be_new_red.dat', dtype=None, names=['wav','flux'])
 
     # Make figure
     # read in i band SDSS image
@@ -321,6 +334,9 @@ if __name__ == '__main__':
     # on your figure. Didn't realize this for a couple hours lol...
     # Also, this single line increases the run time for this code
     # from ~6 seconds to ~20 seconds.
+    mpl.rcParams["text.usetex"] = False
+    # Explicitly setting this to False now
+    # because my rc file has this set to True
     mpl.rcParams["text.latex.preamble"] = r"\usepackage{cmbright}"
     mpl.rcParams["xtick.direction"] = "in"
     mpl.rcParams["ytick.direction"] = "in"
@@ -432,9 +448,9 @@ if __name__ == '__main__':
     ax.add_patch(sw_patch)
     ax.add_patch(se_patch)
 
-    bw_patch = SphericalCircle((0.4149416606 * u.deg, 23.49478361 * u.deg), 0.0018061 * u.degree, \
+    bw_patch = SphericalCircle((0.4162353178 * u.deg, 23.49744626 * u.deg), 0.0018061 * u.degree, \
         edgecolor='deeppink', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
-    be_patch = SphericalCircle((0.4228208383 * u.deg, 23.48801056 * u.deg), 0.0018061 * u.degree, \
+    be_patch = SphericalCircle((0.4177249349 * u.deg, 23.49056863 * u.deg), 0.0018557 * u.degree, \
         edgecolor='deeppink', facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(bw_patch)
     ax.add_patch(be_patch)
@@ -443,16 +459,16 @@ if __name__ == '__main__':
     f = FontProperties()
     f.set_weight('bold')
 
-    ax.text(0.36, 0.78, 'North galaxy nucleus', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.1, 0.82, 'North galaxy' + '\n' + ' nucleus', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.68, 0.41, 'South galaxy' + '\n' + 'nucleus', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.41, 0.61, 'Extragalactic' + '\n' + 'HII region', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.45, 0.71, 'Extragalactic' + '\n' + 'HII region', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.48, 0.87, 'North galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.48, 0.89, 'North galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.05, 0.59, 'North galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
@@ -464,10 +480,10 @@ if __name__ == '__main__':
     ax.text(0.61, 0.29, 'South galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.57, 0.72, 'Bridge west', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.54, 0.78, 'Bridge west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.26, 0.49, 'Bridge east', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.34, 0.55, 'Bridge east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
@@ -484,7 +500,7 @@ if __name__ == '__main__':
     # ------------ Plot bridge west region spectrum ------------ #
     ax_bw_b, ax_bw_r1, ax_bw_r2 = \
     plotspectrum(ax_bw_b, ax_bw_r1, ax_bw_r2, bw_blue['wav'], bw_blue['flux'], bw_red['wav'], bw_red['flux'],\
-        -5,5, -5,10, -5,20, 4850,5150, 'Bridge west')
+        -5,10, -5,10, -5,20, 4850,5150, 'Bridge west')
 
     # ------------ Plot south galaxy east region spectrum ------------ #
     ax_se_b, ax_se_r1, ax_se_r2 = \
@@ -514,7 +530,7 @@ if __name__ == '__main__':
     # ------------ Plot bridge east region spectrum ------------ #
     ax_be_b, ax_be_r1, ax_be_r2 = \
     plotspectrum(ax_be_b, ax_be_r1, ax_be_r2, be_blue['wav'], be_blue['flux'], be_red['wav'], be_red['flux'],\
-        -5,5, -5,10, -8,10, 4850,5150, 'Bridge east')
+        -5,8, -5,10, -8,14, 4850,5150, 'Bridge east')
 
     # ------------ Plot X-Galactic HII region spectrum ------------ #
     ax_xgal_b, ax_xgal_r1, ax_xgal_r2 = \
