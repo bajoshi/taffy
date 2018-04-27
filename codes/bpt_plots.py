@@ -781,22 +781,22 @@ if __name__ == '__main__':
 
     nii_nonzero = np.nonzero(nii_halpha_withcut)
 
-    ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
-        'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
-        'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
-        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    #ax.plot(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
+    #    'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    #ax.plot(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
+    #    'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    #ax.plot(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
+    #    'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
-    #ax.errorbar(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
-    #    xerr=nii_halpha_err_withcut_bridge[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_bridge[nii_nonzero], \
-    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
-    #ax.errorbar(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
-    #    xerr=nii_halpha_err_withcut_north[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_north[nii_nonzero], \
-    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
-    #ax.errorbar(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
-    #    xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
-    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_bridge[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_bridge[nii_nonzero], \
+        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    ax.errorbar(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_north[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_north[nii_nonzero], \
+        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
+        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -838,8 +838,8 @@ if __name__ == '__main__':
     ax.add_artist(anc_hiibox)
 
 
-    #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
-    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -857,22 +857,22 @@ if __name__ == '__main__':
 
     oi_nonzero = np.nonzero(oi_halpha_withcut)
 
-    ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
-        'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
-        'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
-        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    #ax.plot(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
+    #    'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    #ax.plot(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
+    #    'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    #ax.plot(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
+    #    'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
-    #ax.errorbar(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
-    #    xerr=oi_halpha_err_withcut_bridge[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_bridge[oi_nonzero], \
-    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
-    #ax.errorbar(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
-    #    xerr=oi_halpha_err_withcut_north[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_north[oi_nonzero], \
-    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
-    #ax.errorbar(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
-    #    xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
-    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_bridge[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_bridge[oi_nonzero], \
+        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    ax.errorbar(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_north[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_north[oi_nonzero], \
+        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
+        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -913,8 +913,8 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
-    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -932,22 +932,22 @@ if __name__ == '__main__':
 
     sii_nonzero = np.nonzero(sii_halpha_withcut)
 
-    ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
-        'x', color='maroon', markersize=8, markeredgecolor='maroon')
-    ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
-        'o', color='goldenrod', markersize=3, markeredgecolor='None')
-    ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
-        'o', color='midnightblue', markersize=3, markeredgecolor='None')
+    #ax.plot(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
+    #    'x', color='maroon', markersize=8, markeredgecolor='maroon')
+    #ax.plot(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
+    #    'o', color='goldenrod', markersize=3, markeredgecolor='None')
+    #ax.plot(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
+    #    'o', color='midnightblue', markersize=3, markeredgecolor='None')
 
-    #ax.errorbar(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
-    #    xerr=sii_halpha_err_withcut_bridge[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_bridge[sii_nonzero], \
-    #    color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
-    #ax.errorbar(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
-    #    xerr=sii_halpha_err_withcut_north[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_north[sii_nonzero], \
-    #    color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
-    #ax.errorbar(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
-    #    xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
-    #    color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_bridge[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_bridge[sii_nonzero], \
+        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+    ax.errorbar(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_north[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_north[sii_nonzero], \
+        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+    ax.errorbar(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
+        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -988,8 +988,8 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
-    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
