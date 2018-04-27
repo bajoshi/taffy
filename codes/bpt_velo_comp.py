@@ -184,7 +184,7 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_full_errbar.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -350,44 +350,55 @@ if __name__ == '__main__':
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
+    # Apply checker board pattern mask to only select independent spaxels
+    # Very simple and elegant solution came from here:
+    # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-10.php
+    checkerboard_mask = np.zeros((58,58), dtype=np.int)
+    checkerboard_mask[::2, 1::2] = 1
+    checkerboard_mask[1::2, ::2] = 1
+
+    # Combine checkerboard and two comp masks and then apply
+    checkerboard_mask = checkerboard_mask.astype(bool)
+    comb_mask = np.ma.mask_or(checkerboard_mask, twocomp_mask)
+
     # apply mask
     if stitched:
         # apply two comp mask
         # comp1
-        nii_halpha_withcut_comp1 = ma.array(nii_halpha_withcut_comp1, mask=twocomp_mask)
-        oi_halpha_withcut_comp1 = ma.array(oi_halpha_withcut_comp1, mask=twocomp_mask)
-        sii_halpha_withcut_comp1 = ma.array(sii_halpha_withcut_comp1, mask=twocomp_mask)
+        nii_halpha_withcut_comp1 = ma.array(nii_halpha_withcut_comp1, mask=comb_mask)
+        oi_halpha_withcut_comp1 = ma.array(oi_halpha_withcut_comp1, mask=comb_mask)
+        sii_halpha_withcut_comp1 = ma.array(sii_halpha_withcut_comp1, mask=comb_mask)
 
-        oiii_hbeta_for_nii_withcut_comp1 = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=twocomp_mask)
-        oiii_hbeta_for_oi_withcut_comp1 = ma.array(oiii_hbeta_for_oi_withcut_comp1, mask=twocomp_mask)
-        oiii_hbeta_for_sii_withcut_comp1 = ma.array(oiii_hbeta_for_sii_withcut_comp1, mask=twocomp_mask)
+        oiii_hbeta_for_nii_withcut_comp1 = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=comb_mask)
+        oiii_hbeta_for_oi_withcut_comp1 = ma.array(oiii_hbeta_for_oi_withcut_comp1, mask=comb_mask)
+        oiii_hbeta_for_sii_withcut_comp1 = ma.array(oiii_hbeta_for_sii_withcut_comp1, mask=comb_mask)
 
         # errors
-        nii_halpha_err_withcut_comp1 = ma.array(nii_halpha_err_withcut_comp1, mask=twocomp_mask)
-        oi_halpha_err_withcut_comp1 = ma.array(oi_halpha_err_withcut_comp1, mask=twocomp_mask)
-        sii_halpha_err_withcut_comp1 = ma.array(sii_halpha_err_withcut_comp1, mask=twocomp_mask)
+        nii_halpha_err_withcut_comp1 = ma.array(nii_halpha_err_withcut_comp1, mask=comb_mask)
+        oi_halpha_err_withcut_comp1 = ma.array(oi_halpha_err_withcut_comp1, mask=comb_mask)
+        sii_halpha_err_withcut_comp1 = ma.array(sii_halpha_err_withcut_comp1, mask=comb_mask)
 
-        oiii_hbeta_for_nii_err_withcut_comp1 = ma.array(oiii_hbeta_for_nii_err_withcut_comp1, mask=twocomp_mask)
-        oiii_hbeta_for_oi_err_withcut_comp1 = ma.array(oiii_hbeta_for_oi_err_withcut_comp1, mask=twocomp_mask)
-        oiii_hbeta_for_sii_err_withcut_comp1 = ma.array(oiii_hbeta_for_sii_err_withcut_comp1, mask=twocomp_mask)
+        oiii_hbeta_for_nii_err_withcut_comp1 = ma.array(oiii_hbeta_for_nii_err_withcut_comp1, mask=comb_mask)
+        oiii_hbeta_for_oi_err_withcut_comp1 = ma.array(oiii_hbeta_for_oi_err_withcut_comp1, mask=comb_mask)
+        oiii_hbeta_for_sii_err_withcut_comp1 = ma.array(oiii_hbeta_for_sii_err_withcut_comp1, mask=comb_mask)
 
         # comp2
-        nii_halpha_withcut_comp2 = ma.array(nii_halpha_withcut_comp2, mask=twocomp_mask)
-        oi_halpha_withcut_comp2 = ma.array(oi_halpha_withcut_comp2, mask=twocomp_mask)
-        sii_halpha_withcut_comp2 = ma.array(sii_halpha_withcut_comp2, mask=twocomp_mask)
+        nii_halpha_withcut_comp2 = ma.array(nii_halpha_withcut_comp2, mask=comb_mask)
+        oi_halpha_withcut_comp2 = ma.array(oi_halpha_withcut_comp2, mask=comb_mask)
+        sii_halpha_withcut_comp2 = ma.array(sii_halpha_withcut_comp2, mask=comb_mask)
 
-        oiii_hbeta_for_nii_withcut_comp2 = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=twocomp_mask)
-        oiii_hbeta_for_oi_withcut_comp2 = ma.array(oiii_hbeta_for_oi_withcut_comp2, mask=twocomp_mask)
-        oiii_hbeta_for_sii_withcut_comp2 = ma.array(oiii_hbeta_for_sii_withcut_comp2, mask=twocomp_mask)
+        oiii_hbeta_for_nii_withcut_comp2 = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=comb_mask)
+        oiii_hbeta_for_oi_withcut_comp2 = ma.array(oiii_hbeta_for_oi_withcut_comp2, mask=comb_mask)
+        oiii_hbeta_for_sii_withcut_comp2 = ma.array(oiii_hbeta_for_sii_withcut_comp2, mask=comb_mask)
 
         # errors
-        nii_halpha_err_withcut_comp2 = ma.array(nii_halpha_err_withcut_comp2, mask=twocomp_mask)
-        oi_halpha_err_withcut_comp2 = ma.array(oi_halpha_err_withcut_comp2, mask=twocomp_mask)
-        sii_halpha_err_withcut_comp2 = ma.array(sii_halpha_err_withcut_comp2, mask=twocomp_mask)
+        nii_halpha_err_withcut_comp2 = ma.array(nii_halpha_err_withcut_comp2, mask=comb_mask)
+        oi_halpha_err_withcut_comp2 = ma.array(oi_halpha_err_withcut_comp2, mask=comb_mask)
+        sii_halpha_err_withcut_comp2 = ma.array(sii_halpha_err_withcut_comp2, mask=comb_mask)
 
-        oiii_hbeta_for_nii_err_withcut_comp2 = ma.array(oiii_hbeta_for_nii_err_withcut_comp2, mask=twocomp_mask)
-        oiii_hbeta_for_oi_err_withcut_comp2 = ma.array(oiii_hbeta_for_oi_err_withcut_comp2, mask=twocomp_mask)
-        oiii_hbeta_for_sii_err_withcut_comp2 = ma.array(oiii_hbeta_for_sii_err_withcut_comp2, mask=twocomp_mask)
+        oiii_hbeta_for_nii_err_withcut_comp2 = ma.array(oiii_hbeta_for_nii_err_withcut_comp2, mask=comb_mask)
+        oiii_hbeta_for_oi_err_withcut_comp2 = ma.array(oiii_hbeta_for_oi_err_withcut_comp2, mask=comb_mask)
+        oiii_hbeta_for_sii_err_withcut_comp2 = ma.array(oiii_hbeta_for_sii_err_withcut_comp2, mask=comb_mask)
 
     # ----------------- bridge ----------------- #
     # Comp1

@@ -668,6 +668,23 @@ if __name__ == '__main__':
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
+    # Combine all masks with checker board mask
+    # See checkerboard mask comment in BPT velo comp code
+    checkerboard_mask = np.zeros((58,58), dtype=np.int)
+    checkerboard_mask[::2, 1::2] = 1
+    checkerboard_mask[1::2, ::2] = 1
+
+    # Combine checkerboard and two comp masks and then apply
+    # First convert all masks to boolean
+    checkerboard_mask = checkerboard_mask.astype(bool)
+    bridge_mask = bridge_mask.astype(bool)
+    north_mask = north_mask.astype(bool)
+    south_mask = south_mask.astype(bool)
+
+    bridge_mask = np.ma.mask_or(checkerboard_mask, bridge_mask)
+    north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
+    south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
+
     # apply bridge mask
     nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
     oi_halpha_withcut_bridge = ma.array(oi_halpha_withcut, mask=bridge_mask)
@@ -838,7 +855,7 @@ if __name__ == '__main__':
     ax.add_artist(anc_hiibox)
 
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -913,7 +930,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -988,7 +1005,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=4.7, which='major')
     ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
