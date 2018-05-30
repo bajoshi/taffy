@@ -193,7 +193,20 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     return None
 
 def bpt_range_to_spatial(xarr, yarr, xran, yran):
+    # This funciton will be passed a masked array
+    # i want all masked values to be NaN'd out before
+    # using np.where() because it seems to be including
+    # those as well.
 
+    # Get mask
+    mx = ma.getmask(xarr)
+    my = ma.getmask(yarr)
+
+    # Set all masked values to NaN
+    xarr[mx] = np.nan
+    yarr[my] = np.nan
+
+    # now search spatially 
     xlow = xran[0]
     xhigh = xran[1]
 
@@ -512,12 +525,11 @@ if __name__ == '__main__':
     oiii_hbeta_for_sii_err_withcut_south_comp2 = ma.array(oiii_hbeta_for_sii_err_withcut_comp2, mask=south_mask)
 
     # spatial mapping 
-    #spatial_mask, spatial_mask_idx = \
-    #bpt_range_to_spatial(nii_halpha_withcut_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, [-0.3,-0.05], [-0.2,0.0])
-    #plt.imshow(spatial_mask, origin='lower')
-    #plt.show()
-    #overlay_spatial_mask_on_sdss(spatial_mask_idx)
-    #sys.exit(0)
+    spatial_mask, spatial_mask_idx = \
+    bpt_range_to_spatial(sii_halpha_withcut_south_comp2, \
+        oiii_hbeta_for_sii_withcut_south_comp2, [-0.2,0.4], [-0.5,0.2])
+    overlay_spatial_mask_on_sdss(spatial_mask_idx)
+    sys.exit(0)
 
     # plot bpt diagrams
     # BPT with [NII]
