@@ -526,8 +526,8 @@ if __name__ == '__main__':
 
     # spatial mapping 
     spatial_mask, spatial_mask_idx = \
-    bpt_range_to_spatial(sii_halpha_withcut_south_comp2, \
-        oiii_hbeta_for_sii_withcut_south_comp2, [-0.2,0.4], [-0.5,0.2])
+    bpt_range_to_spatial(nii_halpha_withcut_north_comp1, \
+        oiii_hbeta_for_nii_withcut_north_comp1, [-0.35,0.0], [-0.75,0.1])
     overlay_spatial_mask_on_sdss(spatial_mask_idx)
     sys.exit(0)
 

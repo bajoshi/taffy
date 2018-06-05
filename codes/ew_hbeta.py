@@ -14,8 +14,10 @@ import matplotlib.pyplot as plt
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"
-taffy_extdir = '/Volumes/Bhavins_backup/ipac/TAFFY/'
+taffy_extdir = home + "/Desktop/ipac/taffy_lzifu/"
 
+sys.path.append(taffydir + 'codes/')
+import vel_channel_map as vcm
 import bpt_plots as bpt
 
 def plot_pix(blue_cont):
@@ -50,13 +52,19 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     ew_map[nan_idx] = np.nan
     ew_map = ma.array(ew_map, mask=comb_mask)
 
+    # make figure
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(ew_map, vmin=6.5, vmax=20, cmap='coolwarm', origin='lower')
+    cax = ax.imshow(ew_map, vmin=5.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
     fig.colorbar(cax)
 
+    ax.minorticks_on()
+
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/hbeta_ew_map.png', \
+        dpi=300, bbox_inches='tight')
     plt.show()
+    sys.exit(0)
 
     return None
 
@@ -88,7 +96,7 @@ def save_map_as_fits(blue_cont_hdu, north_mask, south_mask):
 if __name__ == '__main__':
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'products_big_cube_velsort/big_cube_2_comp_velsort.fits')
+    h = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     blue_cont = h['B_CONTINUUM'].data
 
@@ -110,9 +118,9 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    read_map_and_plot(north_mask, south_mask)
+    #read_map_and_plot(north_mask, south_mask)
     #save_map_as_fits(h['B_CONTINUUM'], north_mask, south_mask)
-    sys.exit(0)
+    #sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -125,7 +133,7 @@ if __name__ == '__main__':
 
     # find hbeta index in wavelength array
     redshift = 0.0145  # average z
-    hbeta_air_wav = 4861.363
+    hbeta_air_wav = 4861.363  # air wavelength
     hbeta_wav = hbeta_air_wav*(1+redshift)
     hbeta_idx = np.argmin(abs(blue_wav_arr - hbeta_wav))
 
@@ -145,6 +153,9 @@ if __name__ == '__main__':
             if all(np.isnan(blue_cont[:,i,j])):
                 ew_map[i,j] = np.nan
                 continue
+
+            # check significance of continuum measurement and skip spaxel if necessary
+            
 
             # initialize fitting arrays
             left_arr = blue_cont[hbeta_idx-175:hbeta_idx-125, i , j]
@@ -174,7 +185,7 @@ if __name__ == '__main__':
             fit_comb = fitting.LevMarLSQFitter()
             gl = fit_comb(comb_int, blue_cont_fit_xarr, blue_cont_fit_yarr_norm)
 
-            gauss_diff2 = np.sum((g(blue_cont_fit_xarr) - blue_cont_fit_yarr_norm)**2)          
+            gauss_diff2 = np.sum((g(blue_cont_fit_xarr) - blue_cont_fit_yarr_norm)**2)
             line_diff2 = np.sum((l(blue_cont_fit_xarr) - blue_cont_fit_yarr_norm)**2)
             comb_diff2 = np.sum((gl(blue_cont_fit_xarr) - blue_cont_fit_yarr_norm)**2)
 
@@ -218,6 +229,9 @@ if __name__ == '__main__':
 
     # save map as numpy array
     np.save(taffy_extdir + 'ew_map.npy', ew_map)
+
+    # close file
+    h.close()
 
     plot_map(ew_map, north_mask, south_mask)
 
