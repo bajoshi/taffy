@@ -47,8 +47,45 @@ if __name__ == '__main__':
     ebv_map = ma.array(ebv_map, mask=all_mask)
 
     # figure
-    print np.nanmin(ebv_map)
-    print np.nanmax(ebv_map)
+    print np.nanmin(4.05*ebv_map)
+    print np.nanmax(4.05*ebv_map)
+
+    av_map = 4.05 * ebv_map
+
+    # Get average values in the different regions
+    # get the region masks first
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
+
+    # Combine all masks with checker board mask
+    # See checkerboard mask comment in BPT velo comp code
+    checkerboard_mask = np.zeros((58,58), dtype=np.int)
+    checkerboard_mask[::2, 1::2] = 1
+    checkerboard_mask[1::2, ::2] = 1
+
+    # Combine checkerboard and two comp masks and then apply
+    # First convert all masks to boolean
+    checkerboard_mask = checkerboard_mask.astype(bool)
+    bridge_mask = bridge_mask.astype(bool)
+    north_mask = north_mask.astype(bool)
+    south_mask = south_mask.astype(bool)
+
+    bridge_mask = np.ma.mask_or(checkerboard_mask, bridge_mask)
+    north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
+    south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
+
+    # Now apply masks
+    av_map_bridge = ma.array(av_map, mask=bridge_mask)
+    av_map_north = ma.array(av_map, mask=north_mask)
+    av_map_south = ma.array(av_map, mask=south_mask)
+
+    print "Mean extinction in north galaxy:", np.nanmean(av_map_north)
+    print "Mean extinction in south galaxy:", np.nanmean(av_map_south)
+    print "Mean extinction in bridge:", np.nanmean(av_map_bridge)
+
+    plt.imshow(av_map_bridge, vmin=0, vmax=5, origin='lower', interpolation='None')
+    plt.show()
 
     # read in i band SDSS image
     #sdss_i, wcs_sdss = vcm.get_sdss('i')
@@ -61,11 +98,10 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.imshow(ebv_map, vmin=0, vmax=2, origin='lower')
-    #plt.colorbar(ax)
+    cax = ax.imshow(av_map, vmin=0, vmax=5, origin='lower', interpolation='None')
+    fig.colorbar(cax)
+    ax.minorticks_on()
 
-    fig.savefig(ipac_taffy_figdir + 'ebv_map.eps', dpi=150, bbox_inches='tight')
-
-    plt.show()
+    fig.savefig(ipac_taffy_figdir + 'ebv_map.png', dpi=150, bbox_inches='tight')
 
     sys.exit(0)

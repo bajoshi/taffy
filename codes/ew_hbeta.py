@@ -154,9 +154,6 @@ if __name__ == '__main__':
                 ew_map[i,j] = np.nan
                 continue
 
-            # check significance of continuum measurement and skip spaxel if necessary
-            
-
             # initialize fitting arrays
             left_arr = blue_cont[hbeta_idx-175:hbeta_idx-125, i , j]
             right_arr = blue_cont[hbeta_idx+125:hbeta_idx+175, i , j]
