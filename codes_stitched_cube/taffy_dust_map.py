@@ -41,7 +41,7 @@ if __name__ == '__main__':
     for i in range(58):
         for j in range(58):
 
-            ebv_map[i,j] = 1.97 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.86)
+            ebv_map[i,j] = 2.37 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.85)
 
     # apply mask
     ebv_map = ma.array(ebv_map, mask=all_mask)
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     print np.nanmin(4.05*ebv_map)
     print np.nanmax(4.05*ebv_map)
 
-    av_map = 4.05 * ebv_map
+    av_map = 3.1 * ebv_map
 
     # Get average values in the different regions
     # get the region masks first
@@ -84,8 +84,8 @@ if __name__ == '__main__':
     print "Mean extinction in south galaxy:", np.nanmean(av_map_south)
     print "Mean extinction in bridge:", np.nanmean(av_map_bridge)
 
-    plt.imshow(av_map_bridge, vmin=0, vmax=5, origin='lower', interpolation='None')
-    plt.show()
+    #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
+    #plt.show()
 
     # read in i band SDSS image
     #sdss_i, wcs_sdss = vcm.get_sdss('i')

@@ -15,7 +15,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Polygon
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
 from matplotlib.font_manager import FontProperties
@@ -455,6 +455,29 @@ if __name__ == '__main__':
     ax.add_patch(bw_patch)
     ax.add_patch(be_patch)
 
+    # Add polygon patches for galaxies and bridge
+    north_poly_points = [[0.422200173,23.50396718],[0.4152304334,23.50387652],[0.4155502808,23.50226454],\
+    [0.414591942,23.49908922],[0.4180543574,23.49850344],[0.4199720955,23.49723355],[0.4259616693,23.49127482],\
+    [0.4286967795,23.48904169],[0.4291162163,23.49004197],[0.4313178761,23.49288664],[0.4291871345,23.49689221]]
+    south_poly_points = [[0.4071288157,23.49766402],[0.4027494899,23.49619723],[0.4031346441,23.48922165],\
+    [0.4060123993,23.48189481],[0.4078664731,23.47872971],[0.410943916,23.47614935],[0.4158554494,23.47630534],\
+    [0.4202012426,23.47791063],[0.4217348365,23.48048999],[0.4213999114,23.48310946],[0.417944079,23.48275696],\
+    [0.4133603491,23.48707351],[0.4114718625,23.48932533],[0.4090425678,23.49400985]]
+    bridge_poly_points = [[0.4071288316,23.49758635],[0.4090459205,23.49391271],[0.4114969024,23.48922357],\
+    [0.4133614547,23.48697676],[0.4179534303,23.48268663],[0.421404655,23.48303866],[0.4251755324,23.48233549],\
+    [0.4271566586,23.48509069],[0.4286953339,23.48900495],[0.4258300899,23.49137329],[0.4199687248,23.49723481],\
+    [0.4180519391,23.49850339],[0.412549028,23.49960668]]
+
+    pn = Polygon(np.array(north_poly_points), edgecolor='k', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(pn)
+    ps = Polygon(np.array(south_poly_points), edgecolor='k', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(ps)
+    pb = Polygon(np.array(bridge_poly_points), edgecolor='k', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(pb)
+
     # add text to figure to indicate region name
     f = FontProperties()
     f.set_weight('bold')
@@ -471,7 +494,7 @@ if __name__ == '__main__':
     ax.text(0.48, 0.89, 'North galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.05, 0.59, 'North galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.07, 0.64, 'North' + '\n' + 'galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.76, 0.64, 'South galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
@@ -480,11 +503,19 @@ if __name__ == '__main__':
     ax.text(0.61, 0.29, 'South galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.54, 0.78, 'Bridge west', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.54, 0.79, 'Bridge' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.34, 0.55, 'Bridge east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
+
+    # Add text for galaxies and bridge
+    ax.text(0.16, 0.94, 'NORTH' + '\n' + 'GALAXY', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=10)
+    ax.text(0.27, 0.29, 'SOUTH' + '\n' + 'GALAXY', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=10)
+    ax.text(0.1, 0.45, 'BRIDGE', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=10)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
     # these spectra are plotted in the same order as the axes above
