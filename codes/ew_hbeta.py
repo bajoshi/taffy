@@ -58,7 +58,7 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(ew_map, vmin=5.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
+    cax = ax.imshow(ew_map, vmin=5.0, vmax=30, cmap='viridis', origin='lower', interpolation='None')
     fig.colorbar(cax)
 
     ax.minorticks_on()
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     snr_mask[val_idx] = False
     snr_map = ma.array(snr_map, mask=snr_mask)
 
-    plt.imshow(snr_map, vmin=5, vmax=50, origin='lower', interpolation='None')
+    plt.imshow(snr_map, vmin=5, vmax=100, origin='lower', interpolation='None')
     plt.show()
 
     plot_map(ew_map, north_mask, south_mask)
