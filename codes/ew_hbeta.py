@@ -45,11 +45,13 @@ def get_pn(region_list):
 
 def plot_map(ew_map, ew_map_north, ew_map_south):
 
+    # NaN out small EW
+    nan_idx = np.where(ew_map < 0.1)
+    ew_map[nan_idx] = np.nan
+
     # combine masks and plot
     comb_mask = (north_mask == 1) & (south_mask == 1)
 
-    nan_idx = np.where(ew_map < 0.1)
-    ew_map[nan_idx] = np.nan
     ew_map = ma.array(ew_map, mask=comb_mask)
 
     # make figure
@@ -63,8 +65,6 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
 
     fig.savefig(taffy_extdir + 'figures_stitched_cube/hbeta_ew_map.png', \
         dpi=300, bbox_inches='tight')
-    plt.show()
-    sys.exit(0)
 
     return None
 
@@ -94,6 +94,15 @@ def save_map_as_fits(blue_cont_hdu, north_mask, south_mask):
     return None
 
 if __name__ == '__main__':
+    """
+    TO-DO:
+    1. You need to somehow be able to measure the 
+    average error on the continuum on+near Hbeta.
+    This error will then be used to remove spaxels 
+    which have low significance on the Hbeta abs measurement.
+    1a. Is there a way to get a corresponding error 
+    cube for the data cube? Ask Phil.
+    """
 
     # read in lzifu output file
     h = fits.open(taffy_extdir + 'stitched_cube.fits')
@@ -140,6 +149,7 @@ if __name__ == '__main__':
     # make empty ew and cont map
     # fit gaussian to abs dip for each spaxel
     ew_map = np.zeros((58,58))
+    snr_map = np.zeros((58,58))
 
     # get continuum value at hbeta
     for i in range(0,58):
@@ -161,6 +171,22 @@ if __name__ == '__main__':
 
             blue_cont_fit_yarr = blue_cont[hbeta_idx-500:hbeta_idx+500, i , j]
             blue_cont_fit_xarr = np.linspace(hbeta_idx-500, hbeta_idx+500, len(blue_cont_fit_yarr))
+
+            # Meaure SNR for hbeta abs in spaxel
+            # I'm doing this before the normalization because
+            # teh normalization divides my continuum signal but
+            # for the SNR to be accurate the error should 
+            # also have been normalized. Since I don't have 
+            # the error yet I can't do that.
+            snr = np.nanmean(np.concatenate([left_arr, right_arr])) / np.nanstd(np.concatenate([left_arr, right_arr]))
+            #print "SNR at ds9 pix X,Y:", snr, pix_x, pix_y
+            snr_map[i,j] = snr
+
+            if snr < 5.0:
+                # i.e. if the flux around the hbeta line does not have 
+                # a significant measurement then do not attempt to measure 
+                # the EW. The EW is 0 by default.
+                continue
 
             # normalize the y array by the continuum to get a continuum level of approx. 1
             blue_cont_fit_yarr_norm = blue_cont_fit_yarr / cont_mean
@@ -208,8 +234,11 @@ if __name__ == '__main__':
             """
 
             if gauss_diff2 < line_diff2:
-
+                # i.e. the chi2 for fitting a gaussian has to be 
+                # better than that for a fitting a straight line.
                 if comb_diff2 < gauss_diff2:
+                    # i.e. the chi2 for fitting a gaussian + straight line
+                    # has to be better than fitting just a gaussian by itself.
 
                     blue_cont_area_yarr = blue_cont[hbeta_idx-70:hbeta_idx+70, i, j]
                     blue_cont_area_xarr = np.linspace(hbeta_idx-70, hbeta_idx+70, len(blue_cont_area_yarr))
@@ -229,6 +258,15 @@ if __name__ == '__main__':
 
     # close file
     h.close()
+
+    # Mask spaxels with low SNR
+    val_idx = np.where(snr_map >= 5.0)
+    snr_mask = np.ones(snr_map.shape, dtype=bool)
+    snr_mask[val_idx] = False
+    snr_map = ma.array(snr_map, mask=snr_mask)
+
+    plt.imshow(snr_map, vmin=5, vmax=50, origin='lower', interpolation='None')
+    plt.show()
 
     plot_map(ew_map, north_mask, south_mask)
 

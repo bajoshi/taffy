@@ -64,13 +64,14 @@ if __name__ == '__main__':
     # I'm not sure of that constant. So I'm usign the formula I derived for now.
 
     ebv_map = np.zeros((58,58))
-    halpha_frac_from_sf = 0.5  # assumed 0.5 for now
+    halpha_frac_from_sf =   # assumed 0.5 for now
     # You need to do this using the [NII] BPT
+    # This fraction will probably be different for 
+    # the three regions: north, south, and bridge
 
     for i in range(58):
         for j in range(58):
-
-            ebv_map[i,j] = 2.37 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.85)
+            ebv_map[i,j] = 2.37 * np.log10(halpha_frac_from_sf * halpha_total[i,j]/hbeta_total[i,j] / 2.85)
 
     # apply snr mask
     ebv_map = ma.array(ebv_map, mask=val_idx)
@@ -127,7 +128,7 @@ if __name__ == '__main__':
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(av_map, vmin=0, vmax=5, origin='lower', interpolation='None')
+    cax = ax.imshow(av_map, vmin=0, vmax=3, origin='lower', interpolation='None')
     fig.colorbar(cax)
     ax.minorticks_on()
 
