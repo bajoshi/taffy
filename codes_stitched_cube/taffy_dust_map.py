@@ -23,9 +23,6 @@ if __name__ == '__main__':
     1. Dust correction on spaxel-by-spaxel basis
     """
 
-    # get mask of all possible not NaN pixels
-    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
-
     # read in halpha and hbeta maps from stitched cube
     halpha = fits.open(taffy_extdir + 'stitched_cube_HALPHA.fits')
     hbeta = fits.open(taffy_extdir + 'stitched_cube_HBETA.fits')
@@ -43,11 +40,6 @@ if __name__ == '__main__':
     halpha_snr = halpha_total / halpha_total_err
     hbeta_snr = hbeta_total / hbeta_total_err
 
-    plt.imshow(halpha_snr, origin='lower', interpolation='None')
-    plt.show()
-    plt.imshow(hbeta_snr, origin='lower', interpolation='None')
-    plt.show()
-
     # find all spaxels iwth significant measurements for both lines
     val_idx1 = np.where(halpha_snr >= 3.0)
     val_idx2 = np.where(hbeta_snr >= 3.0)
@@ -57,17 +49,6 @@ if __name__ == '__main__':
     halpha_snrmask[val_idx1[0], val_idx1[1]] = False
     hbeta_snrmask[val_idx2[0], val_idx2[1]] = False
     val_idx = ma.mask_or(halpha_snrmask, hbeta_snrmask)
-
-    # inverse mask to show only valid elements
-    halpha_snr = ma.array(halpha_snr, mask=np.logical_not(val_idx))
-    hbeta_snr = ma.array(hbeta_snr, mask=np.logical_not(val_idx))
-
-    plt.imshow(halpha_snr, origin='lower', interpolation='None')
-    plt.show()
-    plt.imshow(hbeta_snr, origin='lower', interpolation='None')
-    plt.show()
-
-    sys.exit(0)
 
     # Now find the ratio and get dust extinction
     # this assumes that all the halpha and hbeta comes from
@@ -83,14 +64,16 @@ if __name__ == '__main__':
     # I'm not sure of that constant. So I'm usign the formula I derived for now.
 
     ebv_map = np.zeros((58,58))
+    halpha_frac_from_sf = 0.5  # assumed 0.5 for now
+    # You need to do this using the [NII] BPT
 
     for i in range(58):
         for j in range(58):
 
             ebv_map[i,j] = 2.37 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.85)
 
-    # apply mask
-    #ebv_map = ma.array(ebv_map, mask=all_mask)
+    # apply snr mask
+    ebv_map = ma.array(ebv_map, mask=val_idx)
 
     # figure
     print np.nanmin(4.05*ebv_map)
@@ -148,6 +131,12 @@ if __name__ == '__main__':
     fig.colorbar(cax)
     ax.minorticks_on()
 
-    fig.savefig(ipac_taffy_figdir + 'ebv_map.png', dpi=150, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'ebv_map.png', dpi=300, bbox_inches='tight')
+
+    # Close all open HDUs
+    halpha.close()
+    hbeta.close()
+    halpha_err.close()
+    hbeta_err.close()
 
     sys.exit(0)
