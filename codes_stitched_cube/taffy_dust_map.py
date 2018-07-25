@@ -64,7 +64,7 @@ if __name__ == '__main__':
     # I'm not sure of that constant. So I'm usign the formula I derived for now.
 
     ebv_map = np.zeros((58,58))
-    halpha_frac_from_sf =   # assumed 0.5 for now
+    halpha_frac_from_sf = 1.0  # assumed 0.5 for now
     # You need to do this using the [NII] BPT
     # This fraction will probably be different for 
     # the three regions: north, south, and bridge
@@ -132,7 +132,13 @@ if __name__ == '__main__':
     fig.colorbar(cax)
     ax.minorticks_on()
 
-    fig.savefig(ipac_taffy_figdir + 'ebv_map.png', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'av_map.png', dpi=300, bbox_inches='tight')
+
+    # Save as FITS file
+    av_map = ma.filled(av_map, np.nan)
+    # this above line sets all masked entries to NaN because the fits file cannot handle masked arrays yet
+    hdu = fits.PrimaryHDU(av_map)
+    hdu.writeto(taffy_extdir + 'av_map.fits', overwrite=True)
 
     # Close all open HDUs
     halpha.close()
