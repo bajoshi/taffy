@@ -135,9 +135,20 @@ if __name__ == '__main__':
     fig.savefig(ipac_taffy_figdir + 'av_map.png', dpi=300, bbox_inches='tight')
 
     # Save as FITS file
+    # Fix mask
+    # this line sets all masked entries to NaN because 
+    # the fits file cannot handle masked arrays yet
     av_map = ma.filled(av_map, np.nan)
-    # this above line sets all masked entries to NaN because the fits file cannot handle masked arrays yet
-    hdu = fits.PrimaryHDU(av_map)
+
+    # Get original header so that we can use the same WCS
+    # I'm simply copying the header from the stitched file and pasting it here
+    # read in lzifu output file
+    lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
+    hdr = lzifu_hdulist['B_LINE'].header
+
+    # Create file
+    hdu = fits.PrimaryHDU(av_map, header=hdr)
+    # write
     hdu.writeto(taffy_extdir + 'av_map.fits', overwrite=True)
 
     # Close all open HDUs
