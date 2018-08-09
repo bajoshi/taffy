@@ -140,8 +140,8 @@ def calc_lower_lim(nii_halpha_withcut, xarr_br, xarr_n, xarr_s, yarr_br, yarr_n,
     nii_nonzero = np.nonzero(nii_halpha_withcut)
 
     # Get average values of the errors to get padding area 
-    xerr_avg_arr = np.concatenate((xarr_err_br[nii_nonzero], xarr_err_n[nii_nonzero], xarr_err_s[nii_nonzero]))
-    yerr_avg_arr = np.concatenate((yarr_err_br[nii_nonzero], yarr_err_n[nii_nonzero], yarr_err_s[nii_nonzero]))
+    xerr_avg_arr = ma.concatenate((xarr_err_br[nii_nonzero], xarr_err_n[nii_nonzero], xarr_err_s[nii_nonzero]))
+    yerr_avg_arr = ma.concatenate((yarr_err_br[nii_nonzero], yarr_err_n[nii_nonzero], yarr_err_s[nii_nonzero]))
     
     # Nan out values = -9999.0
     invalid_idx_xerr = np.where(xerr_avg_arr == -9999.0)
@@ -160,10 +160,10 @@ def calc_lower_lim(nii_halpha_withcut, xarr_br, xarr_n, xarr_s, yarr_br, yarr_n,
     # loop over all points and check where they are
     hii_x = []
     hii_y = []
-    full_x_arr = np.concatenate((xarr_br[nii_nonzero], xarr_n[nii_nonzero], xarr_s[nii_nonzero]))
-    full_y_arr = np.concatenate((yarr_br[nii_nonzero], yarr_n[nii_nonzero], yarr_s[nii_nonzero]))
+    full_x_arr = ma.concatenate((xarr_br[nii_nonzero], xarr_n[nii_nonzero], xarr_s[nii_nonzero]))
+    full_y_arr = ma.concatenate((yarr_br[nii_nonzero], yarr_n[nii_nonzero], yarr_s[nii_nonzero]))
 
-    full_halpha_arr = np.concatenate((halpha_withcut_bridge[nii_nonzero], halpha_withcut_north[nii_nonzero], \
+    full_halpha_arr = ma.concatenate((halpha_withcut_bridge[nii_nonzero], halpha_withcut_north[nii_nonzero], \
         halpha_withcut_south[nii_nonzero]))
     halpha_sum = 0
     for i in range(len(full_x_arr)):
@@ -309,11 +309,137 @@ def prep_total(stitched_cube):
         oiii_hbeta_for_nii_err_withcut_bridge, oiii_hbeta_for_nii_err_withcut_north, oiii_hbeta_for_nii_err_withcut_south, \
         halpha_withcut_bridge, halpha_withcut_north, halpha_withcut_south)
 
+    # ------------------------------------------------------------------- #
+    # Do not delete. Block useful for debugging.
+    """
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(111)
+    ax1.imshow(halpha, origin='lower', vmin=0, vmax=1000)
+
+    fig2 = plt.figure()
+    ax2 = fig2.add_subplot(111)
+    ax2.imshow(halpha_withcut, origin='lower', vmin=0, vmax=1000)
+
+    #plt.show()
+
+    print '\n'
+
+    print "[NII]/Ha shapes:", nii_halpha_withcut.shape, nii_halpha_withcut_bridge.shape, nii_halpha_withcut_north.shape, nii_halpha_withcut_south.shape
+    print "[OIII]/Hb shapes:", oiii_hbeta_for_nii_withcut_bridge.shape, oiii_hbeta_for_nii_withcut_north.shape, oiii_hbeta_for_nii_withcut_south.shape
+    print "Ha shapes:", halpha_withcut_bridge.shape, halpha_withcut_north.shape, halpha_withcut_south.shape
+    print np.nonzero(nii_halpha_withcut)
+
+    # if I apply the 2comp mask
+    halpha_withcut = ma.array(halpha_withcut, mask=comb_mask)
+    halpha_withcut_bridge = ma.array(halpha_withcut, mask=bridge_mask)
+    halpha_withcut_north = ma.array(halpha_withcut, mask=north_mask)
+    halpha_withcut_south = ma.array(halpha_withcut, mask=south_mask)
+
+    val_idx2 = np.where(halpha_withcut != -9999.0)
+
+    print "Sum of orig halpha:", np.sum(halpha[np.isfinite(halpha)])
+    print "Sum of halpha with sig cut:", np.sum(halpha_withcut[val_idx2])
+
+    val_br = np.where(halpha_withcut_bridge != -9999.0)
+    val_n = np.where(halpha_withcut_north != -9999.0)
+    val_s = np.where(halpha_withcut_south != -9999.0)
+
+    print "Sum of halpha in bridge:", np.sum(halpha_withcut_bridge[val_br])
+    print "Sum of halpha in north:", np.sum(halpha_withcut_north[val_n])
+    print "Sum of halpha in south:", np.sum(halpha_withcut_south[val_s])
+
+    # Shape after concatenating
+    nonzero_idx = np.nonzero(nii_halpha_withcut)
+    temp_h = ma.concatenate((halpha_withcut_bridge[nonzero_idx], halpha_withcut_north[nonzero_idx], halpha_withcut_south[nonzero_idx]))
+    vi = np.where(temp_h != -9999.0)[0]
+    print "Sum if ma.concatenate is used instead of np.concatenate:", np.sum(temp_h[vi])
+    """
+    # ------------------------------------------------------------------- #
+
     return nii_halpha_withcut_bridge, nii_halpha_withcut_north, nii_halpha_withcut_south, \
     oiii_hbeta_for_nii_withcut_bridge, oiii_hbeta_for_nii_withcut_north, oiii_hbeta_for_nii_withcut_south, \
     nii_halpha_err_withcut_bridge, nii_halpha_err_withcut_north, nii_halpha_err_withcut_south, \
     oiii_hbeta_for_nii_err_withcut_bridge, oiii_hbeta_for_nii_err_withcut_north, oiii_hbeta_for_nii_err_withcut_south, \
     nii_halpha_withcut, xerr_avg_total, yerr_avg_total
+
+def get_total_fluxes():
+
+    # Read in stitched cube
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')   
+
+    # Total and indivdual vel comp
+    halpha = stitched_cube['HALPHA'].data[0]
+    halpha_comp1 = stitched_cube['HALPHA'].data[1]
+    halpha_comp2 = stitched_cube['HALPHA'].data[2]
+
+    # Print total flux after getting valid and finite indices
+    i0 = np.where(halpha != -9999.0)
+    val_halpha = halpha[i0]  # halpha[i0] gives a 1D array # Use halpha[i0[0]][i0[1]] to get the proper 2D array
+    print "\n", "Total H-alpha flux:", "{:.2e}".format(np.sum(val_halpha[np.isfinite(val_halpha)]) * 1e-18)
+
+    i1 = np.where(halpha_comp1 != -9999.0)
+    val_halpha1 = halpha_comp1[i1]
+    print "H-alpha flux in comp 1:", "{:.2e}".format(np.sum(val_halpha1[np.isfinite(val_halpha1)]) * 1e-18)
+
+    i2 = np.where(halpha_comp2 != -9999.0)
+    val_halpha2 = halpha_comp2[i2]
+    print "H-alpha flux in comp 2:", "{:.2e}".format(np.sum(val_halpha2[np.isfinite(val_halpha2)]) * 1e-18)
+
+    # Apply only region masks # NO checkerboard mask # See written notes for details
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
+
+    # Fluxes from regions
+    # --------- total --------- #
+    halpha_br = ma.array(halpha, mask=bridge_mask)
+    halpha_n = ma.array(halpha, mask=north_mask)
+    halpha_s = ma.array(halpha, mask=south_mask)
+
+    i0_br = np.where(halpha_br != -9999.0)
+    val_halpha_br = halpha_br[i0_br]
+    print "\n", "Total H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br[np.isfinite(val_halpha_br)]) * 1e-18)
+    i0_n = np.where(halpha_n != -9999.0)
+    val_halpha_n = halpha_n[i0_n]
+    print "Total H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n[np.isfinite(val_halpha_n)]) * 1e-18)
+    i0_s = np.where(halpha_s != -9999.0)
+    val_halpha_s = halpha_s[i0_s]
+    print "Total H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s[np.isfinite(val_halpha_s)]) * 1e-18)
+
+    # --------- comp1 --------- #
+    halpha_br1 = ma.array(halpha_comp1, mask=bridge_mask)
+    halpha_n1 = ma.array(halpha_comp1, mask=north_mask)
+    halpha_s1 = ma.array(halpha_comp1, mask=south_mask)
+
+    i0_br1 = np.where(halpha_br1 != -9999.0)
+    val_halpha_br1 = halpha_br1[i0_br1]
+    print "\n", "Comp1 H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br1[np.isfinite(val_halpha_br1)]) * 1e-18)
+    i0_n1 = np.where(halpha_n1 != -9999.0)
+    val_halpha_n1 = halpha_n1[i0_n1]
+    print "Comp1 H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n1[np.isfinite(val_halpha_n1)]) * 1e-18)
+    i0_s1 = np.where(halpha_s1 != -9999.0)
+    val_halpha_s1 = halpha_s1[i0_s1]
+    print "Comp1 H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s1[np.isfinite(val_halpha_s1)]) * 1e-18)
+
+    # --------- comp2 --------- #
+    halpha_br2 = ma.array(halpha_comp2, mask=bridge_mask)
+    halpha_n2 = ma.array(halpha_comp2, mask=north_mask)
+    halpha_s2 = ma.array(halpha_comp2, mask=south_mask)
+
+    i0_br2 = np.where(halpha_br2 != -9999.0)
+    val_halpha_br2 = halpha_br2[i0_br2]
+    print "\n", "Comp2 H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br2[np.isfinite(val_halpha_br2)]) * 1e-18)
+    i0_n2 = np.where(halpha_n2 != -9999.0)
+    val_halpha_n2 = halpha_n2[i0_n2]
+    print "Comp2 H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n2[np.isfinite(val_halpha_n2)]) * 1e-18)
+    i0_s2 = np.where(halpha_s2 != -9999.0)
+    val_halpha_s2 = halpha_s2[i0_s2]
+    print "Comp2 H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s2[np.isfinite(val_halpha_s2)]) * 1e-18)
+
+    # Close HDU
+    stitched_cube.close()
+
+    return None
 
 if __name__ == '__main__':
     """
@@ -325,6 +451,9 @@ if __name__ == '__main__':
     start = time.time()
     dt = datetime.datetime
     print "Starting at --", dt.now()
+
+    get_total_fluxes()
+    sys.exit(0)
 
     # Read in stitched cube
     stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
@@ -396,6 +525,61 @@ if __name__ == '__main__':
     oi6364_err_comp2 = stitched_cube['OI6364_ERR'].data[2]
     sii6716_err_comp2 = stitched_cube['SII6716_ERR'].data[2]
     sii6731_err_comp2 = stitched_cube['SII6731_ERR'].data[2]
+
+    # -------------------------------------------------------------------
+    # Simple check to see if the compoennts add up as they should
+    # Do not delete code block.
+    """
+    halpha = stitched_cube['HALPHA'].data[0]
+    hbeta = stitched_cube['HBETA'].data[0]
+    nii6583 = stitched_cube['NII6583'].data[0]
+    oiii5007 = stitched_cube['OIII5007'].data[0]
+    oi6300 = stitched_cube['OI6300'].data[0]
+    oi6364 = stitched_cube['OI6364'].data[0]
+    sii6716 = stitched_cube['SII6716'].data[0]
+    sii6731 = stitched_cube['SII6731'].data[0]
+
+    halpha_err = stitched_cube['HALPHA_ERR'].data[0]
+    hbeta_err = stitched_cube['HBETA_ERR'].data[0]
+    nii6583_err = stitched_cube['NII6583_ERR'].data[0]
+    oiii5007_err = stitched_cube['OIII5007_ERR'].data[0]
+    oi6300_err = stitched_cube['OI6300_ERR'].data[0]
+    oi6364_err = stitched_cube['OI6364_ERR'].data[0]
+    sii6716_err = stitched_cube['SII6716_ERR'].data[0]
+    sii6731_err = stitched_cube['SII6731_ERR'].data[0]
+
+    # add lines which are doublets
+    sii = sii6716 + sii6731
+    sii_err = np.sqrt((sii6716_err)**2 + (sii6731_err)**2)
+
+    # get arrays with significance cut applied
+    nii_halpha_withcut, oi_halpha_withcut, sii_halpha_withcut, \
+    nii_halpha_err_withcut, oi_halpha_err_withcut, sii_halpha_err_withcut, \
+    halpha_withcut, hbeta_withcut, oiii5007_withcut, oi6300_withcut, nii6583_withcut, sii_withcut, \
+    oiii_hbeta_for_nii_withcut, oiii_hbeta_for_oi_withcut, oiii_hbeta_for_sii_withcut, \
+    oiii_hbeta_for_nii_err_withcut, oiii_hbeta_for_oi_err_withcut, oiii_hbeta_for_sii_err_withcut = \
+    bpt.get_arr_withsigcut(3, halpha, halpha_err, hbeta, hbeta_err, oiii5007, oiii5007_err, \
+    nii6583, nii6583_err, oi6300, oi6300_err, sii, sii_err, halpha.shape)
+
+    for i in range(58):
+        for j in range(58):
+
+            if (halpha_comp1[i,j] == -9999.0):
+                halpha_comp1[i,j] = 0.0
+
+            if (halpha_comp2[i,j] == -9999.0):
+                halpha_comp2[i,j] = 0.0
+
+            if np.isnan(halpha[i,j]) or np.isnan(halpha_comp1[i,j]) or np.isnan(halpha_comp2[i,j]):
+                continue
+
+            if halpha[i,j] != halpha_comp1[i,j]+halpha_comp2[i,j]:
+                print "DS9 pixel:", j+1, i+1
+                print halpha_comp1[i,j], halpha_comp2[i,j], halpha[i,j], halpha_comp1[i,j]+halpha_comp2[i,j]
+
+    sys.exit(0)
+    """
+    # -----------
 
     # velocity dispersions of each component
     #vdisp_line1 = hdu_vdisp[0].data[1]
@@ -527,6 +711,38 @@ if __name__ == '__main__':
     halpha_withcut_north_comp2 = ma.array(halpha_withcut_comp2, mask=north_mask)
     halpha_withcut_south_comp2 = ma.array(halpha_withcut_comp2, mask=south_mask)
 
+    # print info
+    print '\n', "COMPONENT 1"
+    val_idx1 = np.where(halpha_withcut_comp1 != -9999.0)
+    val_idx0 = np.where(halpha_comp1 != -9999.0)
+
+    print "Sum of orig halpha:", np.nansum(halpha_comp1[val_idx0])
+    print "Sum of halpha with sig cut:", np.sum(halpha_withcut_comp1[val_idx1])
+
+    val_br1 = np.where(halpha_withcut_bridge_comp1 != -9999.0)
+    val_n1 = np.where(halpha_withcut_north_comp1 != -9999.0)
+    val_s1 = np.where(halpha_withcut_south_comp1 != -9999.0)
+
+    print "Sum of halpha in bridge:", np.sum(halpha_withcut_bridge_comp1[val_br1])
+    print "Sum of halpha in north:", np.sum(halpha_withcut_north_comp1[val_n1])
+    print "Sum of halpha in south:", np.sum(halpha_withcut_south_comp1[val_s1])
+
+    # --------------
+    print '\n', "COMPONENT 2"
+    val_idx2 = np.where(halpha_withcut_comp2 != -9999.0)
+    val_idx00 = np.where(halpha_comp2 != -9999.0)
+
+    print "Sum of orig halpha:", np.nansum(halpha_comp2[val_idx00])
+    print "Sum of halpha with sig cut:", np.sum(halpha_withcut_comp2[val_idx2])
+
+    val_br2 = np.where(halpha_withcut_bridge_comp2 != -9999.0)
+    val_n2 = np.where(halpha_withcut_north_comp2 != -9999.0)
+    val_s2 = np.where(halpha_withcut_south_comp2 != -9999.0)
+
+    print "Sum of halpha in bridge:", np.sum(halpha_withcut_bridge_comp2[val_br2])
+    print "Sum of halpha in north:", np.sum(halpha_withcut_north_comp2[val_n2])
+    print "Sum of halpha in south:", np.sum(halpha_withcut_south_comp2[val_s2])
+
     # ----------------------------------------------------------------------------------- #
     # ----------------------------------------------------------------------------------- #
     print '\n', 'Component 1 (Low velocity):'
@@ -575,5 +791,8 @@ if __name__ == '__main__':
         nii_halpha_err_withcut_bridge, nii_halpha_err_withcut_north, nii_halpha_err_withcut_south, \
         oiii_hbeta_for_nii_err_withcut_bridge, oiii_hbeta_for_nii_err_withcut_north, oiii_hbeta_for_nii_err_withcut_south, \
         np.nonzero(nii_halpha_withcut), ipac_taffy_figdir, yerr_avg_total)
+
+    # Close HDU
+    stitched_cube.close()
 
     sys.exit(0)
