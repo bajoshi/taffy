@@ -365,7 +365,10 @@ def prep_total(stitched_cube):
 def get_total_fluxes():
 
     # Read in stitched cube
-    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')   
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+
+    # Factor for converting flux to luminosity for Taffy
+    flux_to_lum = 4 * np.pi * (63.2 * 1e6 * 3.08567758128e18)**2  # lum dist to Taffy assumed to be 63.2 Mpc
 
     # Total and indivdual vel comp
     halpha = stitched_cube['HALPHA'].data[0]
@@ -375,15 +378,15 @@ def get_total_fluxes():
     # Print total flux after getting valid and finite indices
     i0 = np.where(halpha != -9999.0)
     val_halpha = halpha[i0]  # halpha[i0] gives a 1D array # Use halpha[i0[0]][i0[1]] to get the proper 2D array
-    print "\n", "Total H-alpha flux:", "{:.2e}".format(np.sum(val_halpha[np.isfinite(val_halpha)]) * 1e-18)
+    print "\n", "Total H-alpha flux:", "{:.3e}".format(np.sum(val_halpha[np.isfinite(val_halpha)]) * 1e-18 * flux_to_lum)
 
     i1 = np.where(halpha_comp1 != -9999.0)
     val_halpha1 = halpha_comp1[i1]
-    print "H-alpha flux in comp 1:", "{:.2e}".format(np.sum(val_halpha1[np.isfinite(val_halpha1)]) * 1e-18)
+    print "H-alpha flux in comp 1:", "{:.3e}".format(np.sum(val_halpha1[np.isfinite(val_halpha1)]) * 1e-18 * flux_to_lum)
 
     i2 = np.where(halpha_comp2 != -9999.0)
     val_halpha2 = halpha_comp2[i2]
-    print "H-alpha flux in comp 2:", "{:.2e}".format(np.sum(val_halpha2[np.isfinite(val_halpha2)]) * 1e-18)
+    print "H-alpha flux in comp 2:", "{:.3e}".format(np.sum(val_halpha2[np.isfinite(val_halpha2)]) * 1e-18 * flux_to_lum)
 
     # Apply only region masks # NO checkerboard mask # See written notes for details
     bridge_mask = vcm.get_region_mask('bridge_bpt_new')
@@ -398,13 +401,13 @@ def get_total_fluxes():
 
     i0_br = np.where(halpha_br != -9999.0)
     val_halpha_br = halpha_br[i0_br]
-    print "\n", "Total H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br[np.isfinite(val_halpha_br)]) * 1e-18)
+    print "\n", "Total H-alpha flux from bridge:", "{:.3e}".format(np.sum(val_halpha_br[np.isfinite(val_halpha_br)]) * 1e-18 * flux_to_lum)
     i0_n = np.where(halpha_n != -9999.0)
     val_halpha_n = halpha_n[i0_n]
-    print "Total H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n[np.isfinite(val_halpha_n)]) * 1e-18)
+    print "Total H-alpha flux from north:", "{:.3e}".format(np.sum(val_halpha_n[np.isfinite(val_halpha_n)]) * 1e-18 * flux_to_lum)
     i0_s = np.where(halpha_s != -9999.0)
     val_halpha_s = halpha_s[i0_s]
-    print "Total H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s[np.isfinite(val_halpha_s)]) * 1e-18)
+    print "Total H-alpha flux from south:", "{:.3e}".format(np.sum(val_halpha_s[np.isfinite(val_halpha_s)]) * 1e-18 * flux_to_lum)
 
     # --------- comp1 --------- #
     halpha_br1 = ma.array(halpha_comp1, mask=bridge_mask)
@@ -413,13 +416,13 @@ def get_total_fluxes():
 
     i0_br1 = np.where(halpha_br1 != -9999.0)
     val_halpha_br1 = halpha_br1[i0_br1]
-    print "\n", "Comp1 H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br1[np.isfinite(val_halpha_br1)]) * 1e-18)
+    print "\n", "Comp1 H-alpha flux from bridge:", "{:.3e}".format(np.sum(val_halpha_br1[np.isfinite(val_halpha_br1)]) * 1e-18 * flux_to_lum)
     i0_n1 = np.where(halpha_n1 != -9999.0)
     val_halpha_n1 = halpha_n1[i0_n1]
-    print "Comp1 H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n1[np.isfinite(val_halpha_n1)]) * 1e-18)
+    print "Comp1 H-alpha flux from north:", "{:.3e}".format(np.sum(val_halpha_n1[np.isfinite(val_halpha_n1)]) * 1e-18 * flux_to_lum)
     i0_s1 = np.where(halpha_s1 != -9999.0)
     val_halpha_s1 = halpha_s1[i0_s1]
-    print "Comp1 H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s1[np.isfinite(val_halpha_s1)]) * 1e-18)
+    print "Comp1 H-alpha flux from south:", "{:.3e}".format(np.sum(val_halpha_s1[np.isfinite(val_halpha_s1)]) * 1e-18 * flux_to_lum)
 
     # --------- comp2 --------- #
     halpha_br2 = ma.array(halpha_comp2, mask=bridge_mask)
@@ -428,13 +431,13 @@ def get_total_fluxes():
 
     i0_br2 = np.where(halpha_br2 != -9999.0)
     val_halpha_br2 = halpha_br2[i0_br2]
-    print "\n", "Comp2 H-alpha flux from bridge:", "{:.2e}".format(np.sum(val_halpha_br2[np.isfinite(val_halpha_br2)]) * 1e-18)
+    print "\n", "Comp2 H-alpha flux from bridge:", "{:.3e}".format(np.sum(val_halpha_br2[np.isfinite(val_halpha_br2)]) * 1e-18 * flux_to_lum)
     i0_n2 = np.where(halpha_n2 != -9999.0)
     val_halpha_n2 = halpha_n2[i0_n2]
-    print "Comp2 H-alpha flux from north:", "{:.2e}".format(np.sum(val_halpha_n2[np.isfinite(val_halpha_n2)]) * 1e-18)
+    print "Comp2 H-alpha flux from north:", "{:.3e}".format(np.sum(val_halpha_n2[np.isfinite(val_halpha_n2)]) * 1e-18 * flux_to_lum)
     i0_s2 = np.where(halpha_s2 != -9999.0)
     val_halpha_s2 = halpha_s2[i0_s2]
-    print "Comp2 H-alpha flux from south:", "{:.2e}".format(np.sum(val_halpha_s2[np.isfinite(val_halpha_s2)]) * 1e-18)
+    print "Comp2 H-alpha flux from south:", "{:.3e}".format(np.sum(val_halpha_s2[np.isfinite(val_halpha_s2)]) * 1e-18 * flux_to_lum)
 
     # Close HDU
     stitched_cube.close()
@@ -453,7 +456,6 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     get_total_fluxes()
-    sys.exit(0)
 
     # Read in stitched cube
     stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')

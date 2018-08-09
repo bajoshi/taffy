@@ -60,18 +60,15 @@ if __name__ == '__main__':
     # loop over all pixels and get a ebv value for each
 
     # ebv[i,j] = 1.97 * np.log10(halpha[i,j]/hbeta[i,j] / 2.86)
-    # this formula with the constant 1.97 out front came from Phil
-    # I'm not sure of that constant. So I'm usign the formula I derived for now.
 
     ebv_map = np.zeros((58,58))
-    halpha_frac_from_sf = 1.0  # assumed 0.5 for now
-    # You need to do this using the [NII] BPT
+    halpha_frac_from_sf = 0.62
     # This fraction will probably be different for 
     # the three regions: north, south, and bridge
 
     for i in range(58):
         for j in range(58):
-            ebv_map[i,j] = 2.37 * np.log10(halpha_frac_from_sf * halpha_total[i,j]/hbeta_total[i,j] / 2.85)
+            ebv_map[i,j] = 1.97 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.86)
 
     # apply snr mask
     ebv_map = ma.array(ebv_map, mask=val_idx)
@@ -80,7 +77,8 @@ if __name__ == '__main__':
     print np.nanmin(4.05*ebv_map)
     print np.nanmax(4.05*ebv_map)
 
-    av_map = 3.1 * ebv_map
+    av_map = 4.05 * ebv_map
+    a_halpha_map = 3.33 * ebv_map
 
     # Get average values in the different regions
     # get the region masks first
@@ -110,9 +108,41 @@ if __name__ == '__main__':
     av_map_north = ma.array(av_map, mask=north_mask)
     av_map_south = ma.array(av_map, mask=south_mask)
 
-    print "Mean extinction in north galaxy:", np.nanmean(av_map_north)
-    print "Mean extinction in south galaxy:", np.nanmean(av_map_south)
-    print "Mean extinction in bridge:", np.nanmean(av_map_bridge)
+    print "\n", "Mean visual extinction in north galaxy:", np.nanmean(av_map_north)
+    print "Mean visual extinction in south galaxy:", np.nanmean(av_map_south)
+    print "Mean visual extinction in bridge:", np.nanmean(av_map_bridge)
+
+    # ------------- Extinction at Halpha -------------- #
+    a_halpha_map_bridge = ma.array(a_halpha_map, mask=bridge_mask)
+    a_halpha_map_north = ma.array(a_halpha_map, mask=north_mask)
+    a_halpha_map_south = ma.array(a_halpha_map, mask=south_mask)
+
+    print "\n", "Mean Halhpa extinction in north galaxy:", np.nanmean(a_halpha_map_north)
+    print "Mean Halhpa extinction in south galaxy:", np.nanmean(a_halpha_map_south)
+    print "Mean Halhpa extinction in bridge:", np.nanmean(a_halpha_map_bridge)
+
+    # Intrinsic Halpha fluxes using results from other code (halpha_frac_from_sf.py)
+    aha_n = np.nanmean(a_halpha_map_north)
+    aha_s = np.nanmean(a_halpha_map_south)
+    aha_br = np.nanmean(a_halpha_map_bridge)
+
+    # Luminostiy from other code
+    lha_low_obs_n = 2.829e40
+    lha_low_obs_s = 5.895e40
+    lha_low_obs_br = 1.92e40
+
+    lha_high_obs_n = 3.254e40
+    lha_high_obs_s = 2.419e40
+    lha_high_obs_br = 2.113e40
+
+    lum_ha_low_int = lha_low_obs_n * 10**(0.4*aha_n) + lha_low_obs_s * 10**(0.4*aha_s) + lha_low_obs_br * 10**(0.4*aha_br)
+    lum_ha_high_int = lha_high_obs_n * 10**(0.4*aha_n) + lha_high_obs_s * 10**(0.4*aha_s) + lha_high_obs_br * 10**(0.4*aha_br)
+
+    print "\n"
+    print "Intrinsic H-alpha luminosity in the low vel comp:", "{:.3e}".format(lum_ha_low_int)
+    print "Intrinsic H-alpha luminosity in the high vel comp:", "{:.3e}".format(lum_ha_high_int)
+    lum_ha_from_sf_int = 0.62*lum_ha_low_int + 0.48*lum_ha_high_int
+    print "Intrinsic H-alpha luminosity from star-formation:", "{:.3e}".format(lum_ha_from_sf_int)
 
     #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
     #plt.show()
