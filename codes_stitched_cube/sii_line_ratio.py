@@ -65,7 +65,8 @@ if __name__ == '__main__':
     cax = ax.imshow(sii6716_arr/sii6731_arr, origin='lower', vmin=0, vmax=1.8)
 
     ax.minorticks_on()
-    fig.colorbar(cax)
+    cbar = fig.colorbar(cax)
+    cbar.set_label('[SII] 6716/6731 intensity ratio')
 
     plt.show()
 
