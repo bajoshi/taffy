@@ -103,12 +103,112 @@ def get_two_comp_mask(halpha_comp1, halpha_comp2, halpha_err_comp1, halpha_err_c
 
     return new_mask
 
+def make_diff_map():
+
+    # read in indices file
+    h = fits.open(savedir + 'all_cases_indices.fits')
+
+    comp1_inv_idx = h['COMP1_INV'].data
+    comp2_inv_idx = h['COMP2_INV'].data
+    single_idx = h['SINGLE_IDX'].data
+    diffmean_idx = h['DIFFMEAN_IDX'].data
+    diffstd_idx = h['DIFFSTD_IDX'].data
+    diffboth_idx = h['DIFFBOTH_IDX'].data
+
+    intg_flux_comp1_hdu = fits.open(savedir + 'intg_flux_cube_comp1.fits')
+    intg_flux_comp2_hdu = fits.open(savedir + 'intg_flux_cube_comp2.fits')
+
+    intg_flux_comp1 = intg_flux_comp1_hdu[0].data
+    intg_flux_comp2 = intg_flux_comp2_hdu[0].data
+
+    diffmap = intg_flux_comp2 - intg_flux_comp1
+
+    # NaN out some spaxels that don't seem right
+    # ds9 coords [x,y]
+    nan_list = [[20,47], [20,48], [20,49]]
+
+    for coord_to_nan in nan_list:
+        i = coord_to_nan[1] - 1
+        j = coord_to_nan[0] - 1
+        print "DS9 coords:", coord_to_nan, "   Array coords:", i,j
+        diffmap[i,j] = np.nan
+
+    # Plotting
+    # read in i band SDSS image
+    sdss_i, wcs_sdss = vcm.get_sdss('i')
+
+    # read in lzifu output file
+    lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
+
+    # Save as fits file
+    hdr = lzifu_hdulist['B_LINE'].header
+    # Create file
+    hdu = fits.PrimaryHDU(diffmap, header=hdr)
+    # write
+    hdu.writeto(taffy_extdir + 'intg_flux_diff_map.fits', overwrite=True)
+
+    # ------------ also save indices file with proper header ------------ #
+    indices_hdu = fits.PrimaryHDU()
+    indices_hdul = fits.HDUList(indices_hdu)
+
+    hdr['EXTNAME'] = 'COMP1_INV'
+    indices_hdul.append(fits.ImageHDU(data=comp1_inv_idx, header=hdr))
+
+    hdr['EXTNAME'] = 'COMP2_INV'
+    indices_hdul.append(fits.ImageHDU(data=comp2_inv_idx, header=hdr))
+
+    hdr['EXTNAME'] = 'SINGLE_IDX'
+    indices_hdul.append(fits.ImageHDU(data=single_idx, header=hdr))
+
+    hdr['EXTNAME'] = 'DIFFMEAN_IDX'
+    indices_hdul.append(fits.ImageHDU(data=diffmean_idx, header=hdr))
+
+    hdr['EXTNAME'] = 'DIFFSTD_IDX'
+    indices_hdul.append(fits.ImageHDU(data=diffstd_idx, header=hdr))
+
+    hdr['EXTNAME'] = 'DIFFBOTH_IDX'
+    indices_hdul.append(fits.ImageHDU(data=diffboth_idx, header=hdr))
+    indices_hdul.writeto(taffy_extdir + 'all_cases_indices_with_wcs.fits', overwrite=True)
+
+    sys.exit(0)
+
+    # plot sdss image
+    fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
+
+    # draw contours
+    x = np.arange(58)
+    y = np.arange(58)
+    X, Y = np.meshgrid(x,y)
+
+    # get colormap
+    colorbrewer_cm = vcm.get_colorbrewer_cm('coolwarm')
+
+    kernel = Gaussian2DKernel(stddev=0.9)
+    diffmap = convolve(diffmap, kernel, boundary='extend')
+
+    c = ax.contour(X, Y, diffmap, transform=ax.get_transform(wcs_lzifu),\
+     cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
+    ax.clabel(c, inline=True, inline_spacing=2, fontsize=8, fmt='%1.1f', lw=4, ls='-')
+
+    # add colorbar inside figure
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
+    #cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
+    #cb.ax.get_children()[0].set_linewidths(10.0)
+    #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
+
+    plt.show()
+
+    return None
+
 if __name__ == '__main__':
     
     # Start time
     start = time.time()
     dt = datetime.datetime
     print "Starting at --", dt.now()
+
+    make_diff_map()
+    sys.exit(0)
 
     # read in indices file
     h = fits.open(savedir + 'all_cases_indices.fits')

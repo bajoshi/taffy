@@ -30,7 +30,7 @@ if __name__ == '__main__':
     sii6731_err = stitched_cube['SII6731_ERR'].data[0]
 
     # Choose only spaxels with significant detections
-    sig_cut = 3
+    sig_cut = 5
     sii6716_valid_ind = np.where((sii6716/sii6716_err) > sig_cut)
     sii6731_valid_ind = np.where((sii6731/sii6731_err) > sig_cut)
 
