@@ -18,10 +18,6 @@ sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
 
 if __name__ == '__main__':
-    """
-    TO-DO:
-    1. Dust correction on spaxel-by-spaxel basis
-    """
 
     # read in halpha and hbeta maps from stitched cube
     halpha = fits.open(taffy_extdir + 'stitched_cube_HALPHA.fits')
