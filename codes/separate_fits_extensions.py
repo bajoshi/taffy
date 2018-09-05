@@ -10,7 +10,6 @@ home = os.getenv('HOME')  # does not have a trailing slash
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
 taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
-taffy_products = home + '/Desktop/ipac/taffy_lzifu/products_work/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
@@ -43,7 +42,7 @@ if __name__ == '__main__':
     # Put in a list here to extract only the specific extensions 
     # which are in the list or change the get_specific_ext 
     # variable to 'all' which will extract all extensions.
-    get_specific_ext = 'all'  #['V']
+    get_specific_ext = 'HALPHA_ERR'  #['V']
     if get_specific_ext == 'all':
         get_specific_ext = get_extnames(hdulist, total_ext)
 

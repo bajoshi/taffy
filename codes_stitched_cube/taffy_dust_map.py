@@ -123,13 +123,13 @@ if __name__ == '__main__':
     aha_br = np.nanmean(a_halpha_map_bridge)
 
     # Luminostiy from other code
-    lha_low_obs_n = 2.829e40
-    lha_low_obs_s = 5.895e40
-    lha_low_obs_br = 1.92e40
+    lha_low_obs_n = 2.823e+40
+    lha_low_obs_s = 6.021e+40
+    lha_low_obs_br = 1.907e+40
 
-    lha_high_obs_n = 3.254e40
-    lha_high_obs_s = 2.419e40
-    lha_high_obs_br = 2.113e40
+    lha_high_obs_n = 3.264e+40
+    lha_high_obs_s = 2.289e+40
+    lha_high_obs_br = 2.131e+40
 
     lum_ha_low_int = lha_low_obs_n * 10**(0.4*aha_n) + lha_low_obs_s * 10**(0.4*aha_s) + lha_low_obs_br * 10**(0.4*aha_br)
     lum_ha_high_int = lha_high_obs_n * 10**(0.4*aha_n) + lha_high_obs_s * 10**(0.4*aha_s) + lha_high_obs_br * 10**(0.4*aha_br)
@@ -139,6 +139,25 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity in the high vel comp:", "{:.3e}".format(lum_ha_high_int)
     lum_ha_from_sf_int = 0.62*lum_ha_low_int + 0.48*lum_ha_high_int
     print "Intrinsic H-alpha luminosity from star-formation:", "{:.3e}".format(lum_ha_from_sf_int)
+
+    # ------- by component ------- #
+    lha_low_int_n = lha_low_obs_n * 10**(0.4 * aha_n)
+    lha_low_int_s = lha_low_obs_s * 10**(0.4 * aha_s)
+    lha_low_int_br = lha_low_obs_br * 10**(0.4 * aha_br)
+
+    lha_high_int_n = lha_high_obs_n * 10**(0.4 * aha_n)
+    lha_high_int_s = lha_high_obs_s * 10**(0.4 * aha_s)
+    lha_high_int_br = lha_high_obs_br * 10**(0.4 * aha_br)
+
+    print "\n"
+    print "Intrinsic H-alpha luminosity in north galaxy in comp1:", lha_low_int_n
+    print "Intrinsic H-alpha luminosity in south galaxy in comp1:", lha_low_int_s
+    print "Intrinsic H-alpha luminosity in bridge galaxy in comp1:", lha_low_int_br
+
+    print "\n"
+    print "Intrinsic H-alpha luminosity in north galaxy in comp2:", lha_high_int_n
+    print "Intrinsic H-alpha luminosity in south galaxy in comp2:", lha_high_int_s
+    print "Intrinsic H-alpha luminosity in bridge galaxy in comp2:", lha_high_int_br
 
     #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
     #plt.show()
