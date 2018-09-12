@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # Put in a list here to extract only the specific extensions 
     # which are in the list or change the get_specific_ext 
     # variable to 'all' which will extract all extensions.
-    get_specific_ext = 'HALPHA_ERR'  #['V']
+    get_specific_ext = 'all'  #['V']
     if get_specific_ext == 'all':
         get_specific_ext = get_extnames(hdulist, total_ext)
 

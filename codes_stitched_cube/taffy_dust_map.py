@@ -19,6 +19,7 @@ import vel_channel_map as vcm
 
 if __name__ == '__main__':
 
+    # ----------------------------------- Read in arrays ----------------------------------- #
     # read in halpha and hbeta maps from stitched cube
     halpha = fits.open(taffy_extdir + 'stitched_cube_HALPHA.fits')
     hbeta = fits.open(taffy_extdir + 'stitched_cube_HBETA.fits')
@@ -32,6 +33,7 @@ if __name__ == '__main__':
     halpha_total_err = halpha_err[0].data[0]
     hbeta_total_err = hbeta_err[0].data[0]
 
+    # ----------------------------------- Cut on significance ----------------------------------- #
     # make snr maps
     halpha_snr = halpha_total / halpha_total_err
     hbeta_snr = hbeta_total / hbeta_total_err
@@ -46,6 +48,7 @@ if __name__ == '__main__':
     hbeta_snrmask[val_idx2[0], val_idx2[1]] = False
     val_idx = ma.mask_or(halpha_snrmask, hbeta_snrmask)
 
+    # ----------------------------------- Make E(B-V) map ----------------------------------- #
     # Now find the ratio and get dust extinction
     # this assumes that all the halpha and hbeta comes from
     # case B which is not the case. We are explicitly saying 
@@ -58,9 +61,6 @@ if __name__ == '__main__':
     # ebv[i,j] = 1.97 * np.log10(halpha[i,j]/hbeta[i,j] / 2.86)
 
     ebv_map = np.zeros((58,58))
-    halpha_frac_from_sf = 0.62
-    # This fraction will probably be different for 
-    # the three regions: north, south, and bridge
 
     for i in range(58):
         for j in range(58):
@@ -73,10 +73,30 @@ if __name__ == '__main__':
     print np.nanmin(4.05*ebv_map)
     print np.nanmax(4.05*ebv_map)
 
+    # ----------------------------------- Make Av maps from EBV maps ----------------------------------- #
+    # Visual extinction
     av_map = 4.05 * ebv_map
-    a_halpha_map = 3.33 * ebv_map
 
-    # Get average values in the different regions
+    # Extinction for all emission lines
+    line_name_list = ['HBETA', 'OIII5007', 'OI6300', 'HALPHA', 'NII6583', 'SII6716', 'SII6731']
+    # These values came from the code get_klambda.py
+    klam_Hbeta = 4.598
+    klam_OIII_5007 = 4.464
+    klam_OI_6300 = 3.49
+    klam_Halpha = 3.326
+    klam_NII_6583 = 3.313
+    klam_SII_6716 = 3.23
+    klam_SII_6731 = 3.221
+
+    a_Hbeta_map = klam_Hbeta * ebv_map
+    a_OIII_5007_map = klam_OIII_5007 * ebv_map
+    a_OI_6300_map = klam_OI_6300 * ebv_map
+    a_Halpha_map = klam_Halpha * ebv_map
+    a_NII_6583_map = klam_NII_6583 * ebv_map
+    a_SII_6716_map = klam_SII_6716 * ebv_map
+    a_SII_6731_map = klam_SII_6731 * ebv_map
+
+    # ----------------------------------- Get average extinction values in the different regions and vel comps ----------------------------------- #
     # get the region masks first
     bridge_mask = vcm.get_region_mask('bridge_bpt_new')
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
@@ -109,9 +129,9 @@ if __name__ == '__main__':
     print "Mean visual extinction in bridge:", np.nanmean(av_map_bridge)
 
     # ------------- Extinction at Halpha -------------- #
-    a_halpha_map_bridge = ma.array(a_halpha_map, mask=bridge_mask)
-    a_halpha_map_north = ma.array(a_halpha_map, mask=north_mask)
-    a_halpha_map_south = ma.array(a_halpha_map, mask=south_mask)
+    a_halpha_map_bridge = ma.array(a_Halpha_map, mask=bridge_mask)
+    a_halpha_map_north = ma.array(a_Halpha_map, mask=north_mask)
+    a_halpha_map_south = ma.array(a_Halpha_map, mask=south_mask)
 
     print "\n", "Mean Halhpa extinction in north galaxy:", np.nanmean(a_halpha_map_north)
     print "Mean Halhpa extinction in south galaxy:", np.nanmean(a_halpha_map_south)
@@ -138,7 +158,7 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity in the low vel comp:", "{:.3e}".format(lum_ha_low_int)
     print "Intrinsic H-alpha luminosity in the high vel comp:", "{:.3e}".format(lum_ha_high_int)
     lum_ha_from_sf_int = 0.62*lum_ha_low_int + 0.48*lum_ha_high_int
-    print "Intrinsic H-alpha luminosity from star-formation:", "{:.3e}".format(lum_ha_from_sf_int)
+    print "Total intrinsic H-alpha luminosity from star-formation:", "{:.3e}".format(lum_ha_from_sf_int)
 
     # ------- by component ------- #
     lha_low_int_n = lha_low_obs_n * 10**(0.4 * aha_n)
@@ -168,6 +188,57 @@ if __name__ == '__main__':
     # read in lzifu output file
     #lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
 
+    # ----------------------------------- Get intrinsic fluxes for all lines ----------------------------------- #
+    # Factor for converting flux to luminosity for Taffy
+    flux_to_lum = 4 * np.pi * (63.2 * 1e6 * 3.08567758128e18)**2  # lum dist to Taffy assumed to be 63.2 Mpc
+
+    # Apply only region masks # NO checkerboard mask # See written notes for details
+    # Re-reading these in because I modifie the earlier ones with the checkerboard mask
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
+
+    for i in range(len(line_name_list)):
+
+        # Get observed flux for line
+        # Read in line map from LZIFU
+        line_map = fits.open(taffy_extdir + 'stitched_cube_' + line_name_list[i] + '.fits')
+        line_total = line_map[0].data[0]
+
+        # Only consider valid and infinite indices
+        i0 = np.where(line_total != -9999.0)
+        val_line_total = line_total[i0]  # line_total[i0] gives a 1D array # Use line_total[i0[0]][i0[1]] to get the proper 2D array
+        print "\n", "Total", line_name_list[i], "observed luminosity:", "{:.3e}".format(np.sum(val_line_total[np.isfinite(val_line_total)]) * 1e-18 * flux_to_lum)
+
+        # Fluxes from regions
+        # --------- total --------- #
+        line_total_br = ma.array(line_total, mask=bridge_mask)
+        line_total_n = ma.array(line_total, mask=north_mask)
+        line_total_s = ma.array(line_total, mask=south_mask)
+
+        i0_br = np.where(line_total_br != -9999.0)
+        val_line_total_br = line_total_br[i0_br]
+        line_br = np.sum(val_line_total_br[np.isfinite(val_line_total_br)]) * 1e-18 * flux_to_lum
+        print "Total", line_name_list[i], "observed luminosity from bridge:", "{:.3e}".format(line_br)
+
+        i0_n = np.where(line_total_n != -9999.0)
+        val_line_total_n = line_total_n[i0_n]
+        line_n = np.sum(val_line_total_n[np.isfinite(val_line_total_n)]) * 1e-18 * flux_to_lum
+        print "Total", line_name_list[i], "observed luminosity from north:", "{:.3e}".format(line_n)
+
+        i0_s = np.where(line_total_s != -9999.0)
+        val_line_total_s = line_total_s[i0_s]
+        line_s = np.sum(val_line_total_s[np.isfinite(val_line_total_s)]) * 1e-18 * flux_to_lum
+        print "Total", line_name_list[i], "observed luminosity from south:", "{:.3e}".format(line_s)
+
+        print "Sum of observed luminosity from regions:", "{:.3e}".format(line_br + line_n + line_s)
+        # I think that when these are summed they are just less than the total printed above
+        # because the regions I've defined don't exactly cover everything. I do beleive that 
+        # the sum as printed here should be more reliable than the simplistic total above.
+
+    sys.exit(0)
+
+    # ----------------------------------- Plotting ----------------------------------- #
     # plot sdss image
     #fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
     fig = plt.figure()
