@@ -78,7 +78,8 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
     
     # Plot grey padded region for getting H-alpha SF excited fraction
-    ax.fill_between(x_arr, y_arr + 2*yerr_avg, y_arr - 2*yerr_avg, color='lightgray')
+    y_upper_hii_line = y_arr + 2*yerr_avg
+    ax.fill_between(x_arr, -2.0, y_upper_hii_line, color='lightgray')
 
     # Plot shock models
     ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
@@ -111,7 +112,7 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     ax.add_artist(anc_hiibox)
 
     # Other auxilliary plot commands
-    ax.legend(loc=0, prop={'size':10})
+    ax.legend(loc='center left', prop={'size':10})
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')

@@ -96,6 +96,8 @@ if __name__ == '__main__':
     a_SII_6716_map = klam_SII_6716 * ebv_map
     a_SII_6731_map = klam_SII_6731 * ebv_map
 
+    all_extinction_maps = [a_Hbeta_map, a_OIII_5007_map, a_OI_6300_map, a_Halpha_map, a_NII_6583_map, a_SII_6716_map, a_SII_6731_map]
+
     # ----------------------------------- Get average extinction values in the different regions and vel comps ----------------------------------- #
     # get the region masks first
     bridge_mask = vcm.get_region_mask('bridge_bpt_new')
@@ -194,11 +196,22 @@ if __name__ == '__main__':
 
     # Apply only region masks # NO checkerboard mask # See written notes for details
     # Re-reading these in because I modifie the earlier ones with the checkerboard mask
-    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
-    north_mask = vcm.get_region_mask('north_galaxy_bpt')
-    south_mask = vcm.get_region_mask('south_galaxy_bpt')
+    bridge_mask_noCB = vcm.get_region_mask('bridge_bpt_new')
+    north_mask_noCB = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask_noCB = vcm.get_region_mask('south_galaxy_bpt')
 
     for i in range(len(line_name_list)):
+
+        a_line_map = all_extinction_maps[i]
+
+        # Get extinction values for line for the different regions
+        a_line_map_bridge = ma.array(a_line_map, mask=bridge_mask)
+        a_line_map_north = ma.array(a_line_map, mask=north_mask)
+        a_line_map_south = ma.array(a_line_map, mask=south_mask)
+
+        line_ext_n = np.nanmean(a_line_map_north)
+        line_ext_s = np.nanmean(a_line_map_south)
+        line_ext_br = np.nanmean(a_line_map_bridge)
 
         # Get observed flux for line
         # Read in line map from LZIFU
@@ -208,33 +221,50 @@ if __name__ == '__main__':
         # Only consider valid and infinite indices
         i0 = np.where(line_total != -9999.0)
         val_line_total = line_total[i0]  # line_total[i0] gives a 1D array # Use line_total[i0[0]][i0[1]] to get the proper 2D array
-        print "\n", "Total", line_name_list[i], "observed luminosity:", "{:.3e}".format(np.sum(val_line_total[np.isfinite(val_line_total)]) * 1e-18 * flux_to_lum)
+        print "\n", "Total", line_name_list[i], "observed luminosity (no region mask applied):", "{:.3e}".format(np.sum(val_line_total[np.isfinite(val_line_total)]) * 1e-18 * flux_to_lum)
 
         # Fluxes from regions
         # --------- total --------- #
-        line_total_br = ma.array(line_total, mask=bridge_mask)
-        line_total_n = ma.array(line_total, mask=north_mask)
-        line_total_s = ma.array(line_total, mask=south_mask)
+        line_total_br = ma.array(line_total, mask=bridge_mask_noCB)
+        line_total_n = ma.array(line_total, mask=north_mask_noCB)
+        line_total_s = ma.array(line_total, mask=south_mask_noCB)
 
+        # ------- Bridge
         i0_br = np.where(line_total_br != -9999.0)
         val_line_total_br = line_total_br[i0_br]
         line_br = np.sum(val_line_total_br[np.isfinite(val_line_total_br)]) * 1e-18 * flux_to_lum
-        print "Total", line_name_list[i], "observed luminosity from bridge:", "{:.3e}".format(line_br)
+        # Intrinsic
+        line_br_int = line_br * 10**(0.4 * line_ext_br)
+        print "Total", line_name_list[i], "observed and intrinsic luminosities from bridge:", "{:.3e}".format(line_br), "{:.3e}".format(line_br_int)
 
+        # ------- North
         i0_n = np.where(line_total_n != -9999.0)
         val_line_total_n = line_total_n[i0_n]
         line_n = np.sum(val_line_total_n[np.isfinite(val_line_total_n)]) * 1e-18 * flux_to_lum
-        print "Total", line_name_list[i], "observed luminosity from north:", "{:.3e}".format(line_n)
+        # Intrinsic
+        line_n_int = line_n * 10**(0.4 * line_ext_n)
+        print "Total", line_name_list[i], "observed and intrinsic luminosities from north:", "{:.3e}".format(line_n), "{:.3e}".format(line_n_int)
 
+        # ------- South
         i0_s = np.where(line_total_s != -9999.0)
         val_line_total_s = line_total_s[i0_s]
         line_s = np.sum(val_line_total_s[np.isfinite(val_line_total_s)]) * 1e-18 * flux_to_lum
-        print "Total", line_name_list[i], "observed luminosity from south:", "{:.3e}".format(line_s)
+        # Intrinsic
+        line_s_int = line_s * 10**(0.4 * line_ext_s)
+        print "Total", line_name_list[i], "observed and intrinsic luminosities from south:", "{:.3e}".format(line_s), "{:.3e}".format(line_s_int)
 
-        print "Sum of observed luminosity from regions:", "{:.3e}".format(line_br + line_n + line_s)
+        print "Sum of observed and intrinsic luminosities from regions:", "{:.3e}".format(line_br + line_n + line_s), "{:.3e}".format(line_br_int + line_n_int + line_s_int)
         # I think that when these are summed they are just less than the total printed above
         # because the regions I've defined don't exactly cover everything. I do beleive that 
         # the sum as printed here should be more reliable than the simplistic total above.
+
+        # Output to copy-paste in tex file
+        print "TeX for line (these are now fluxes [W/m^2] not luminosities)", line_name_list[i], ":  ", "{:.3}".format(line_n_int * 1e-3 / (flux_to_lum * 1e-16)),
+        print "&", "{:.3}".format(line_s_int * 1e-3 / (flux_to_lum * 1e-16)), "&", "{:.3}".format(line_br_int * 1e-3 / (flux_to_lum * 1e-16)), "\\\\"
+
+        # Note on unit conversion above:
+        # I divided by the 4*pi*d_L^2 to go from luminosity to flux.
+        # Then the 1e-3 converts that to W m^-2 and the 1e-16 further will write it in units of [W/m^2]x1e-16.
 
     sys.exit(0)
 
