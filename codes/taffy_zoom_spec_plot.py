@@ -158,7 +158,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'South galaxy east' in regionname:
+    elif 'Taffy-S east' in regionname:
         axesblue.text(0.4, 0.57, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.43, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -177,7 +177,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'South galaxy west' in regionname:
+    elif 'Taffy-S west' in regionname:
         axesblue.text(0.24, 0.57, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.47, 0.52, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -194,7 +194,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'North galaxy east' in regionname:
+    elif 'Taffy-N east' in regionname:
         axesblue.text(0.35, 0.15, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.3, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -203,10 +203,11 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             transform=axesred2.transAxes, color='k', size=7)
         axesred2.text(0.32, 0.65, r'$\mathrm{[NII]}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
-        axesred2.text(0.8, 0.65, r'$\mathrm{[SII]}$', verticalalignment='top', horizontalalignment='left', \
+        axesred2.text(0.8, 0.8,  r'$\mathrm{[SII]\lambda\lambda}$' + '\n' + r'$6717,$' + '\n' + r'$6731$', \
+            verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'North galaxy west' in regionname:
+    elif 'Taffy-N west' in regionname:
         axesblue.text(0.3, 0.15, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.2, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -227,7 +228,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'nucleus' in regionname and 'South' in regionname:
+    elif 'nucleus' in regionname and 'Taffy-S' in regionname:
         axesblue.text(0.3, 0.2, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.2, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -246,7 +247,7 @@ def plotspectrum(axesblue, axesred1, axesred2, bluewav, bluespec, redwav, redspe
             verticalalignment='top', horizontalalignment='left', \
             transform=axesred2.transAxes, color='k', size=7)
 
-    elif 'nucleus' in regionname and 'North' in regionname:
+    elif 'nucleus' in regionname and 'Taffy-N' in regionname:
         axesblue.text(0.3, 0.2, r'$\mathrm{H\beta}$', verticalalignment='top', horizontalalignment='left', \
             transform=axesblue.transAxes, color='k', size=7)
         axesblue.text(0.5, 0.3, r'$\mathrm{[OIII]}$', verticalalignment='top', horizontalalignment='left', \
@@ -340,6 +341,7 @@ if __name__ == '__main__':
     mpl.rcParams["text.latex.preamble"] = r"\usepackage{cmbright}"
     mpl.rcParams["xtick.direction"] = "in"
     mpl.rcParams["ytick.direction"] = "in"
+    mpl.rcParams["xtick.top"] = False
 
     # define colors
     myblue = rgb_to_hex(0, 100, 180)
@@ -482,25 +484,25 @@ if __name__ == '__main__':
     f = FontProperties()
     f.set_weight('bold')
 
-    ax.text(0.1, 0.82, 'North galaxy' + '\n' + ' nucleus', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.1, 0.82, 'Taffy-N' + '\n' + ' nucleus', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.68, 0.41, 'South galaxy' + '\n' + 'nucleus', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.68, 0.41, 'Taffy-S' + '\n' + 'nucleus', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.45, 0.71, 'Extragalactic' + '\n' + 'HII region', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.48, 0.89, 'North galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.48, 0.89, 'Taffy-N' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.07, 0.64, 'North' + '\n' + 'galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.04, 0.64, 'Taffy-N' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.76, 0.64, 'South galaxy' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.76, 0.64, 'Taffy-S' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
-    ax.text(0.61, 0.29, 'South galaxy' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.61, 0.29, 'Taffy-S' + '\n' + 'east', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     ax.text(0.54, 0.79, 'Bridge' + '\n' + 'west', verticalalignment='top', horizontalalignment='left', \
@@ -510,9 +512,9 @@ if __name__ == '__main__':
         transform=ax.transAxes, color='k', fontproperties=f, size=9)
 
     # Add text for galaxies and bridge
-    ax.text(0.16, 0.94, 'NORTH' + '\n' + 'GALAXY', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.16, 0.94, 'Taffy-N', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=10)
-    ax.text(0.27, 0.29, 'SOUTH' + '\n' + 'GALAXY', verticalalignment='top', horizontalalignment='left', \
+    ax.text(0.27, 0.29, 'Taffy-S', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=10)
     ax.text(0.1, 0.45, 'BRIDGE', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=10)
@@ -526,7 +528,7 @@ if __name__ == '__main__':
     # ------------ Plot north nuclear region spectrum ------------ #
     ax_nnuc_b, ax_nnuc_r1, ax_nnuc_r2 = \
     plotspectrum(ax_nnuc_b, ax_nnuc_r1, ax_nnuc_r2, nnuc_blue['wav'], nnuc_blue['flux'], nnuc_red['wav'], nnuc_red['flux'],\
-        25,53, 58,78, 48,150, 4700,5320, 'North galaxy' + '\n' + 'nucleus')
+        25,53, 58,78, 48,150, 4700,5320, 'Taffy-N' + '\n' + 'nucleus')
 
     # ------------ Plot bridge west region spectrum ------------ #
     ax_bw_b, ax_bw_r1, ax_bw_r2 = \
@@ -536,27 +538,27 @@ if __name__ == '__main__':
     # ------------ Plot south galaxy east region spectrum ------------ #
     ax_se_b, ax_se_r1, ax_se_r2 = \
     plotspectrum(ax_se_b, ax_se_r1, ax_se_r2, se_blue['wav'], se_blue['flux'], se_red['wav'], se_red['flux'],\
-        10,60, 28,43, 10,150, 4700,5320, 'South galaxy east')
+        10,60, 28,43, 10,150, 4700,5320, 'Taffy-S east')
 
     # ------------ Plot south galaxy west region spectrum ------------ #
     ax_sw_b, ax_sw_r1, ax_sw_r2 = \
     plotspectrum(ax_sw_b, ax_sw_r1, ax_sw_r2, sw_blue['wav'], sw_blue['flux'], sw_red['wav'], sw_red['flux'],\
-        10,65, 20,27, 10,140, 4700,5320, 'South galaxy west')
+        10,65, 20,27, 10,140, 4700,5320, 'Taffy-S west')
 
     # ------------ Plot north galaxy east region spectrum ------------ #
     ax_ne_b, ax_ne_r1, ax_ne_r2 = \
     plotspectrum(ax_ne_b, ax_ne_r1, ax_ne_r2, ne_blue['wav'], ne_blue['flux'], ne_red['wav'], ne_red['flux'],\
-        15,50, 25,38, 10,55, 4700,5320, 'North galaxy east')
+        15,50, 25,38, 10,55, 4700,5320, 'Taffy-N east')
 
     # ------------ Plot north galaxy west region spectrum ------------ #
     ax_nw_b, ax_nw_r1, ax_nw_r2 = \
     plotspectrum(ax_nw_b, ax_nw_r1, ax_nw_r2, nw_blue['wav'], nw_blue['flux'], nw_red['wav'], nw_red['flux'],\
-        10,50, 15,40, 10,105, 4700,5320, 'North galaxy west')
+        10,50, 15,40, 10,105, 4700,5320, 'Taffy-N west')
 
     # ------------ Plot south nuclear region spectrum ------------ #
     ax_snuc_b, ax_snuc_r1, ax_snuc_r2 = \
     plotspectrum(ax_snuc_b, ax_snuc_r1, ax_snuc_r2, snuc_blue['wav'], snuc_blue['flux'], snuc_red['wav'], snuc_red['flux'],\
-        50,90, 85,105, 88,162, 4700,5320, 'South galaxy' + '\n' + 'nucleus')
+        50,90, 85,105, 88,162, 4700,5320, 'Taffy-S' + '\n' + 'nucleus')
 
     # ------------ Plot bridge east region spectrum ------------ #
     ax_be_b, ax_be_r1, ax_be_r2 = \
