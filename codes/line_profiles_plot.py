@@ -142,10 +142,38 @@ if __name__ == '__main__':
     gs = gridspec.GridSpec(60,84)
     gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=10, hspace=10)
 
+    # ----------- Assign gridspec locations ----------- #
+    # define axes using above grid
+    ax = fig.add_subplot(gs[:36,24:60], projection=wcs_sdss)
+
+    # Bridge
+    ax_br_1_blue = fig.add_subplot(gs[36:48,24:36])
+    ax_br_1_red  = fig.add_subplot(gs[48:,24:36])
+
+    ax_br_2_blue = fig.add_subplot(gs[36:48,36:48])
+    ax_br_2_red  = fig.add_subplot(gs[48:,36:48])
+
+    ax_br_3_blue = fig.add_subplot(gs[36:48,48:60])
+    ax_br_3_red  = fig.add_subplot(gs[48:,48:60])
+
+    # North galaxy
+    ax_n_1_blue = fig.add_subplot(gs[:12,:12])
+    ax_n_2_blue = fig.add_subplot(gs[12:24,:12])
+    ax_n_3_blue = fig.add_subplot(gs[24:36,:12])
+    ax_n_4_blue = fig.add_subplot(gs[36:48,:12])
+    ax_n_5_blue = fig.add_subplot(gs[48:,:12])
+
+    ax_n_1_red  = fig.add_subplot(gs[:12,12:24])
+    ax_n_2_red  = fig.add_subplot(gs[12:24,12:24])
+    ax_n_3_red  = fig.add_subplot(gs[24:36,12:24])
+    ax_n_4_red  = fig.add_subplot(gs[36:48,12:24])
+    ax_n_5_red  = fig.add_subplot(gs[48:,12:24])
+
+    """
+    # Orginial Locations
     # define axes using above grid
     ax = fig.add_subplot(gs[:36,:36], projection=wcs_sdss)
 
-    # ----------- Assign gridspec locations ----------- #
     # Bridge
     ax_br_1_blue = fig.add_subplot(gs[36:48,:12])
     ax_br_1_red  = fig.add_subplot(gs[48:,:12])
@@ -168,6 +196,7 @@ if __name__ == '__main__':
     ax_n_3_red  = fig.add_subplot(gs[24:36,48:60])
     ax_n_4_red  = fig.add_subplot(gs[36:48,48:60])
     ax_n_5_red  = fig.add_subplot(gs[48:,48:60])
+    """
 
     # South galaxy
     ax_s_1_blue = fig.add_subplot(gs[:12,60:72])
@@ -375,6 +404,13 @@ if __name__ == '__main__':
         verticalalignment='top', horizontalalignment='left', \
         transform=ax_n_1_red.transAxes, color='k', size=9)
 
+    ax_s_1_blue.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+        verticalalignment='top', horizontalalignment='left', \
+        transform=ax_s_1_blue.transAxes, color='k', size=9)
+    ax_s_1_red.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+        verticalalignment='top', horizontalalignment='left', \
+        transform=ax_s_1_red.transAxes, color='k', size=9)
+
     # Text for [NII] lines seen in some cases
     ax_n_3_red.text(0.08, 0.42, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
         verticalalignment='top', horizontalalignment='left', \
@@ -401,6 +437,6 @@ if __name__ == '__main__':
         transform=ax_br_1_red.transAxes, color='k', size=10)
 
     # Save figure
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.eps', dpi=300, bbox_inches='tight')
 
     sys.exit(0)
