@@ -58,8 +58,9 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(ew_map, vmin=5.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
-    fig.colorbar(cax)
+    cax = ax.imshow(ew_map, vmin=0.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
+    cbar = fig.colorbar(cax)
+    cbar.ax.set_ylabel(r'$\mathrm{H \beta\ EW\, [\AA]}$')
 
     ax.minorticks_on()
 
@@ -91,7 +92,7 @@ def save_map_as_fits(blue_cont_hdu, north_mask, south_mask):
     ew_map[comb_mask] = np.nan
 
     hdu = fits.PrimaryHDU(data=ew_map, header=blue_cont_hdu.header)
-    hdu.writeto(taffy_extdir + 'ew_map.fits', clobber=True)
+    hdu.writeto(taffy_extdir + 'ew_map.fits', overwrite=True)
 
     return None
 
@@ -129,8 +130,8 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    #read_map_and_plot(north_mask, south_mask)
-    #sys.exit(0)
+    read_map_and_plot(north_mask, south_mask)
+    sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -207,7 +208,7 @@ if __name__ == '__main__':
             #gauss_init = models.GaussianAbsorption1D(amplitude=0.25, mean=hbeta_idx, stddev=10.0)
             # Not using the GaussianAbsorption1D model becuase it is deprecated
             # Instead I'm subtracting a Const1D model from the Gaussian1D model
-            # as suggested in the Astropy documentation
+            # as suggested in the Astropy documentation.
 
             gauss_abs_init1 = models.Const1D(amplitude=1.0)
             gauss_abs_init2 = models.Gaussian1D(amplitude=0.25, mean=hbeta_idx, stddev=10.0)
