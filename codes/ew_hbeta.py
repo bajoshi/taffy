@@ -130,8 +130,8 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    read_map_and_plot(north_mask, south_mask)
-    sys.exit(0)
+    #read_map_and_plot(north_mask, south_mask)
+    #sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -157,13 +157,18 @@ if __name__ == '__main__':
     Try
     for i in range(32, 37):#(0,58):
         for j in range(8, 13):#(0,58):
-    
+
     # To check the high EW region in the north galaxy east.
+
+    for i in range(17,23):
+        for j in range(27,32):
+
+    # To check the high EW region in the south galaxy east.
     """
 
     # get continuum value at hbeta
-    for i in range(0,58):
-        for j in range(0,58):
+    for i in range(58):
+        for j in range(58):
 
             pix_x = j + 1
             pix_y = i + 1
@@ -250,9 +255,14 @@ if __name__ == '__main__':
                 abs_area_analytic = 0.0
 
             ew_map[i,j] = abs_area_analytic
+            """
+            # Print info
+            print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
+            print "    Continuum mean:", cont_mean,
+            print "Amplitude:", "{:.2f}".format(comb_amp),
+            print "Std Dev:", "{:.2f}".format(comb_stddev)
 
             # plot to check fit
-            """
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
@@ -266,12 +276,6 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-
-            # Print info
-            print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
-            print "    Continuum mean:", cont_mean,
-            print "Amplitude:", "{:.2f}".format(comb_amp),
-            print "Std Dev:", "{:.2f}".format(comb_stddev)
             """
 
     # save map as numpy array
