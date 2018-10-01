@@ -58,10 +58,12 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(ew_map, vmin=5.0, vmax=30, cmap='viridis', origin='lower', interpolation='None')
+    cax = ax.imshow(ew_map, vmin=5.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
     fig.colorbar(cax)
 
     ax.minorticks_on()
+
+    plt.show()
 
     fig.savefig(taffy_extdir + 'figures_stitched_cube/hbeta_ew_map.png', \
         dpi=300, bbox_inches='tight')
@@ -128,7 +130,6 @@ if __name__ == '__main__':
     region_file.close()
 
     #read_map_and_plot(north_mask, south_mask)
-    #save_map_as_fits(h['B_CONTINUUM'], north_mask, south_mask)
     #sys.exit(0)
 
     # create wavelength array
@@ -150,6 +151,14 @@ if __name__ == '__main__':
     # fit gaussian to abs dip for each spaxel
     ew_map = np.zeros((58,58))
     snr_map = np.zeros((58,58))
+
+    """
+    Try
+    for i in range(32, 37):#(0,58):
+        for j in range(8, 13):#(0,58):
+    
+    # To check the high EW region in the north galaxy east.
+    """
 
     # get continuum value at hbeta
     for i in range(0,58):
@@ -195,13 +204,19 @@ if __name__ == '__main__':
             # using astropy gaussian absorption and a straight line model
             # Sometimes there is no absorption and it still tries to fit a gaussian;
             # in these cases a line should provide a better fit.
+            #gauss_init = models.GaussianAbsorption1D(amplitude=0.25, mean=hbeta_idx, stddev=10.0)
+            # Not using the GaussianAbsorption1D model becuase it is deprecated
+            # Instead I'm subtracting a Const1D model from the Gaussian1D model
+            # as suggested in the Astropy documentation
 
-            gauss_init = models.GaussianAbsorption1D(amplitude=0.25, mean=hbeta_idx, stddev=10.0)
+            gauss_abs_init1 = models.Const1D(amplitude=1.0)
+            gauss_abs_init2 = models.Gaussian1D(amplitude=0.25, mean=hbeta_idx, stddev=10.0)
+            gauss_init = gauss_abs_init1 - gauss_abs_init2
             fit_gauss = fitting.LevMarLSQFitter()
             g = fit_gauss(gauss_init, blue_cont_fit_xarr, blue_cont_fit_yarr_norm)
 
             linear_int = models.Linear1D(slope=0.1, intercept=1.0)
-            fit_line = fitting.LevMarLSQFitter()
+            fit_line = fitting.LinearLSQFitter()
             l = fit_line(linear_int, blue_cont_fit_xarr, blue_cont_fit_yarr_norm)
 
             comb_int = gauss_init + linear_int
@@ -213,25 +228,12 @@ if __name__ == '__main__':
             comb_diff2 = np.sum((gl(blue_cont_fit_xarr) - blue_cont_fit_yarr_norm)**2)
 
             # get model parameters
-            comb_amp = gl.parameters[0]
-            comb_mean = gl.parameters[1]
-            comb_stddev = gl.parameters[2]
-            comb_slope = gl.parameters[3]
-            comb_intercept = gl.parameters[4]
-
-            # plot to check fit
-            """
-            fig = plt.figure()
-            ax = fig.add_subplot(111)
-
-            ax.plot(np.arange(len(blue_cont[:,i,j])), blue_cont[:,i,j], color='k')
-            ax.plot(blue_cont_fit_xarr, blue_cont_fit_yarr_norm, lw=2)
-            ax.plot(blue_cont_fit_xarr, g(blue_cont_fit_xarr), ls='--', color='g', lw=2)
-            ax.plot(blue_cont_fit_xarr, l(blue_cont_fit_xarr), ls='--', color='r', lw=2)
-            ax.plot(blue_cont_fit_xarr, gl(blue_cont_fit_xarr), ls='--', color='orange', lw=2)
-
-            plt.show()
-            """
+            #print gl.param_names
+            comb_amp = gl.parameters[1]
+            comb_mean = gl.parameters[2]
+            comb_stddev = gl.parameters[3]
+            comb_slope = gl.parameters[4]
+            comb_intercept = gl.parameters[5]
 
             if gauss_diff2 < line_diff2:
                 # i.e. the chi2 for fitting a gaussian has to be 
@@ -239,19 +241,37 @@ if __name__ == '__main__':
                 if comb_diff2 < gauss_diff2:
                     # i.e. the chi2 for fitting a gaussian + straight line
                     # has to be better than fitting just a gaussian by itself.
-
-                    blue_cont_area_yarr = blue_cont[hbeta_idx-70:hbeta_idx+70, i, j]
-                    blue_cont_area_xarr = np.linspace(hbeta_idx-70, hbeta_idx+70, len(blue_cont_area_yarr))
-                    a1 = simps(y=gl(blue_cont_area_xarr), x=blue_cont_area_xarr)
-                    a2 = cont_mean * (blue_cont_area_xarr[-1] - blue_cont_area_xarr[0])
-                    abs_area = a2 - a1
-
-                    abs_area_analytic = comb_amp * comb_stddev * np.sqrt(2 * np.pi)
+                    abs_area_analytic = comb_amp * comb_stddev * np.sqrt(2 * np.pi) * delt
+                    # Multiplying by delt because the wavelength axis is not sampled
+                    # at every 1 Angstrom. It is sampled every 0.3 Angstroms.
 
             else:
                 abs_area_analytic = 0.0
 
             ew_map[i,j] = abs_area_analytic
+
+            # plot to check fit
+            """
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+
+            ax.plot(np.arange(len(blue_cont[:,i,j])), blue_cont[:,i,j] / cont_mean, color='k')
+            ax.plot(blue_cont_fit_xarr, blue_cont_fit_yarr_norm, lw=2)
+            ax.plot(blue_cont_fit_xarr, g(blue_cont_fit_xarr), ls='--', color='g', lw=2)
+            ax.plot(blue_cont_fit_xarr, l(blue_cont_fit_xarr), ls='--', color='r', lw=2)
+            ax.plot(blue_cont_fit_xarr, gl(blue_cont_fit_xarr), ls='--', color='orange', lw=2)
+
+            plt.show()
+            plt.clf()
+            plt.cla()
+            plt.close()
+
+            # Print info
+            print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
+            print "    Continuum mean:", cont_mean,
+            print "Amplitude:", "{:.2f}".format(comb_amp),
+            print "Std Dev:", "{:.2f}".format(comb_stddev)
+            """
 
     # save map as numpy array
     np.save(taffy_extdir + 'ew_map.npy', ew_map)
@@ -269,5 +289,6 @@ if __name__ == '__main__':
     plt.show()
 
     plot_map(ew_map, north_mask, south_mask)
+    save_map_as_fits(h['B_CONTINUUM'], north_mask, south_mask)
 
     sys.exit(0)

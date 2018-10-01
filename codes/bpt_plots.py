@@ -833,7 +833,6 @@ if __name__ == '__main__':
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
-    ax.grid(True)
 
     # region labels
     agnbox = TextArea('AGN', textprops=dict(color='k', size=16))
@@ -855,7 +854,7 @@ if __name__ == '__main__':
     ax.add_artist(anc_hiibox)
 
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -928,9 +927,8 @@ if __name__ == '__main__':
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
-    ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -1003,9 +1001,8 @@ if __name__ == '__main__':
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
-    ax.grid(True)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()

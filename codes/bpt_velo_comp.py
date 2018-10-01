@@ -182,9 +182,8 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
-    ax.grid(True)
 
-    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_full_errbar_indep.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_full_errbar_indep.png', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -344,7 +343,7 @@ if __name__ == '__main__':
     halpha_withcut_comp1, hbeta_withcut_comp1, oiii5007_withcut_comp1, oi6300_withcut_comp1, nii6583_withcut_comp1, sii_withcut_comp1, \
     oiii_hbeta_for_nii_withcut_comp1, oiii_hbeta_for_oi_withcut_comp1, oiii_hbeta_for_sii_withcut_comp1, \
     oiii_hbeta_for_nii_err_withcut_comp1, oiii_hbeta_for_oi_err_withcut_comp1, oiii_hbeta_for_sii_err_withcut_comp1 = \
-    bpt.get_arr_withsigcut(2.5, halpha_comp1, halpha_err_comp1, hbeta_comp1, hbeta_err_comp1, oiii5007_comp1, oiii5007_err_comp1,\
+    bpt.get_arr_withsigcut(3.0, halpha_comp1, halpha_err_comp1, hbeta_comp1, hbeta_err_comp1, oiii5007_comp1, oiii5007_err_comp1,\
     nii6583_comp1, nii6583_err_comp1, oi6300_comp1, oi6300_err_comp1, sii_comp1, sii_err_comp1, (58,58))
     
     # sig cut for comp 2
@@ -353,7 +352,7 @@ if __name__ == '__main__':
     halpha_withcut_comp2, hbeta_withcut_comp2, oiii5007_withcut_comp2, oi6300_withcut_comp2, nii6583_withcut_comp2, sii_withcut_comp2, \
     oiii_hbeta_for_nii_withcut_comp2, oiii_hbeta_for_oi_withcut_comp2, oiii_hbeta_for_sii_withcut_comp2, \
     oiii_hbeta_for_nii_err_withcut_comp2, oiii_hbeta_for_oi_err_withcut_comp2, oiii_hbeta_for_sii_err_withcut_comp2 = \
-    bpt.get_arr_withsigcut(2.5, halpha_comp2, halpha_err_comp2, hbeta_comp2, hbeta_err_comp2, oiii5007_comp2, oiii5007_err_comp2,\
+    bpt.get_arr_withsigcut(3.0, halpha_comp2, halpha_err_comp2, hbeta_comp2, hbeta_err_comp2, oiii5007_comp2, oiii5007_err_comp2,\
     nii6583_comp2, nii6583_err_comp2, oi6300_comp2, oi6300_err_comp2, sii_comp2, sii_err_comp2, (58,58))
 
     # get region mask for region defined first in ds9
@@ -525,11 +524,13 @@ if __name__ == '__main__':
     oiii_hbeta_for_sii_err_withcut_south_comp2 = ma.array(oiii_hbeta_for_sii_err_withcut_comp2, mask=south_mask)
 
     # spatial mapping 
+    """
     spatial_mask, spatial_mask_idx = \
     bpt_range_to_spatial(nii_halpha_withcut_north_comp1, \
         oiii_hbeta_for_nii_withcut_north_comp1, [-0.35,0.0], [-0.75,0.1])
     overlay_spatial_mask_on_sdss(spatial_mask_idx)
     sys.exit(0)
+    """
 
     # plot bpt diagrams
     # BPT with [NII]

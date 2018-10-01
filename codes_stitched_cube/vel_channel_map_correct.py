@@ -166,7 +166,22 @@ if __name__ == '__main__':
                                              bbox_transform=ax.transAxes, borderpad=0.0)
         ax.add_artist(anc_vel_rangebox)
 
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/vel_channel_halpha_withclabel.eps', dpi=150, bbox_inches='tight')
+        # Save as a fits file for velocity range 4261 to 4296
+        if int(vel_range_low) == 4261 and int(vel_range_high) == 4296:
+            print "Saving mean velocity array for range 4261 to 4296 [km/s]."
+            # get a header from one of the data cubes for the WCS
+            hdr = lzifu_hdulist['R_LINE'].header
+
+            # Set all values that are exactly zero back to NaN again
+            # This is to be able to see it better in ds9
+            set_to_nan_idx = np.where(vel_mean_arr == 0.0)
+            vel_mean_arr[set_to_nan_idx] = np.nan
+
+            # Create file and save
+            hdu = fits.PrimaryHDU(data=vel_mean_arr, header=hdr)
+            hdu.writeto(taffy_extdir + 'halpha_vel_range_4261_to_4296.fits', overwrite=True)
+
+    #fig.savefig(taffy_extdir + 'figures_stitched_cube/vel_channel_halpha_withclabel.eps', dpi=150, bbox_inches='tight')
 
     # total run time
     print "Total time taken --", time.time() - start, "seconds."

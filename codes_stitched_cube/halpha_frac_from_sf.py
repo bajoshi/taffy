@@ -79,7 +79,7 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     
     # Plot grey padded region for getting H-alpha SF excited fraction
     y_upper_hii_line = y_arr + 2*yerr_avg
-    ax.fill_between(x_arr, -2.0, y_upper_hii_line, color='lightgray')
+    ax.fill_between(x_arr, -2.0, y_upper_hii_line, color='lightgray', alpha=0.5)
 
     # Plot shock models
     ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
@@ -117,10 +117,9 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
-    ax.grid(True)
 
     # save and close
-    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_errbar_hii_shaded.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(figdir + 'bpt_' + plottype + '_comp' + vel_comp + '_errbar_hii_shaded.png', dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()
@@ -603,7 +602,7 @@ if __name__ == '__main__':
     nii6583_withcut_comp1, sii_withcut_comp1, \
     oiii_hbeta_for_nii_withcut_comp1, oiii_hbeta_for_oi_withcut_comp1, oiii_hbeta_for_sii_withcut_comp1, \
     oiii_hbeta_for_nii_err_withcut_comp1, oiii_hbeta_for_oi_err_withcut_comp1, oiii_hbeta_for_sii_err_withcut_comp1 = \
-    bpt.get_arr_withsigcut(2.5, halpha_comp1, halpha_err_comp1, hbeta_comp1, hbeta_err_comp1, oiii5007_comp1, oiii5007_err_comp1,\
+    bpt.get_arr_withsigcut(3.0, halpha_comp1, halpha_err_comp1, hbeta_comp1, hbeta_err_comp1, oiii5007_comp1, oiii5007_err_comp1,\
     nii6583_comp1, nii6583_err_comp1, oi6300_comp1, oi6300_err_comp1, sii_comp1, sii_err_comp1, (58,58))
     
     # sig cut for comp 2
@@ -613,7 +612,7 @@ if __name__ == '__main__':
     nii6583_withcut_comp2, sii_withcut_comp2, \
     oiii_hbeta_for_nii_withcut_comp2, oiii_hbeta_for_oi_withcut_comp2, oiii_hbeta_for_sii_withcut_comp2, \
     oiii_hbeta_for_nii_err_withcut_comp2, oiii_hbeta_for_oi_err_withcut_comp2, oiii_hbeta_for_sii_err_withcut_comp2 = \
-    bpt.get_arr_withsigcut(2.5, halpha_comp2, halpha_err_comp2, hbeta_comp2, hbeta_err_comp2, oiii5007_comp2, oiii5007_err_comp2,\
+    bpt.get_arr_withsigcut(3.0, halpha_comp2, halpha_err_comp2, hbeta_comp2, hbeta_err_comp2, oiii5007_comp2, oiii5007_err_comp2,\
     nii6583_comp2, nii6583_err_comp2, oi6300_comp2, oi6300_err_comp2, sii_comp2, sii_err_comp2, (58,58))
 
     # get region mask for region defined first in ds9
