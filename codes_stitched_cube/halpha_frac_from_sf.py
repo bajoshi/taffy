@@ -362,10 +362,7 @@ def prep_total(stitched_cube):
     oiii_hbeta_for_nii_err_withcut_bridge, oiii_hbeta_for_nii_err_withcut_north, oiii_hbeta_for_nii_err_withcut_south, \
     nii_halpha_withcut, xerr_avg_total, yerr_avg_total
 
-def get_total_fluxes():
-
-    # Read in stitched cube
-    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+def get_total_fluxes(stitched_cube):
 
     # Factor for converting flux to luminosity for Taffy
     flux_to_lum = 4 * np.pi * (63.2 * 1e6 * 3.08567758128e18)**2  # lum dist to Taffy assumed to be 63.2 Mpc
@@ -439,8 +436,106 @@ def get_total_fluxes():
     val_halpha_s2 = halpha_s2[i0_s2]
     print "Comp2 H-alpha luminosity from south:", "{:.3e}".format(np.sum(val_halpha_s2[np.isfinite(val_halpha_s2)]) * 1e-18 * flux_to_lum)
 
-    # Close HDU
-    stitched_cube.close()
+    return None
+
+def get_total_errors(stitched_cube):
+
+    print "----------------------------------"
+    print "Printing errors in fluxes"
+
+    # Factor for converting flux to luminosity for Taffy
+    flux_to_lum = 4 * np.pi * (63.2 * 1e6 * 3.08567758128e18)**2  # lum dist to Taffy assumed to be 63.2 Mpc
+
+    # Total and indivdual vel comp ERRORS
+    halpha_err = stitched_cube['HALPHA_ERR'].data[0]
+    halpha_comp1_err = stitched_cube['HALPHA_ERR'].data[1]
+    halpha_comp2_err = stitched_cube['HALPHA_ERR'].data[2]
+    # ------------------------------------
+
+    # Print total flux error after getting valid and finite indices
+    # Flux error has to be summed in quadrature 
+    i0 = np.where(halpha_err != -9999.0)
+    val_halpha_err = halpha_err[i0]  # halpha[i0] gives a 1D array # Use halpha[i0[0]][i0[1]] to get the proper 2D array
+    print "\n", "Total H-alpha luminosity error:", \
+    "{:.3e}".format(np.sqrt(np.sum( val_halpha_err[np.isfinite(val_halpha_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i1 = np.where(halpha_comp1_err != -9999.0)
+    val_halpha1_err = halpha_comp1_err[i1]
+    print "H-alpha luminosity error in comp 1:", \
+    "{:.3e}".format(np.sqrt(np.sum( val_halpha1_err[np.isfinite(val_halpha1_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i2 = np.where(halpha_comp2_err != -9999.0)
+    val_halpha2_err = halpha_comp2_err[i2]
+    print "H-alpha luminosity error in comp 2:", \
+    "{:.3e}".format(np.sqrt(np.sum( val_halpha2_err[np.isfinite(val_halpha2_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    # ------------------------------------
+    # Apply only region masks # NO checkerboard mask # See written notes for details
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+    north_mask = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask = vcm.get_region_mask('south_galaxy_bpt')
+    # ------------------------------------
+
+    # Flux Errors from regions
+    # --------- total --------- #
+    halpha_br_err = ma.array(halpha_err, mask=bridge_mask)
+    halpha_n_err = ma.array(halpha_err, mask=north_mask)
+    halpha_s_err = ma.array(halpha_err, mask=south_mask)
+
+    i0_br = np.where(halpha_br_err != -9999.0)
+    val_halpha_br_err = halpha_br_err[i0_br]
+    print "\n", "Total H-alpha luminosity error from bridge:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_br_err[np.isfinite(val_halpha_br_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_n = np.where(halpha_n_err != -9999.0)
+    val_halpha_n_err = halpha_n_err[i0_n]
+    print "Total H-alpha luminosity error from north:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_n_err[np.isfinite(val_halpha_n_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_s = np.where(halpha_s_err != -9999.0)
+    val_halpha_s_err = halpha_s_err[i0_s]
+    print "Total H-alpha luminosity error from south:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_s_err[np.isfinite(val_halpha_s_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    # --------- comp1 --------- #
+    halpha_br1_err = ma.array(halpha_comp1_err, mask=bridge_mask)
+    halpha_n1_err = ma.array(halpha_comp1_err, mask=north_mask)
+    halpha_s1_err = ma.array(halpha_comp1_err, mask=south_mask)
+
+    i0_br1 = np.where(halpha_br1_err != -9999.0)
+    val_halpha_br1_err = halpha_br1_err[i0_br1]
+    print "\n", "Comp1 H-alpha luminosity error from bridge:",\
+     "{:.3e}".format(np.sqrt(np.sum( val_halpha_br1_err[np.isfinite(val_halpha_br1_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_n1 = np.where(halpha_n1_err != -9999.0)
+    val_halpha_n1_err = halpha_n1_err[i0_n1]
+    print "Comp1 H-alpha luminosity error from north:",\
+     "{:.3e}".format(np.sqrt(np.sum( val_halpha_n1_err[np.isfinite(val_halpha_n1_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_s1 = np.where(halpha_s1_err != -9999.0)
+    val_halpha_s1_err = halpha_s1_err[i0_s1]
+    print "Comp1 H-alpha luminosity error from south:",\
+     "{:.3e}".format(np.sqrt(np.sum( val_halpha_s1_err[np.isfinite(val_halpha_s1_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    # --------- comp2 --------- #
+    halpha_br2_err = ma.array(halpha_comp2_err, mask=bridge_mask)
+    halpha_n2_err = ma.array(halpha_comp2_err, mask=north_mask)
+    halpha_s2_err = ma.array(halpha_comp2_err, mask=south_mask)
+
+    i0_br2 = np.where(halpha_br2_err != -9999.0)
+    val_halpha_br2_err = halpha_br2_err[i0_br2]
+    print "\n", "Comp2 H-alpha luminosity error from bridge:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_br2_err[np.isfinite(val_halpha_br2_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_n2 = np.where(halpha_n2_err != -9999.0)
+    val_halpha_n2_err = halpha_n2_err[i0_n2]
+    print "Comp2 H-alpha luminosity error from north:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_n2_err[np.isfinite(val_halpha_n2_err)]**2 )) * 1e-18 * flux_to_lum)
+
+    i0_s2 = np.where(halpha_s2_err != -9999.0)
+    val_halpha_s2_err = halpha_s2_err[i0_s2]
+    print "Comp2 H-alpha luminosity error from south:",\
+     "{:.3e}".format(np.sqrt( np.sum(val_halpha_s2_err[np.isfinite(val_halpha_s2_err)]**2 )) * 1e-18 * flux_to_lum)
 
     return None
 
@@ -455,10 +550,11 @@ if __name__ == '__main__':
     dt = datetime.datetime
     print "Starting at --", dt.now()
 
-    get_total_fluxes()
-
     # Read in stitched cube
     stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+
+    get_total_fluxes(stitched_cube)
+    get_total_errors(stitched_cube)
 
     # read in masks for single and two comp fit
     all_cases = fits.open(savedir + 'all_cases_indices.fits')
