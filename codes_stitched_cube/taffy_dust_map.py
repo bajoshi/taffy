@@ -17,6 +17,55 @@ ipac_taffy_figdir = home + '/Desktop/ipac/taffy_lzifu/figures_stitched_cube/'
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
 
+def correct_spaxel_wise(all_extinction_maps, line_name_list):
+
+    # Apply only region masks # NO checkerboard mask # See written notes for details
+    # Re-reading these in because I modifie the earlier ones with the checkerboard mask
+    bridge_mask_noCB = vcm.get_region_mask('bridge_bpt_new')
+    north_mask_noCB = vcm.get_region_mask('north_galaxy_bpt')
+    south_mask_noCB = vcm.get_region_mask('south_galaxy_bpt')
+
+    for i in range(len(line_name_list)):
+
+        current_ext_map = all_extinction_maps[i]
+
+        # Read in maps from LZIFU
+        line_map = fits.open(taffy_extdir + 'stitched_cube_' + line_name_list[i] + '.fits')
+        line_map_err = fits.open(taffy_extdir + 'stitched_cube_' + line_name_list[i] + '_ERR.fits')
+        line_total = line_map[0].data[0]
+        line_total_err = line_map_err[0].data[0]
+
+        # Get ext corr line map and error map
+        ext_corr_line_map = line_total * 10**(0.4 * current_ext_map)
+        ext_corr_line_err = line_total_err * 10**(0.4 * current_ext_map)
+
+        ext_corr_line_map *= 1e-5
+        ext_corr_line_err *= 1e-5
+
+        # Fluxes from regions
+        # --------- total --------- #
+        line_total_br = ma.array(ext_corr_line_map, mask=bridge_mask_noCB)
+        line_total_n = ma.array(ext_corr_line_map, mask=north_mask_noCB)
+        line_total_s = ma.array(ext_corr_line_map, mask=south_mask_noCB)
+
+        # --------- total errors --------- #
+        line_total_br_err = ma.array(ext_corr_line_err, mask=bridge_mask_noCB)
+        line_total_n_err = ma.array(ext_corr_line_err, mask=north_mask_noCB)
+        line_total_s_err = ma.array(ext_corr_line_err, mask=south_mask_noCB)
+
+        # ------- Bridge
+        i0_br = np.where(line_total_br != -9999.0)
+        val_line_total_br = line_total_br[i0_br]
+        line_br = np.sum(val_line_total_br[np.isfinite(val_line_total_br)])
+
+        # ------- Bridge Error
+        i0_br = np.where(line_total_br_err != -9999.0)
+        val_line_total_br_err = line_total_br_err[i0_br]
+        line_br_err = np.sum(val_line_total_br_err[np.isfinite(val_line_total_br_err)])
+        print "Total", line_name_list[i], "intrinsic luminosity from bridge:", "{:.3e}".format(line_br), "+-", "{:.3e}".format(line_br_err)
+
+    return None
+
 if __name__ == '__main__':
 
     # ----------------------------------- Read in arrays ----------------------------------- #
@@ -53,11 +102,13 @@ if __name__ == '__main__':
     # this assumes that all the halpha and hbeta comes from
     # case B which is not the case. We are explicitly saying 
     # htat some of the ionized gas emission comes from shocks.
-    # you will have to break down the halpha emission into
-    # the fractions coming from shocks and from SF separately.
+    # you will have to break down the halpha and Hbeta emission 
+    # into the fractions coming from shocks and from SF separately.
+
+    # halpha_from_sf = 
+    # hbeta_from_sf = 
 
     # loop over all pixels and get a ebv value for each
-
     # ebv[i,j] = 1.97 * np.log10(halpha[i,j]/hbeta[i,j] / 2.86)
 
     ebv_map = np.zeros((58,58))
@@ -97,6 +148,9 @@ if __name__ == '__main__':
     a_SII_6731_map = klam_SII_6731 * ebv_map
 
     all_extinction_maps = [a_Hbeta_map, a_OIII_5007_map, a_OI_6300_map, a_Halpha_map, a_NII_6583_map, a_SII_6716_map, a_SII_6731_map]
+
+    correct_spaxel_wise(all_extinction_maps, line_name_list)
+    sys.exit(0)
 
     # --------------------------------- Get average extinction values in the different regions and vel comps --------------------------------- #
     # get the region masks first
@@ -222,8 +276,6 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity error in south galaxy in comp2:", lha_high_int_s_err
     print "Intrinsic H-alpha luminosity error in bridge galaxy in comp2:", lha_high_int_br_err
     """
-
-    sys.exit(0)
 
     #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
     #plt.show()
