@@ -53,6 +53,30 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         line_total_n_err = ma.array(ext_corr_line_err, mask=north_mask_noCB)
         line_total_s_err = ma.array(ext_corr_line_err, mask=south_mask_noCB)
 
+        # -------------------------------------------
+        # ------- North
+        i0_n = np.where(line_total_n != -9999.0)
+        val_line_total_n = line_total_n[i0_n]
+        line_n = np.sum(val_line_total_n[np.isfinite(val_line_total_n)])
+
+        # ------- North Errors
+        i0_n = np.where(line_total_n_err != -9999.0)
+        val_line_total_n_err = line_total_n_err[i0_n]
+        line_n_err = np.sum(val_line_total_n_err[np.isfinite(val_line_total_n_err)])
+        print "\n"
+        print "Total", line_name_list[i], "intrinsic flux from north:", "{:.3e}".format(line_n), "+-", "{:.3e}".format(line_n_err)
+
+        # ------- South
+        i0_s = np.where(line_total_s != -9999.0)
+        val_line_total_s = line_total_s[i0_s]
+        line_s = np.sum(val_line_total_s[np.isfinite(val_line_total_s)])
+
+        # ------- South Errors
+        i0_s = np.where(line_total_s_err != -9999.0)
+        val_line_total_s_err = line_total_s_err[i0_s]
+        line_s_err = np.sum(val_line_total_s_err[np.isfinite(val_line_total_s_err)])
+        print "Total", line_name_list[i], "intrinsic flux from south:", "{:.3e}".format(line_s), "+-", "{:.3e}".format(line_s_err)
+
         # ------- Bridge
         i0_br = np.where(line_total_br != -9999.0)
         val_line_total_br = line_total_br[i0_br]
@@ -62,7 +86,7 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         i0_br = np.where(line_total_br_err != -9999.0)
         val_line_total_br_err = line_total_br_err[i0_br]
         line_br_err = np.sum(val_line_total_br_err[np.isfinite(val_line_total_br_err)])
-        print "Total", line_name_list[i], "intrinsic luminosity from bridge:", "{:.3e}".format(line_br), "+-", "{:.3e}".format(line_br_err)
+        print "Total", line_name_list[i], "intrinsic flux from bridge:", "{:.3e}".format(line_br), "+-", "{:.3e}".format(line_br_err)
 
     return None
 
