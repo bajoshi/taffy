@@ -168,7 +168,7 @@ if __name__ == '__main__':
     print "\n"
     print "Intrinsic H-alpha luminosity in the low vel comp:", "{:.3e}".format(lum_ha_low_int)
     print "Intrinsic H-alpha luminosity in the high vel comp:", "{:.3e}".format(lum_ha_high_int)
-    lum_ha_from_sf_int = 0.62*lum_ha_low_int + 0.48*lum_ha_high_int
+    lum_ha_from_sf_int = 0.63*lum_ha_low_int + 0.45*lum_ha_high_int
     print "Total intrinsic H-alpha luminosity from star-formation:", "{:.3e}".format(lum_ha_from_sf_int)
 
     # ------- by component ------- #
@@ -180,6 +180,7 @@ if __name__ == '__main__':
     lha_high_int_s = lha_high_obs_s * 10**(0.4 * aha_s)
     lha_high_int_br = lha_high_obs_br * 10**(0.4 * aha_br)
 
+    """
     print "\n"
     print "Intrinsic H-alpha luminosity in north galaxy in comp1:", lha_low_int_n
     print "Intrinsic H-alpha luminosity in south galaxy in comp1:", lha_low_int_s
@@ -189,8 +190,19 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity in north galaxy in comp2:", lha_high_int_n
     print "Intrinsic H-alpha luminosity in south galaxy in comp2:", lha_high_int_s
     print "Intrinsic H-alpha luminosity in bridge galaxy in comp2:", lha_high_int_br
+    """
 
     # ----------------- Errors ----------------- #
+    lum_ha_low_int_err = lha_low_obs_n_err * 10**(0.4*aha_n) + lha_low_obs_s_err * 10**(0.4*aha_s) + lha_low_obs_br_err * 10**(0.4*aha_br)
+    lum_ha_high_int_err = lha_high_obs_n_err * 10**(0.4*aha_n) + lha_high_obs_s_err * 10**(0.4*aha_s) + lha_high_obs_br_err * 10**(0.4*aha_br)
+
+    print "\n"
+    print "Intrinsic H-alpha luminosity error in the low vel comp:", "{:.3e}".format(lum_ha_low_int_err)
+    print "Intrinsic H-alpha luminosity error in the high vel comp:", "{:.3e}".format(lum_ha_high_int_err)
+    lum_ha_from_sf_int_err = 0.63*lum_ha_low_int_err + 0.45*lum_ha_high_int_err
+    print "Total intrinsic H-alpha luminosity error from star-formation:", "{:.3e}".format(lum_ha_from_sf_int_err)
+
+    # ---------------------------- components
     lha_low_int_n_err = lha_low_obs_n_err * 10**(0.4 * aha_n)
     lha_low_int_s_err = lha_low_obs_s_err * 10**(0.4 * aha_s)
     lha_low_int_br_err = lha_low_obs_br_err * 10**(0.4 * aha_br)
@@ -199,6 +211,7 @@ if __name__ == '__main__':
     lha_high_int_s_err = lha_high_obs_s_err * 10**(0.4 * aha_s)
     lha_high_int_br_err = lha_high_obs_br_err * 10**(0.4 * aha_br)
 
+    """
     print "\n"
     print "Intrinsic H-alpha luminosity error in north galaxy in comp1:", lha_low_int_n_err
     print "Intrinsic H-alpha luminosity error in south galaxy in comp1:", lha_low_int_s_err
@@ -208,6 +221,9 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity error in north galaxy in comp2:", lha_high_int_n_err
     print "Intrinsic H-alpha luminosity error in south galaxy in comp2:", lha_high_int_s_err
     print "Intrinsic H-alpha luminosity error in bridge galaxy in comp2:", lha_high_int_br_err
+    """
+
+    sys.exit(0)
 
     #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
     #plt.show()
