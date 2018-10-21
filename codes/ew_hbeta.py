@@ -58,7 +58,7 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    cax = ax.imshow(ew_map, vmin=0.0, vmax=20, cmap='viridis', origin='lower', interpolation='None')
+    cax = ax.imshow(ew_map, vmin=2.0, vmax=15.0, cmap='inferno', origin='lower', interpolation='None')
     cbar = fig.colorbar(cax)
     cbar.ax.set_ylabel(r'$\mathrm{H \beta\ EW\, [\AA]}$')
 
@@ -130,8 +130,8 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    #read_map_and_plot(north_mask, south_mask)
-    #sys.exit(0)
+    read_map_and_plot(north_mask, south_mask)
+    sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
