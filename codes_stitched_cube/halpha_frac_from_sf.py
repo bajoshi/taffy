@@ -25,6 +25,7 @@ import bpt_plots as bpt
 
 def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_br, yarr_n, yarr_s, \
     xarr_err_br, xarr_err_n, xarr_err_s, yarr_err_br, yarr_err_n, yarr_err_s, \
+    xarr_snuc, yarr_snuc, xarr_nw, yarr_nw, \
     valid_indices, figdir, yerr_avg):
 
     fig = plt.figure()
@@ -62,6 +63,10 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     ax.errorbar(xarr_s[valid_indices], yarr_s[valid_indices], \
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
         color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+
+    # Circle interesting regions
+    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=50, edgecolors='lightblue', facecolors='none')
+    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='olive', facecolors='none')
 
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
@@ -539,6 +544,19 @@ def get_total_errors(stitched_cube):
 
     return None
 
+def apply_mask_to_nii(mask_to_apply):
+
+    # Comp1
+    nii_halpha_withcut_comp1_withmask = ma.array(nii_halpha_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_nii_withcut_comp1_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=mask_to_apply)
+
+    # Comp2
+    nii_halpha_withcut_comp2_withmask = ma.array(nii_halpha_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_nii_withcut_comp2_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=mask_to_apply)
+
+    return nii_halpha_withcut_comp1_withmask, oiii_hbeta_for_nii_withcut_comp1_withmask, \
+    nii_halpha_withcut_comp2_withmask, oiii_hbeta_for_nii_withcut_comp2_withmask
+
 if __name__ == '__main__':
     """
     This code only needs the [NII] stuff. See the notes called taffy_notes.txt
@@ -718,6 +736,12 @@ if __name__ == '__main__':
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
+    # ------------- Use the saved specific region masks to circle interesting points in the BPT ------------- #
+    # i.e. like the south nucleus and the north west regions
+    # Read masks in
+    south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
+    north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
+
     # Apply checker board pattern mask to only select independent spaxels
     # Very simple and elegant solution came from here:
     # https://www.w3resource.com/python-exercises/numpy/python-numpy-exercise-10.php
@@ -809,6 +833,13 @@ if __name__ == '__main__':
     halpha_withcut_north_comp2 = ma.array(halpha_withcut_comp2, mask=north_mask)
     halpha_withcut_south_comp2 = ma.array(halpha_withcut_comp2, mask=south_mask)
 
+    # apply SNuc and NW masks
+    nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
+    nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2 = apply_mask_to_nii(south_nuc_mask)
+
+    nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1, \
+    nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2 = apply_mask_to_nii(north_west_mask)
+
     # print info
     print '\n', "COMPONENT 1"
     val_idx1 = np.where(halpha_withcut_comp1 != -9999.0)
@@ -858,6 +889,8 @@ if __name__ == '__main__':
         nii_halpha_err_withcut_bridge_comp1, nii_halpha_err_withcut_north_comp1, nii_halpha_err_withcut_south_comp1, \
         oiii_hbeta_for_nii_err_withcut_bridge_comp1, oiii_hbeta_for_nii_err_withcut_north_comp1, \
         oiii_hbeta_for_nii_err_withcut_south_comp1, \
+        nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
+        nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1, \
         np.nonzero(nii_halpha_withcut_comp1), ipac_taffy_figdir, yerr_avg_comp1)
 
     print '\n', 'Component 2 (High velocity):'
@@ -875,7 +908,14 @@ if __name__ == '__main__':
         nii_halpha_err_withcut_bridge_comp2, nii_halpha_err_withcut_north_comp2, nii_halpha_err_withcut_south_comp2, \
         oiii_hbeta_for_nii_err_withcut_bridge_comp2, oiii_hbeta_for_nii_err_withcut_north_comp2, \
         oiii_hbeta_for_nii_err_withcut_south_comp2, \
+        nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2, \
+        nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2, \
         np.nonzero(nii_halpha_withcut_comp2), ipac_taffy_figdir, yerr_avg_comp2)
+
+    # Close HDU
+    stitched_cube.close()
+
+    sys.exit(0)
 
     # ------------ Total ----------- #
     print '\n', 'Total (Both velocity components summed):'

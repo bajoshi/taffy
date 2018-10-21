@@ -668,6 +668,12 @@ if __name__ == '__main__':
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
 
+    # ------------- Use the saved specific region masks to circle interesting points in the BPT ------------- #
+    # i.e. like the south nucleus and the north west regions
+    # Read masks in
+    south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
+    north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
+
     # Combine all masks with checker board mask
     # See checkerboard mask comment in BPT velo comp code
     checkerboard_mask = np.zeros((58,58), dtype=np.int)
@@ -680,10 +686,50 @@ if __name__ == '__main__':
     bridge_mask = bridge_mask.astype(bool)
     north_mask = north_mask.astype(bool)
     south_mask = south_mask.astype(bool)
+    south_nuc_mask = south_nuc_mask.astype(bool)
+    north_west_mask = north_west_mask.astype(bool)
 
     bridge_mask = np.ma.mask_or(checkerboard_mask, bridge_mask)
     north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
     south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
+    south_nuc_mask = np.ma.mask_or(checkerboard_mask, south_nuc_mask)
+    north_west_mask = np.ma.mask_or(checkerboard_mask, north_west_mask)
+
+    # apply south nuc mask
+    nii_halpha_withcut_snuc = ma.array(nii_halpha_withcut, mask=south_nuc_mask)
+    oi_halpha_withcut_snuc = ma.array(oi_halpha_withcut, mask=south_nuc_mask)
+    sii_halpha_withcut_snuc = ma.array(sii_halpha_withcut, mask=south_nuc_mask)
+
+    oiii_hbeta_for_nii_withcut_snuc = ma.array(oiii_hbeta_for_nii_withcut, mask=south_nuc_mask)
+    oiii_hbeta_for_oi_withcut_snuc = ma.array(oiii_hbeta_for_oi_withcut, mask=south_nuc_mask)
+    oiii_hbeta_for_sii_withcut_snuc = ma.array(oiii_hbeta_for_sii_withcut, mask=south_nuc_mask)
+
+    # on errors
+    nii_halpha_err_withcut_snuc = ma.array(nii_halpha_err_withcut, mask=south_nuc_mask)
+    oi_halpha_err_withcut_snuc = ma.array(oi_halpha_err_withcut, mask=south_nuc_mask)
+    sii_halpha_err_withcut_snuc = ma.array(sii_halpha_err_withcut, mask=south_nuc_mask)
+
+    oiii_hbeta_for_nii_err_withcut_snuc = ma.array(oiii_hbeta_for_nii_err_withcut, mask=south_nuc_mask)
+    oiii_hbeta_for_oi_err_withcut_snuc = ma.array(oiii_hbeta_for_oi_err_withcut, mask=south_nuc_mask)
+    oiii_hbeta_for_sii_err_withcut_snuc = ma.array(oiii_hbeta_for_sii_err_withcut, mask=south_nuc_mask)
+
+    # apply north west mask
+    nii_halpha_withcut_nw = ma.array(nii_halpha_withcut, mask=north_west_mask)
+    oi_halpha_withcut_nw = ma.array(oi_halpha_withcut, mask=north_west_mask)
+    sii_halpha_withcut_nw = ma.array(sii_halpha_withcut, mask=north_west_mask)
+
+    oiii_hbeta_for_nii_withcut_nw = ma.array(oiii_hbeta_for_nii_withcut, mask=north_west_mask)
+    oiii_hbeta_for_oi_withcut_nw = ma.array(oiii_hbeta_for_oi_withcut, mask=north_west_mask)
+    oiii_hbeta_for_sii_withcut_nw = ma.array(oiii_hbeta_for_sii_withcut, mask=north_west_mask)
+
+    # on errors
+    nii_halpha_err_withcut_nw = ma.array(nii_halpha_err_withcut, mask=north_west_mask)
+    oi_halpha_err_withcut_nw = ma.array(oi_halpha_err_withcut, mask=north_west_mask)
+    sii_halpha_err_withcut_nw = ma.array(sii_halpha_err_withcut, mask=north_west_mask)
+
+    oiii_hbeta_for_nii_err_withcut_nw = ma.array(oiii_hbeta_for_nii_err_withcut, mask=north_west_mask)
+    oiii_hbeta_for_oi_err_withcut_nw = ma.array(oiii_hbeta_for_oi_err_withcut, mask=north_west_mask)
+    oiii_hbeta_for_sii_err_withcut_nw = ma.array(oiii_hbeta_for_sii_err_withcut, mask=north_west_mask)
 
     # apply bridge mask
     nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
@@ -815,15 +861,20 @@ if __name__ == '__main__':
         xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
         color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
+    ax.scatter(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
+        s=50, facecolors='None', edgecolors='lightblue')
+    ax.scatter(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
+        s=50, facecolors='None', edgecolors='olive')
+
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
-    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
-    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
-    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
-    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
-    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -890,15 +941,20 @@ if __name__ == '__main__':
         xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
         color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
+    ax.scatter(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
+        s=50, facecolors='None', edgecolors='lightblue')
+    ax.scatter(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
+        s=50, facecolors='None', edgecolors='olive')
+
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
-    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
-    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
-    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
-    ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
-    ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
+    ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_oi_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_oi_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_oi_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -964,15 +1020,20 @@ if __name__ == '__main__':
         xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
         color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
+    ax.scatter(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
+        s=50, facecolors='None', edgecolors='lightblue')
+    ax.scatter(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
+        s=50, facecolors='None', edgecolors='olive')
+
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=10)
-    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=10)
-    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=10)
-    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=10)
-    ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=10)
-    ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=10)
+    ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
+    ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
+    ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
+    ax.plot(mappings_sii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
+    ax.plot(mappings_sii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
+    ax.plot(mappings_sii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
 
     ax.legend(loc=0, prop={'size':10})
 

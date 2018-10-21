@@ -23,7 +23,7 @@ import vel_channel_map as vcm
 
 def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, \
     xarr_err_br, yarr_err_br, xarr_err_n, yarr_err_n, xarr_err_s, yarr_err_s, \
-    valid_indices, figdir):
+    xarr_snuc, yarr_snuc, xarr_nw, yarr_nw, valid_indices, figdir):
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
     """
@@ -53,6 +53,7 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     mappings_sii_halpha_v250, mappings_sii_halpha_v300, mappings_sii_halpha_v500,\
     mappings_sii_halpha_v800 = bpt.mappings_oi_nii_sii()
 
+    # -------------- Actual plotting -------------- #
     ax.errorbar(xarr_br[valid_indices], yarr_br[valid_indices], \
         xerr=xarr_err_br[valid_indices], yerr=yarr_err_br[valid_indices], \
         color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
@@ -62,6 +63,10 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     ax.errorbar(xarr_s[valid_indices], yarr_s[valid_indices], \
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
         color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+
+    # Circle interesting regions
+    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=50, edgecolors='lightblue', facecolors='none')
+    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='olive', facecolors='none')
 
     if plottype == 'nii':
         ax.set_xlabel(r'$\mathrm{log\left( \frac{[NII]}{H\alpha} \right)}$', fontsize=15)
@@ -239,6 +244,53 @@ def overlay_spatial_mask_on_sdss(spatial_mask_idx):
 
     return None
 
+def apply_mask(mask_to_apply):
+
+    # comp1
+    nii_halpha_withcut_comp1_withmask = ma.array(nii_halpha_withcut_comp1, mask=mask_to_apply)
+    oi_halpha_withcut_comp1_withmask = ma.array(oi_halpha_withcut_comp1, mask=mask_to_apply)
+    sii_halpha_withcut_comp1_withmask = ma.array(sii_halpha_withcut_comp1, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_withcut_comp1_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_oi_withcut_comp1_withmask = ma.array(oiii_hbeta_for_oi_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_sii_withcut_comp1_withmask = ma.array(oiii_hbeta_for_sii_withcut_comp1, mask=mask_to_apply)
+
+    # Errors
+    nii_halpha_err_withcut_comp1_withmask = ma.array(nii_halpha_err_withcut_comp1, mask=mask_to_apply)
+    oi_halpha_err_withcut_comp1_withmask = ma.array(oi_halpha_err_withcut_comp1, mask=mask_to_apply)
+    sii_halpha_err_withcut_comp1_withmask = ma.array(sii_halpha_err_withcut_comp1, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_err_withcut_comp1_withmask = ma.array(oiii_hbeta_for_nii_err_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_oi_err_withcut_comp1_withmask = ma.array(oiii_hbeta_for_oi_err_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_sii_err_withcut_comp1_withmask = ma.array(oiii_hbeta_for_sii_err_withcut_comp1, mask=mask_to_apply)
+
+    # comp2
+    nii_halpha_withcut_comp2_withmask = ma.array(nii_halpha_withcut_comp2, mask=mask_to_apply)
+    oi_halpha_withcut_comp2_withmask = ma.array(oi_halpha_withcut_comp2, mask=mask_to_apply)
+    sii_halpha_withcut_comp2_withmask = ma.array(sii_halpha_withcut_comp2, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_withcut_comp2_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_oi_withcut_comp2_withmask = ma.array(oiii_hbeta_for_oi_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_sii_withcut_comp2_withmask = ma.array(oiii_hbeta_for_sii_withcut_comp2, mask=mask_to_apply)
+
+    # Errors
+    nii_halpha_err_withcut_comp2_withmask = ma.array(nii_halpha_err_withcut_comp2, mask=mask_to_apply)
+    oi_halpha_err_withcut_comp2_withmask = ma.array(oi_halpha_err_withcut_comp2, mask=mask_to_apply)
+    sii_halpha_err_withcut_comp2_withmask = ma.array(sii_halpha_err_withcut_comp2, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_err_withcut_comp2_withmask = ma.array(oiii_hbeta_for_nii_err_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_oi_err_withcut_comp2_withmask = ma.array(oiii_hbeta_for_oi_err_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_sii_err_withcut_comp2_withmask = ma.array(oiii_hbeta_for_sii_err_withcut_comp2, mask=mask_to_apply)
+
+    return nii_halpha_withcut_comp1_withmask, oi_halpha_withcut_comp1_withmask, sii_halpha_withcut_comp1_withmask, \
+    oiii_hbeta_for_nii_withcut_comp1_withmask, oiii_hbeta_for_oi_withcut_comp1_withmask, oiii_hbeta_for_sii_withcut_comp1_withmask, \
+    nii_halpha_err_withcut_comp1_withmask, oi_halpha_err_withcut_comp1_withmask, sii_halpha_err_withcut_comp1_withmask, \
+    oiii_hbeta_for_nii_err_withcut_comp1_withmask, oiii_hbeta_for_oi_err_withcut_comp1_withmask, oiii_hbeta_for_sii_err_withcut_comp1_withmask, \
+    nii_halpha_withcut_comp2_withmask, oi_halpha_withcut_comp2_withmask, sii_halpha_withcut_comp2_withmask, \
+    oiii_hbeta_for_nii_withcut_comp2_withmask, oiii_hbeta_for_oi_withcut_comp2_withmask, oiii_hbeta_for_sii_withcut_comp2_withmask, \
+    nii_halpha_err_withcut_comp2_withmask, oi_halpha_err_withcut_comp2_withmask, sii_halpha_err_withcut_comp2_withmask, \
+    oiii_hbeta_for_nii_err_withcut_comp2_withmask, oiii_hbeta_for_oi_err_withcut_comp2_withmask, oiii_hbeta_for_sii_err_withcut_comp2_withmask
+
 if __name__ == '__main__':
     
     # Start time
@@ -361,6 +413,12 @@ if __name__ == '__main__':
     bridge_mask = vcm.get_region_mask('bridge_bpt_new')
     north_mask = vcm.get_region_mask('north_galaxy_bpt')
     south_mask = vcm.get_region_mask('south_galaxy_bpt')
+
+    # ------------- Use the saved specific region masks to circle interesting points in the BPT ------------- #
+    # i.e. like the south nucleus and the north west regions
+    # Read masks in
+    south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
+    north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
 
     # Apply checker board pattern mask to only select independent spaxels
     # Very simple and elegant solution came from here:
@@ -532,6 +590,26 @@ if __name__ == '__main__':
     sys.exit(0)
     """
 
+    nii_halpha_withcut_southnuc_comp1, oi_halpha_withcut_southnuc_comp1, sii_halpha_withcut_southnuc_comp1, \
+    oiii_hbeta_for_nii_withcut_southnuc_comp1, oiii_hbeta_for_oi_withcut_southnuc_comp1, oiii_hbeta_for_sii_withcut_southnuc_comp1, \
+    nii_halpha_err_withcut_southnuc_comp1, oi_halpha_err_withcut_southnuc_comp1, sii_halpha_err_withcut_southnuc_comp1, \
+    oiii_hbeta_for_nii_err_withcut_southnuc_comp1, oiii_hbeta_for_oi_err_withcut_southnuc_comp1, oiii_hbeta_for_sii_err_withcut_southnuc_comp1, \
+    nii_halpha_withcut_southnuc_comp2, oi_halpha_withcut_southnuc_comp2, sii_halpha_withcut_southnuc_comp2, \
+    oiii_hbeta_for_nii_withcut_southnuc_comp2, oiii_hbeta_for_oi_withcut_southnuc_comp2, oiii_hbeta_for_sii_withcut_southnuc_comp2, \
+    nii_halpha_err_withcut_southnuc_comp2, oi_halpha_err_withcut_southnuc_comp2, sii_halpha_err_withcut_southnuc_comp2, \
+    oiii_hbeta_for_nii_err_withcut_southnuc_comp2, oiii_hbeta_for_oi_err_withcut_southnuc_comp2, oiii_hbeta_for_sii_err_withcut_southnuc_comp2 \
+    = apply_mask(south_nuc_mask)
+
+    nii_halpha_withcut_nw_comp1, oi_halpha_withcut_nw_comp1, sii_halpha_withcut_nw_comp1, \
+    oiii_hbeta_for_nii_withcut_nw_comp1, oiii_hbeta_for_oi_withcut_nw_comp1, oiii_hbeta_for_sii_withcut_nw_comp1, \
+    nii_halpha_err_withcut_nw_comp1, oi_halpha_err_withcut_nw_comp1, sii_halpha_err_withcut_nw_comp1, \
+    oiii_hbeta_for_nii_err_withcut_nw_comp1, oiii_hbeta_for_oi_err_withcut_nw_comp1, oiii_hbeta_for_sii_err_withcut_nw_comp1, \
+    nii_halpha_withcut_nw_comp2, oi_halpha_withcut_nw_comp2, sii_halpha_withcut_nw_comp2, \
+    oiii_hbeta_for_nii_withcut_nw_comp2, oiii_hbeta_for_oi_withcut_nw_comp2, oiii_hbeta_for_sii_withcut_nw_comp2, \
+    nii_halpha_err_withcut_nw_comp2, oi_halpha_err_withcut_nw_comp2, sii_halpha_err_withcut_nw_comp2, \
+    oiii_hbeta_for_nii_err_withcut_nw_comp2, oiii_hbeta_for_oi_err_withcut_nw_comp2, oiii_hbeta_for_sii_err_withcut_nw_comp2 \
+    = apply_mask(north_west_mask)
+
     # plot bpt diagrams
     # BPT with [NII]
     # -------------- component 1 -------------- #
@@ -539,12 +617,16 @@ if __name__ == '__main__':
     oiii_hbeta_for_nii_withcut_north_comp1, nii_halpha_withcut_south_comp1, oiii_hbeta_for_nii_withcut_south_comp1, \
     nii_halpha_err_withcut_bridge_comp1, oiii_hbeta_for_nii_err_withcut_bridge_comp1, nii_halpha_err_withcut_north_comp1, \
     oiii_hbeta_for_nii_err_withcut_north_comp1, nii_halpha_err_withcut_south_comp1, oiii_hbeta_for_nii_err_withcut_south_comp1, \
+    nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
+    nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1,
     np.nonzero(nii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('nii', '2', nii_halpha_withcut_bridge_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, nii_halpha_withcut_north_comp2, \
     oiii_hbeta_for_nii_withcut_north_comp2, nii_halpha_withcut_south_comp2, oiii_hbeta_for_nii_withcut_south_comp2, \
     nii_halpha_err_withcut_bridge_comp2, oiii_hbeta_for_nii_err_withcut_bridge_comp2, nii_halpha_err_withcut_north_comp2, \
     oiii_hbeta_for_nii_err_withcut_north_comp2, nii_halpha_err_withcut_south_comp2, oiii_hbeta_for_nii_err_withcut_south_comp2, \
+    nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2, \
+    nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2,
     np.nonzero(nii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [OI]
@@ -553,12 +635,16 @@ if __name__ == '__main__':
     oiii_hbeta_for_oi_withcut_north_comp1, oi_halpha_withcut_south_comp1, oiii_hbeta_for_oi_withcut_south_comp1, \
     oi_halpha_err_withcut_bridge_comp1, oiii_hbeta_for_oi_err_withcut_bridge_comp1, oi_halpha_err_withcut_north_comp1, \
     oiii_hbeta_for_oi_err_withcut_north_comp1, oi_halpha_err_withcut_south_comp1, oiii_hbeta_for_oi_err_withcut_south_comp1, \
+    oi_halpha_withcut_southnuc_comp1, oiii_hbeta_for_oi_withcut_southnuc_comp1, \
+    oi_halpha_withcut_nw_comp1, oiii_hbeta_for_oi_withcut_nw_comp1,
     np.nonzero(oi_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('oi', '2', oi_halpha_withcut_bridge_comp2, oiii_hbeta_for_oi_withcut_bridge_comp2, oi_halpha_withcut_north_comp2, \
     oiii_hbeta_for_oi_withcut_north_comp2, oi_halpha_withcut_south_comp2, oiii_hbeta_for_oi_withcut_south_comp2, \
     oi_halpha_err_withcut_bridge_comp2, oiii_hbeta_for_oi_err_withcut_bridge_comp2, oi_halpha_err_withcut_north_comp2, \
     oiii_hbeta_for_oi_err_withcut_north_comp2, oi_halpha_err_withcut_south_comp2, oiii_hbeta_for_oi_err_withcut_south_comp2, \
+    oi_halpha_withcut_southnuc_comp2, oiii_hbeta_for_oi_withcut_southnuc_comp2, \
+    oi_halpha_withcut_nw_comp2, oiii_hbeta_for_oi_withcut_nw_comp2,
     np.nonzero(oi_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [SII]
@@ -567,12 +653,16 @@ if __name__ == '__main__':
     oiii_hbeta_for_sii_withcut_north_comp1, sii_halpha_withcut_south_comp1, oiii_hbeta_for_sii_withcut_south_comp1, \
     sii_halpha_err_withcut_bridge_comp1, oiii_hbeta_for_sii_err_withcut_bridge_comp1, sii_halpha_err_withcut_north_comp1, \
     oiii_hbeta_for_sii_err_withcut_north_comp1, sii_halpha_err_withcut_south_comp1, oiii_hbeta_for_sii_err_withcut_south_comp1, \
+    sii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_sii_withcut_southnuc_comp1, \
+    sii_halpha_withcut_nw_comp1, oiii_hbeta_for_sii_withcut_nw_comp1,
     np.nonzero(sii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('sii', '2', sii_halpha_withcut_bridge_comp2, oiii_hbeta_for_sii_withcut_bridge_comp2, sii_halpha_withcut_north_comp2, \
     oiii_hbeta_for_sii_withcut_north_comp2, sii_halpha_withcut_south_comp2, oiii_hbeta_for_sii_withcut_south_comp2, \
     sii_halpha_err_withcut_bridge_comp2, oiii_hbeta_for_sii_err_withcut_bridge_comp2, sii_halpha_err_withcut_north_comp2, \
     oiii_hbeta_for_sii_err_withcut_north_comp2, sii_halpha_err_withcut_south_comp2, oiii_hbeta_for_sii_err_withcut_south_comp2, \
+    sii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_sii_withcut_southnuc_comp2, \
+    sii_halpha_withcut_nw_comp2, oiii_hbeta_for_sii_withcut_nw_comp2,
     np.nonzero(sii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # total run time
