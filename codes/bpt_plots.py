@@ -615,6 +615,30 @@ def getallmasks(shape):
 
     return bridge_mask, north_mask, south_mask
 
+def apply_mask(mask_to_apply):
+
+    nii_halpha_withcut_withmask = ma.array(nii_halpha_withcut, mask=mask_to_apply)
+    oi_halpha_withcut_withmask = ma.array(oi_halpha_withcut, mask=mask_to_apply)
+    sii_halpha_withcut_withmask = ma.array(sii_halpha_withcut, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_withcut_withmask = ma.array(oiii_hbeta_for_nii_withcut, mask=mask_to_apply)
+    oiii_hbeta_for_oi_withcut_withmask = ma.array(oiii_hbeta_for_oi_withcut, mask=mask_to_apply)
+    oiii_hbeta_for_sii_withcut_withmask = ma.array(oiii_hbeta_for_sii_withcut, mask=mask_to_apply)
+
+    # on errors
+    nii_halpha_err_withcut_withmask = ma.array(nii_halpha_err_withcut, mask=mask_to_apply)
+    oi_halpha_err_withcut_withmask = ma.array(oi_halpha_err_withcut, mask=mask_to_apply)
+    sii_halpha_err_withcut_withmask = ma.array(sii_halpha_err_withcut, mask=mask_to_apply)
+
+    oiii_hbeta_for_nii_err_withcut_withmask = ma.array(oiii_hbeta_for_nii_err_withcut, mask=mask_to_apply)
+    oiii_hbeta_for_oi_err_withcut_withmask = ma.array(oiii_hbeta_for_oi_err_withcut, mask=mask_to_apply)
+    oiii_hbeta_for_sii_err_withcut_withmask = ma.array(oiii_hbeta_for_sii_err_withcut, mask=mask_to_apply)
+
+    return nii_halpha_withcut_withmask, oi_halpha_withcut_withmask, sii_halpha_withcut_withmask, \
+    oiii_hbeta_for_nii_withcut_withmask, oiii_hbeta_for_oi_withcut_withmask, oiii_hbeta_for_sii_withcut_withmask, \
+    nii_halpha_err_withcut_withmask, oi_halpha_err_withcut_withmask, sii_halpha_err_withcut_withmask, \
+    oiii_hbeta_for_nii_err_withcut_withmask, oiii_hbeta_for_oi_err_withcut_withmask, oiii_hbeta_for_sii_err_withcut_withmask
+
 if __name__ == '__main__':
     
     # Start time
@@ -673,6 +697,7 @@ if __name__ == '__main__':
     # Read masks in
     south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
     north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
+    north_bridge_mask = vcm.get_region_mask('north_bridge_bpt')
 
     # Combine all masks with checker board mask
     # See checkerboard mask comment in BPT velo comp code
@@ -688,67 +713,48 @@ if __name__ == '__main__':
     south_mask = south_mask.astype(bool)
     south_nuc_mask = south_nuc_mask.astype(bool)
     north_west_mask = north_west_mask.astype(bool)
+    north_bridge_mask = north_bridge_mask.astype(bool)
 
     bridge_mask = np.ma.mask_or(checkerboard_mask, bridge_mask)
     north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
     south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
     south_nuc_mask = np.ma.mask_or(checkerboard_mask, south_nuc_mask)
     north_west_mask = np.ma.mask_or(checkerboard_mask, north_west_mask)
+    north_bridge_mask = np.ma.mask_or(checkerboard_mask, north_bridge_mask)
 
-    # apply south nuc mask
-    nii_halpha_withcut_snuc = ma.array(nii_halpha_withcut, mask=south_nuc_mask)
-    oi_halpha_withcut_snuc = ma.array(oi_halpha_withcut, mask=south_nuc_mask)
-    sii_halpha_withcut_snuc = ma.array(sii_halpha_withcut, mask=south_nuc_mask)
+    nii_halpha_withcut_snuc, oi_halpha_withcut_snuc, sii_halpha_withcut_snuc, \
+    oiii_hbeta_for_nii_withcut_snuc, oiii_hbeta_for_oi_withcut_snuc, oiii_hbeta_for_sii_withcut_snuc, \
+    nii_halpha_err_withcut_snuc, oi_halpha_err_withcut_snuc, sii_halpha_err_withcut_snuc, \
+    oiii_hbeta_for_nii_err_withcut_snuc, oiii_hbeta_for_oi_err_withcut_snuc, oiii_hbeta_for_sii_err_withcut_snuc = apply_mask(south_nuc_mask)
 
-    oiii_hbeta_for_nii_withcut_snuc = ma.array(oiii_hbeta_for_nii_withcut, mask=south_nuc_mask)
-    oiii_hbeta_for_oi_withcut_snuc = ma.array(oiii_hbeta_for_oi_withcut, mask=south_nuc_mask)
-    oiii_hbeta_for_sii_withcut_snuc = ma.array(oiii_hbeta_for_sii_withcut, mask=south_nuc_mask)
+    nii_halpha_withcut_nw, oi_halpha_withcut_nw, sii_halpha_withcut_nw, \
+    oiii_hbeta_for_nii_withcut_nw, oiii_hbeta_for_oi_withcut_nw, oiii_hbeta_for_sii_withcut_nw, \
+    nii_halpha_err_withcut_nw, oi_halpha_err_withcut_nw, sii_halpha_err_withcut_nw, \
+    oiii_hbeta_for_nii_err_withcut_nw, oiii_hbeta_for_oi_err_withcut_nw, oiii_hbeta_for_sii_err_withcut_nw = apply_mask(north_west_mask)
 
-    # on errors
-    nii_halpha_err_withcut_snuc = ma.array(nii_halpha_err_withcut, mask=south_nuc_mask)
-    oi_halpha_err_withcut_snuc = ma.array(oi_halpha_err_withcut, mask=south_nuc_mask)
-    sii_halpha_err_withcut_snuc = ma.array(sii_halpha_err_withcut, mask=south_nuc_mask)
+    nii_halpha_withcut_nb, oi_halpha_withcut_nb, sii_halpha_withcut_nb, \
+    oiii_hbeta_for_nii_withcut_nb, oiii_hbeta_for_oi_withcut_nb, oiii_hbeta_for_sii_withcut_nb, \
+    nii_halpha_err_withcut_nb, oi_halpha_err_withcut_nb, sii_halpha_err_withcut_nb, \
+    oiii_hbeta_for_nii_err_withcut_nb, oiii_hbeta_for_oi_err_withcut_nb, oiii_hbeta_for_sii_err_withcut_nb = apply_mask(north_bridge_mask)
 
-    oiii_hbeta_for_nii_err_withcut_snuc = ma.array(oiii_hbeta_for_nii_err_withcut, mask=south_nuc_mask)
-    oiii_hbeta_for_oi_err_withcut_snuc = ma.array(oiii_hbeta_for_oi_err_withcut, mask=south_nuc_mask)
-    oiii_hbeta_for_sii_err_withcut_snuc = ma.array(oiii_hbeta_for_sii_err_withcut, mask=south_nuc_mask)
+    nii_halpha_withcut_bridge, oi_halpha_withcut_bridge, sii_halpha_withcut_bridge, \
+    oiii_hbeta_for_nii_withcut_bridge, oiii_hbeta_for_oi_withcut_bridge, oiii_hbeta_for_sii_withcut_bridge, \
+    nii_halpha_err_withcut_bridge, oi_halpha_err_withcut_bridge, sii_halpha_err_withcut_bridge, \
+    oiii_hbeta_for_nii_err_withcut_bridge, oiii_hbeta_for_oi_err_withcut_bridge, oiii_hbeta_for_sii_err_withcut_bridge = apply_mask(bridge_mask)
 
-    # apply north west mask
-    nii_halpha_withcut_nw = ma.array(nii_halpha_withcut, mask=north_west_mask)
-    oi_halpha_withcut_nw = ma.array(oi_halpha_withcut, mask=north_west_mask)
-    sii_halpha_withcut_nw = ma.array(sii_halpha_withcut, mask=north_west_mask)
+    nii_halpha_withcut_north, oi_halpha_withcut_north, sii_halpha_withcut_north, \
+    oiii_hbeta_for_nii_withcut_north, oiii_hbeta_for_oi_withcut_north, oiii_hbeta_for_sii_withcut_north, \
+    nii_halpha_err_withcut_north, oi_halpha_err_withcut_north, sii_halpha_err_withcut_north, \
+    oiii_hbeta_for_nii_err_withcut_north, oiii_hbeta_for_oi_err_withcut_north, oiii_hbeta_for_sii_err_withcut_north = apply_mask(north_mask)
 
-    oiii_hbeta_for_nii_withcut_nw = ma.array(oiii_hbeta_for_nii_withcut, mask=north_west_mask)
-    oiii_hbeta_for_oi_withcut_nw = ma.array(oiii_hbeta_for_oi_withcut, mask=north_west_mask)
-    oiii_hbeta_for_sii_withcut_nw = ma.array(oiii_hbeta_for_sii_withcut, mask=north_west_mask)
+    nii_halpha_withcut_south, oi_halpha_withcut_south, sii_halpha_withcut_south, \
+    oiii_hbeta_for_nii_withcut_south, oiii_hbeta_for_oi_withcut_south, oiii_hbeta_for_sii_withcut_south, \
+    nii_halpha_err_withcut_south, oi_halpha_err_withcut_south, sii_halpha_err_withcut_south, \
+    oiii_hbeta_for_nii_err_withcut_south, oiii_hbeta_for_oi_err_withcut_south, oiii_hbeta_for_sii_err_withcut_south = apply_mask(south_mask)
 
-    # on errors
-    nii_halpha_err_withcut_nw = ma.array(nii_halpha_err_withcut, mask=north_west_mask)
-    oi_halpha_err_withcut_nw = ma.array(oi_halpha_err_withcut, mask=north_west_mask)
-    sii_halpha_err_withcut_nw = ma.array(sii_halpha_err_withcut, mask=north_west_mask)
-
-    oiii_hbeta_for_nii_err_withcut_nw = ma.array(oiii_hbeta_for_nii_err_withcut, mask=north_west_mask)
-    oiii_hbeta_for_oi_err_withcut_nw = ma.array(oiii_hbeta_for_oi_err_withcut, mask=north_west_mask)
-    oiii_hbeta_for_sii_err_withcut_nw = ma.array(oiii_hbeta_for_sii_err_withcut, mask=north_west_mask)
-
+    # -------------------
+    """
     # apply bridge mask
-    nii_halpha_withcut_bridge = ma.array(nii_halpha_withcut, mask=bridge_mask)
-    oi_halpha_withcut_bridge = ma.array(oi_halpha_withcut, mask=bridge_mask)
-    sii_halpha_withcut_bridge = ma.array(sii_halpha_withcut, mask=bridge_mask)
-
-    oiii_hbeta_for_nii_withcut_bridge = ma.array(oiii_hbeta_for_nii_withcut, mask=bridge_mask)
-    oiii_hbeta_for_oi_withcut_bridge = ma.array(oiii_hbeta_for_oi_withcut, mask=bridge_mask)
-    oiii_hbeta_for_sii_withcut_bridge = ma.array(oiii_hbeta_for_sii_withcut, mask=bridge_mask)
-
-    # on errors
-    nii_halpha_err_withcut_bridge = ma.array(nii_halpha_err_withcut, mask=bridge_mask)
-    oi_halpha_err_withcut_bridge = ma.array(oi_halpha_err_withcut, mask=bridge_mask)
-    sii_halpha_err_withcut_bridge = ma.array(sii_halpha_err_withcut, mask=bridge_mask)
-
-    oiii_hbeta_for_nii_err_withcut_bridge = ma.array(oiii_hbeta_for_nii_err_withcut, mask=bridge_mask)
-    oiii_hbeta_for_oi_err_withcut_bridge = ma.array(oiii_hbeta_for_oi_err_withcut, mask=bridge_mask)
-    oiii_hbeta_for_sii_err_withcut_bridge = ma.array(oiii_hbeta_for_sii_err_withcut, mask=bridge_mask)
-
     halpha_withcut_bridge = ma.array(halpha_withcut, mask=bridge_mask)
     hbeta_withcut_bridge = ma.array(hbeta_withcut, mask=bridge_mask)
     oiii5007_withcut_bridge = ma.array(oiii5007_withcut, mask=bridge_mask)
@@ -757,23 +763,6 @@ if __name__ == '__main__':
     sii_withcut_bridge = ma.array(sii_withcut, mask=bridge_mask)
 
     # apply north mask
-    nii_halpha_withcut_north = ma.array(nii_halpha_withcut, mask=north_mask)
-    oi_halpha_withcut_north = ma.array(oi_halpha_withcut, mask=north_mask)
-    sii_halpha_withcut_north = ma.array(sii_halpha_withcut, mask=north_mask)
-
-    oiii_hbeta_for_nii_withcut_north = ma.array(oiii_hbeta_for_nii_withcut, mask=north_mask)
-    oiii_hbeta_for_oi_withcut_north = ma.array(oiii_hbeta_for_oi_withcut, mask=north_mask)
-    oiii_hbeta_for_sii_withcut_north = ma.array(oiii_hbeta_for_sii_withcut, mask=north_mask)
-
-    # on errors
-    nii_halpha_err_withcut_north = ma.array(nii_halpha_err_withcut, mask=north_mask)
-    oi_halpha_err_withcut_north = ma.array(oi_halpha_err_withcut, mask=north_mask)
-    sii_halpha_err_withcut_north = ma.array(sii_halpha_err_withcut, mask=north_mask)
-
-    oiii_hbeta_for_nii_err_withcut_north = ma.array(oiii_hbeta_for_nii_err_withcut, mask=north_mask)
-    oiii_hbeta_for_oi_err_withcut_north = ma.array(oiii_hbeta_for_oi_err_withcut, mask=north_mask)
-    oiii_hbeta_for_sii_err_withcut_north = ma.array(oiii_hbeta_for_sii_err_withcut, mask=north_mask)
-
     halpha_withcut_north = ma.array(halpha_withcut, mask=north_mask)
     hbeta_withcut_north = ma.array(hbeta_withcut, mask=north_mask)
     oiii5007_withcut_north = ma.array(oiii5007_withcut, mask=north_mask)
@@ -782,29 +771,13 @@ if __name__ == '__main__':
     sii_withcut_north = ma.array(sii_withcut, mask=north_mask)
 
     # apply south mask
-    nii_halpha_withcut_south = ma.array(nii_halpha_withcut, mask=south_mask)
-    oi_halpha_withcut_south = ma.array(oi_halpha_withcut, mask=south_mask)
-    sii_halpha_withcut_south = ma.array(sii_halpha_withcut, mask=south_mask)
-
-    oiii_hbeta_for_nii_withcut_south = ma.array(oiii_hbeta_for_nii_withcut, mask=south_mask)
-    oiii_hbeta_for_oi_withcut_south = ma.array(oiii_hbeta_for_oi_withcut, mask=south_mask)
-    oiii_hbeta_for_sii_withcut_south = ma.array(oiii_hbeta_for_sii_withcut, mask=south_mask)
-
-    # on errors
-    nii_halpha_err_withcut_south = ma.array(nii_halpha_err_withcut, mask=south_mask)
-    oi_halpha_err_withcut_south = ma.array(oi_halpha_err_withcut, mask=south_mask)
-    sii_halpha_err_withcut_south = ma.array(sii_halpha_err_withcut, mask=south_mask)
-
-    oiii_hbeta_for_nii_err_withcut_south = ma.array(oiii_hbeta_for_nii_err_withcut, mask=south_mask)
-    oiii_hbeta_for_oi_err_withcut_south = ma.array(oiii_hbeta_for_oi_err_withcut, mask=south_mask)
-    oiii_hbeta_for_sii_err_withcut_south = ma.array(oiii_hbeta_for_sii_err_withcut, mask=south_mask)
-
     halpha_withcut_south = ma.array(halpha_withcut, mask=south_mask)
     hbeta_withcut_south = ma.array(hbeta_withcut, mask=south_mask)
     oiii5007_withcut_south = ma.array(oiii5007_withcut, mask=south_mask)
     oi6300_withcut_south = ma.array(oi6300_withcut, mask=south_mask)
     nii6583_withcut_south = ma.array(nii6583_withcut, mask=south_mask)
     sii_withcut_south = ma.array(sii_withcut, mask=south_mask)
+    """
 
     # read in Mappings III models and overplot
     mappings_oi_halpha_v100, mappings_oi_halpha_v125, mappings_oi_halpha_v150,\
@@ -865,6 +838,8 @@ if __name__ == '__main__':
         s=50, facecolors='None', edgecolors='lightblue')
     ax.scatter(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
         s=50, facecolors='None', edgecolors='olive')
+    ax.scatter(nii_halpha_withcut_nb[nii_nonzero], oiii_hbeta_for_nii_withcut_nb[nii_nonzero], \
+        s=50, facecolors='None', edgecolors='rebeccapurple')
 
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -945,6 +920,8 @@ if __name__ == '__main__':
         s=50, facecolors='None', edgecolors='lightblue')
     ax.scatter(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
         s=50, facecolors='None', edgecolors='olive')
+    ax.scatter(oi_halpha_withcut_nb[oi_nonzero], oiii_hbeta_for_oi_withcut_nb[oi_nonzero], \
+        s=50, facecolors='None', edgecolors='rebeccapurple')
 
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -1024,6 +1001,8 @@ if __name__ == '__main__':
         s=50, facecolors='None', edgecolors='lightblue')
     ax.scatter(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
         s=50, facecolors='None', edgecolors='olive')
+    ax.scatter(sii_halpha_withcut_nb[sii_nonzero], oiii_hbeta_for_sii_withcut_nb[sii_nonzero], \
+        s=50, facecolors='None', edgecolors='rebeccapurple')
 
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
