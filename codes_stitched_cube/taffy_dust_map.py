@@ -35,6 +35,11 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         line_total = line_map[0].data[0]
         line_total_err = line_map_err[0].data[0]
 
+        # Remove the -9999.0 values before you do the correction 
+        # because they won't remain -9999.0 after teh correction is multiplied.
+        line_total[np.where(line_total == -9999.0)] = np.nan
+        line_total_err[np.where(line_total_err == -9999.0)] = np.nan
+
         # Get ext corr line map and error map
         ext_corr_line_map = line_total * 10**(0.4 * current_ext_map)
         ext_corr_line_err = line_total_err * 10**(0.4 * current_ext_map)
@@ -90,9 +95,95 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
 
     return None
 
-def get_halpha_lum():
+def get_halpha_lum(stitched_cube, a_Halpha_map):
 
+    # Factor for converting flux to luminosity for Taffy
+    flux_to_lum = 4 * np.pi * (63.2 * 1e6 * 3.08567758128e18)**2  # lum dist to Taffy assumed to be 63.2 Mpc
+
+    # -----------------
+    # Read in total and indivdual vel comp
+    halpha = stitched_cube['HALPHA'].data[0]
+    halpha_comp1 = stitched_cube['HALPHA'].data[1]
+    halpha_comp2 = stitched_cube['HALPHA'].data[2]
     
+    # Read in total and indivdual vel comp ERRORS
+    halpha_err = stitched_cube['HALPHA_ERR'].data[0]
+    halpha_comp1_err = stitched_cube['HALPHA_ERR'].data[1]
+    halpha_comp2_err = stitched_cube['HALPHA_ERR'].data[2]
+
+    # -----------------
+    # Remove the -9999.0 values before you do the correction 
+    # because they won't remain -9999.0 after teh correction is multiplied.
+    halpha[np.where(halpha == -9999.0)] = np.nan
+    halpha_comp1[np.where(halpha_comp1 == -9999.0)] = np.nan
+    halpha_comp2[np.where(halpha_comp2 == -9999.0)] = np.nan
+    halpha_err[np.where(halpha_err == -9999.0)] = np.nan
+    halpha_comp1_err[np.where(halpha_comp1_err == -9999.0)] = np.nan
+    halpha_comp2_err[np.where(halpha_comp2_err == -9999.0)] = np.nan
+
+    # -----------------
+    # Get ext corr line map and error map
+    ext_corr_halpha = halpha * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+    ext_corr_halpha_comp1 = halpha_comp1 * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+    ext_corr_halpha_comp2 = halpha_comp2 * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+
+    ext_corr_halpha_err = halpha_err * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+    ext_corr_halpha_comp1_err = halpha_comp1_err * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+    ext_corr_halpha_comp2_err = halpha_comp2_err * 10**(0.4 * a_Halpha_map) * 1e-18 * flux_to_lum
+
+    # -----------------
+    # Print total luminosity after getting valid and finite indices
+    val_halpha = ext_corr_halpha[np.where(ext_corr_halpha != -9999.0)]
+    val_halpha_err = ext_corr_halpha_err[np.where(ext_corr_halpha_err != -9999.0)]
+    print "Total H-alpha luminosity:", "{:.3e}".format(np.sum(val_halpha[np.isfinite(val_halpha)])), "+-",
+    print "{:.3e}".format(np.sum(val_halpha_err[np.isfinite(val_halpha_err)]))
+
+    val_halpha_comp1 = ext_corr_halpha_comp1[np.where(ext_corr_halpha_comp1 != -9999.0)]
+    val_halpha_comp1_err = ext_corr_halpha_comp1_err[np.where(ext_corr_halpha_comp1_err != -9999.0)]
+    print "Total H-alpha comp1 luminosity:", "{:.3e}".format(np.sum(val_halpha_comp1[np.isfinite(val_halpha_comp1)])), "+-",
+    print "{:.3e}".format(np.sum(val_halpha_comp1_err[np.isfinite(val_halpha_comp1_err)]))
+    lum_ha_low_int = np.sum(val_halpha_comp1[np.isfinite(val_halpha_comp1)])
+    lum_ha_low_int_err = np.sum(val_halpha_comp1_err[np.isfinite(val_halpha_comp1_err)])
+
+    val_halpha_comp2 = ext_corr_halpha_comp2[np.where(ext_corr_halpha_comp2 != -9999.0)]
+    val_halpha_comp2_err = ext_corr_halpha_comp2_err[np.where(ext_corr_halpha_comp2_err != -9999.0)]
+    print "Total H-alpha comp2 luminosity:", "{:.3e}".format(np.sum(val_halpha_comp2[np.isfinite(val_halpha_comp2)])), "+-",
+    print "{:.3e}".format(np.sum(val_halpha_comp2_err[np.isfinite(val_halpha_comp2_err)]))
+    lum_ha_high_int = np.sum(val_halpha_comp2[np.isfinite(val_halpha_comp2)])
+    lum_ha_high_int_err = np.sum(val_halpha_comp2_err[np.isfinite(val_halpha_comp2_err)])
+
+    # -----------------
+    # SF Luminosity
+    lum_ha_from_sf_int = 0.63*lum_ha_low_int + 0.45*lum_ha_high_int
+    lum_ha_from_sf_int_err = 0.63*lum_ha_low_int_err + 0.45*lum_ha_high_int_err
+    print lum_ha_from_sf_int, "+-", lum_ha_from_sf_int_err
+
+    # From the bridge
+    bridge_mask = vcm.get_region_mask('bridge_bpt_new')
+
+    ext_corr_halpha_comp1_br = ma.array(ext_corr_halpha_comp1, mask=bridge_mask)
+    ext_corr_halpha_comp2_br = ma.array(ext_corr_halpha_comp2, mask=bridge_mask)
+    ext_corr_halpha_comp1_br_err = ma.array(ext_corr_halpha_comp1_err, mask=bridge_mask)
+    ext_corr_halpha_comp2_br_err = ma.array(ext_corr_halpha_comp2_err, mask=bridge_mask)
+
+    val_halpha_br_comp1 = ext_corr_halpha_comp1_br[np.where(ext_corr_halpha_comp1_br != -9999.0)]
+    val_halpha_br_comp1_err = ext_corr_halpha_comp1_br_err[np.where(ext_corr_halpha_comp1_br_err != -9999.0)]
+    print "Total H-alpha comp1 luminosity in bridge:", "{:.3e}".format(np.sum(val_halpha_br_comp1[np.isfinite(val_halpha_br_comp1)])), "+-",
+    print "{:.3e}".format(np.sum(val_halpha_br_comp1_err[np.isfinite(val_halpha_br_comp1_err)]))
+    lum_ha_br_low_int = np.sum(val_halpha_br_comp1[np.isfinite(val_halpha_br_comp1)])
+    lum_ha_br_low_int_err = np.sum(val_halpha_br_comp1_err[np.isfinite(val_halpha_br_comp1_err)])
+
+    val_halpha_br_comp2 = ext_corr_halpha_comp2_br[np.where(ext_corr_halpha_comp2_br != -9999.0)]
+    val_halpha_br_comp2_err = ext_corr_halpha_comp2_br_err[np.where(ext_corr_halpha_comp2_br_err != -9999.0)]
+    print "Total H-alpha comp2 luminosity in bridge:", "{:.3e}".format(np.sum(val_halpha_br_comp2[np.isfinite(val_halpha_br_comp2)])), "+-",
+    print "{:.3e}".format(np.sum(val_halpha_br_comp2_err[np.isfinite(val_halpha_br_comp2_err)]))
+    lum_ha_br_high_int = np.sum(val_halpha_br_comp2[np.isfinite(val_halpha_br_comp2)])
+    lum_ha_br_high_int_err = np.sum(val_halpha_br_comp2_err[np.isfinite(val_halpha_br_comp2_err)])
+
+    # SF Luminosity
+    lum_ha_br_from_sf_int = 0.63*lum_ha_br_low_int + 0.45*lum_ha_br_high_int
+    lum_ha_br_from_sf_int_err = 0.63*lum_ha_br_low_int_err + 0.45*lum_ha_br_high_int_err
+    print lum_ha_br_from_sf_int, "+-", lum_ha_br_from_sf_int_err
 
     return None
 
@@ -142,6 +233,9 @@ if __name__ == '__main__':
     """
 
     # ----------------------------------- Read in arrays ----------------------------------- #
+    # Read in stitched cube
+    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+
     # read in halpha and hbeta maps from stitched cube
     halpha = fits.open(taffy_extdir + 'stitched_cube_HALPHA.fits')
     hbeta = fits.open(taffy_extdir + 'stitched_cube_HBETA.fits')
@@ -210,7 +304,7 @@ if __name__ == '__main__':
     all_extinction_maps = [a_Hbeta_map, a_OIII_5007_map, a_OI_6300_map, a_Halpha_map, a_NII_6583_map, a_SII_6716_map, a_SII_6731_map]
 
     correct_spaxel_wise(all_extinction_maps, line_name_list)
-    get_halpha_lum()
+    get_halpha_lum(stitched_cube, a_Halpha_map)
     sys.exit(0)
 
     # --------------------------------- Get average extinction values in the different regions and vel comps --------------------------------- #
