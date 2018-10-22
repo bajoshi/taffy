@@ -64,7 +64,7 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         val_line_total_n_err = line_total_n_err[i0_n]
         line_n_err = np.sum(val_line_total_n_err[np.isfinite(val_line_total_n_err)])
         print "\n"
-        print "Total", line_name_list[i], "intrinsic flux from north:", "{:.3e}".format(line_n), "+-", "{:.3e}".format(line_n_err)
+        print "Total", line_name_list[i], "intrinsic flux from north:", "{:.2f}".format(line_n), "+-", "{:.2f}".format(line_n_err)
 
         # ------- South
         i0_s = np.where(line_total_s != -9999.0)
@@ -75,7 +75,7 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         i0_s = np.where(line_total_s_err != -9999.0)
         val_line_total_s_err = line_total_s_err[i0_s]
         line_s_err = np.sum(val_line_total_s_err[np.isfinite(val_line_total_s_err)])
-        print "Total", line_name_list[i], "intrinsic flux from south:", "{:.3e}".format(line_s), "+-", "{:.3e}".format(line_s_err)
+        print "Total", line_name_list[i], "intrinsic flux from south:", "{:.2f}".format(line_s), "+-", "{:.2f}".format(line_s_err)
 
         # ------- Bridge
         i0_br = np.where(line_total_br != -9999.0)
@@ -86,11 +86,60 @@ def correct_spaxel_wise(all_extinction_maps, line_name_list):
         i0_br = np.where(line_total_br_err != -9999.0)
         val_line_total_br_err = line_total_br_err[i0_br]
         line_br_err = np.sum(val_line_total_br_err[np.isfinite(val_line_total_br_err)])
-        print "Total", line_name_list[i], "intrinsic flux from bridge:", "{:.3e}".format(line_br), "+-", "{:.3e}".format(line_br_err)
+        print "Total", line_name_list[i], "intrinsic flux from bridge:", "{:.2f}".format(line_br), "+-", "{:.2f}".format(line_br_err)
+
+    return None
+
+def get_halpha_lum():
+
+    
 
     return None
 
 if __name__ == '__main__':
+    """
+    To get extinction corrected emission line fluxes.
+
+    Getting the emission line fluxes by averaging A_lambda over regions 
+    and then applying that average to luminosity averaged over regions
+    versus the spaxel-by-spaxel way will give slightly different results.
+
+    For the former method:
+    The A_lambda average is computed from a map that HAS the checkerboard mask 
+    applied. This A_lambda average is then used with a line_map that DOES NOT
+    have the checkerboard (CB) mask applied. Since we confirmed that the original
+    spatial smoothing conserved the flux, I don't think we should be applying
+    the CB mask anywhere in this correction.
+
+    For the latter method:
+    The luminosities are corrected spaxel-by-spaxel with no regard to any mask.
+    The luminosities from different regions are then computed by applying the
+    individual region masks with NO CB mask applied.
+    This method is used in the correct_spaxel_wise() function above.
+
+    It will also be different simply because you're applying an average value
+    of dust extinction to another value averaged over the region which ignores
+    any small scale over/under-densities and only gives an average result.
+
+    ----------------------
+    Now to find the ratio and get dust extinction
+    assumes that all the halpha and hbeta comes from
+    case B which is not the case. We are explicitly saying 
+    htat some of the ionized gas emission comes from shocks.
+    you will have to break down the halpha and Hbeta emission 
+    into the fractions coming from shocks and from SF separately.
+
+    I do not think there is a way around this problem. To get the 
+    luminosity of any line that comes just from star-formation 
+    we need the extinction corrected values which we cannot do
+    without first doing this calculation. I do think the problem
+    is mitigated because this is a ratio but even so we should
+    mention the caveat (perhaps after the referee report) that 
+    our extinction values might be slightly overestimated.
+
+    loop over all pixels and get a ebv value for each
+    ebv[i,j] = 1.97 * np.log10(halpha[i,j]/hbeta[i,j] / 2.86)
+    """
 
     # ----------------------------------- Read in arrays ----------------------------------- #
     # read in halpha and hbeta maps from stitched cube
@@ -122,19 +171,6 @@ if __name__ == '__main__':
     val_idx = ma.mask_or(halpha_snrmask, hbeta_snrmask)
 
     # ----------------------------------- Make E(B-V) map ----------------------------------- #
-    # Now find the ratio and get dust extinction
-    # this assumes that all the halpha and hbeta comes from
-    # case B which is not the case. We are explicitly saying 
-    # htat some of the ionized gas emission comes from shocks.
-    # you will have to break down the halpha and Hbeta emission 
-    # into the fractions coming from shocks and from SF separately.
-
-    # halpha_from_sf = 
-    # hbeta_from_sf = 
-
-    # loop over all pixels and get a ebv value for each
-    # ebv[i,j] = 1.97 * np.log10(halpha[i,j]/hbeta[i,j] / 2.86)
-
     ebv_map = np.zeros((58,58))
 
     for i in range(58):
@@ -174,6 +210,7 @@ if __name__ == '__main__':
     all_extinction_maps = [a_Hbeta_map, a_OIII_5007_map, a_OI_6300_map, a_Halpha_map, a_NII_6583_map, a_SII_6716_map, a_SII_6731_map]
 
     correct_spaxel_wise(all_extinction_maps, line_name_list)
+    get_halpha_lum()
     sys.exit(0)
 
     # --------------------------------- Get average extinction values in the different regions and vel comps --------------------------------- #
@@ -184,6 +221,7 @@ if __name__ == '__main__':
 
     # Combine all masks with checker board mask
     # See checkerboard mask comment in BPT velo comp code
+    """
     checkerboard_mask = np.zeros((58,58), dtype=np.int)
     checkerboard_mask[::2, 1::2] = 1
     checkerboard_mask[1::2, ::2] = 1
@@ -198,6 +236,7 @@ if __name__ == '__main__':
     bridge_mask = np.ma.mask_or(checkerboard_mask, bridge_mask)
     north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
     south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
+    """
 
     # Now apply masks
     av_map_bridge = ma.array(av_map, mask=bridge_mask)
@@ -209,6 +248,7 @@ if __name__ == '__main__':
     print "Mean visual extinction in bridge:", np.nanmean(av_map_bridge)
 
     # ------------- Extinction at Halpha -------------- #
+    """
     a_halpha_map_bridge = ma.array(a_Halpha_map, mask=bridge_mask)
     a_halpha_map_north = ma.array(a_Halpha_map, mask=north_mask)
     a_halpha_map_south = ma.array(a_Halpha_map, mask=south_mask)
@@ -258,7 +298,6 @@ if __name__ == '__main__':
     lha_high_int_s = lha_high_obs_s * 10**(0.4 * aha_s)
     lha_high_int_br = lha_high_obs_br * 10**(0.4 * aha_br)
 
-    """
     print "\n"
     print "Intrinsic H-alpha luminosity in north galaxy in comp1:", lha_low_int_n
     print "Intrinsic H-alpha luminosity in south galaxy in comp1:", lha_low_int_s
@@ -268,7 +307,6 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity in north galaxy in comp2:", lha_high_int_n
     print "Intrinsic H-alpha luminosity in south galaxy in comp2:", lha_high_int_s
     print "Intrinsic H-alpha luminosity in bridge galaxy in comp2:", lha_high_int_br
-    """
 
     # ----------------- Errors ----------------- #
     lum_ha_low_int_err = lha_low_obs_n_err * 10**(0.4*aha_n) + lha_low_obs_s_err * 10**(0.4*aha_s) + lha_low_obs_br_err * 10**(0.4*aha_br)
@@ -289,7 +327,6 @@ if __name__ == '__main__':
     lha_high_int_s_err = lha_high_obs_s_err * 10**(0.4 * aha_s)
     lha_high_int_br_err = lha_high_obs_br_err * 10**(0.4 * aha_br)
 
-    """
     print "\n"
     print "Intrinsic H-alpha luminosity error in north galaxy in comp1:", lha_low_int_n_err
     print "Intrinsic H-alpha luminosity error in south galaxy in comp1:", lha_low_int_s_err
@@ -299,7 +336,6 @@ if __name__ == '__main__':
     print "Intrinsic H-alpha luminosity error in north galaxy in comp2:", lha_high_int_n_err
     print "Intrinsic H-alpha luminosity error in south galaxy in comp2:", lha_high_int_s_err
     print "Intrinsic H-alpha luminosity error in bridge galaxy in comp2:", lha_high_int_br_err
-    """
 
     #plt.imshow(av_map_bridge, vmin=0, vmax=4, origin='lower', interpolation='None')
     #plt.show()
@@ -324,7 +360,7 @@ if __name__ == '__main__':
 
         a_line_map = all_extinction_maps[i]
 
-        # Get extinction values for line for the different regions
+        # Get extinction values for line for the different regions # Uses CB mask
         a_line_map_bridge = ma.array(a_line_map, mask=bridge_mask)
         a_line_map_north = ma.array(a_line_map, mask=north_mask)
         a_line_map_south = ma.array(a_line_map, mask=south_mask)
@@ -432,6 +468,7 @@ if __name__ == '__main__':
         # Then the 1e-3 converts that to W m^-2 and the 1e-16 further will write it in units of [W/m^2]x1e-16.
 
     sys.exit(0)
+    """
 
     # ----------------------------------- Plotting ----------------------------------- #
     # plot sdss image
