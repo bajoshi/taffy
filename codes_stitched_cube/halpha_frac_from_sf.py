@@ -574,7 +574,6 @@ if __name__ == '__main__':
 
     get_total_fluxes(stitched_cube)
     get_total_errors(stitched_cube)
-    sys.exit(0)
 
     # read in masks for single and two comp fit
     all_cases = fits.open(savedir + 'all_cases_indices.fits')
