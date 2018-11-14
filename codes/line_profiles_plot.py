@@ -337,7 +337,7 @@ if __name__ == '__main__':
     ax_n_5_blue, ax_n_5_red = plot_line_profiles(ax_n_5_blue, ax_n_5_red, north_majax_5_blue['wav'], north_majax_5_blue['flux'], north_majax_5_red['wav'], north_majax_5_red['flux'], 20,75, 0,175)
 
     ax_s_1_blue, ax_s_1_red = plot_line_profiles(ax_s_1_blue, ax_s_1_red, south_majax_1_blue['wav'], south_majax_1_blue['flux'], south_majax_1_red['wav'], south_majax_1_red['flux'], 24,58, 30,350)
-    ax_s_2_blue, ax_s_2_red = plot_line_profiles(ax_s_2_blue, ax_s_2_red, south_majax_2_blue['wav'], south_majax_2_blue['flux'], south_majax_2_red['wav'], south_majax_2_red['flux'], 100,160, 140,260)
+    ax_s_2_blue, ax_s_2_red = plot_line_profiles(ax_s_2_blue, ax_s_2_red, south_majax_2_blue['wav'], south_majax_2_blue['flux'], south_majax_2_red['wav'], south_majax_2_red['flux'], 95,160, 120,260)
     ax_s_3_blue, ax_s_3_red = plot_line_profiles(ax_s_3_blue, ax_s_3_red, south_majax_3_blue['wav'], south_majax_3_blue['flux'], south_majax_3_red['wav'], south_majax_3_red['flux'], 25,63, 40,275)
     ax_s_4_blue, ax_s_4_red = plot_line_profiles(ax_s_4_blue, ax_s_4_red, south_majax_4_blue['wav'], south_majax_4_blue['flux'], south_majax_4_red['wav'], south_majax_4_red['flux'], 40,120, 40,340)
     ax_s_5_blue, ax_s_5_red = plot_line_profiles(ax_s_5_blue, ax_s_5_red, south_majax_5_blue['wav'], south_majax_5_blue['flux'], south_majax_5_red['wav'], south_majax_5_red['flux'], 25,75, 20,130)
@@ -365,6 +365,47 @@ if __name__ == '__main__':
 
     #ax_br_3_blue.set_xticklabels(ax_br_3_blue.get_xticks().tolist(), size=10, rotation=20)
     ax_br_3_red.set_xticklabels(ax_br_3_red.get_xticks().tolist(), size=10, rotation=20)
+
+    # ------------------ Twin velocity axis ------------------ #
+    par_vel_axis_oiii = ax_s_2_blue.twiny()
+    par_vel_axis_halpha = ax_s_2_red.twiny()
+
+    # Define speed of light and convert air wav to heliocentric vel
+    lightspeed = 3e5 # 299792.458  # km/s
+    halpha_air_wav = 6562.80
+    oiii_air_wav = 5006.84
+    helio_vel_arr_oiii = ((south_majax_2_blue['wav'] - oiii_air_wav) / oiii_air_wav) * lightspeed
+    helio_vel_arr_halpha = ((south_majax_2_red['wav'] - halpha_air_wav) / halpha_air_wav) * lightspeed
+
+    # convert to velocities wrt to systemic
+    vel_arr_oiii = helio_vel_arr_oiii - 4350.0
+    vel_arr_halpha = helio_vel_arr_halpha - 4350.0
+
+    par_vel_axis_oiii.plot(vel_arr_oiii, south_majax_2_blue['flux'], alpha=0.0)
+    b_low_idx = np.argmin(abs(south_majax_2_blue['wav'] - 5070))
+    b_high_idx = np.argmin(abs(south_majax_2_blue['wav'] - 5090))
+    par_vel_axis_oiii.set_xlim(vel_arr_oiii[b_low_idx], vel_arr_oiii[b_high_idx])
+    par_vel_axis_oiii.spines['bottom'].set_position(('outward', -14))
+    par_vel_axis_oiii.set_xlabel('Velocity', fontsize=13)
+
+    par_vel_axis_halpha.plot(vel_arr_halpha, south_majax_2_red['flux'], alpha=0.0)
+    r_low_idx = np.argmin(abs(south_majax_2_red['wav'] - 6645))
+    r_high_idx = np.argmin(abs(south_majax_2_red['wav'] - 6675))
+    par_vel_axis_halpha.set_xlim(vel_arr_halpha[r_low_idx], vel_arr_halpha[r_high_idx])
+    par_vel_axis_halpha.spines['bottom'].set_position(('outward', -14))
+    par_vel_axis_halpha.set_xlabel('Velocity', fontsize=13)
+
+    # Ticks and other stuff
+    par_vel_axis_oiii.minorticks_on()
+    par_vel_axis_halpha.minorticks_on()
+
+    par_vel_axis_oiii.xaxis.set_ticks_position('bottom')
+    par_vel_axis_oiii.xaxis.set_label_position('bottom')
+    par_vel_axis_halpha.xaxis.set_ticks_position('bottom')
+    par_vel_axis_halpha.xaxis.set_label_position('bottom')
+
+    par_vel_axis_oiii.xaxis.set_label_coords(0.5, 0.2)
+    par_vel_axis_halpha.xaxis.set_label_coords(0.5, 0.2)
 
     # ------------------ Text for regionname ------------------- #
     ax_n_1_red.text(0.05, 0.96, 'N1', verticalalignment='top', horizontalalignment='left', \
@@ -437,6 +478,6 @@ if __name__ == '__main__':
         transform=ax_br_1_red.transAxes, color='k', size=10)
 
     # Save figure
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.eps', dpi=300, bbox_inches='tight')
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.png', dpi=300, bbox_inches='tight')
 
     sys.exit(0)
