@@ -25,6 +25,13 @@ taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
 sys.path.append(taffy_dir + 'codes/')
 import vel_channel_map as vcm
 
+# Define constants
+lightspeed = 3e5 # 299792.458  # km/s
+redshift = 0.0145
+sys_vel = redshift * lightspeed
+halpha_air_wav = 6562.80
+oiii_air_wav = 5006.84
+
 # this following rgb_to_hex function came from
 # https://stackoverflow.com/a/214657
 def rgb_to_hex(red, green, blue):
@@ -34,43 +41,66 @@ def rgb_to_hex(red, green, blue):
 def plot_line_profiles(axesblue, axesred, bluewav, bluespec, redwav, redspec, \
     b_ylow, b_yhigh, r_ylow, r_yhigh):
 
+    # Convert air wav to heliocentric vel
+    helio_vel_arr_oiii = ((bluewav - oiii_air_wav) / oiii_air_wav) * lightspeed
+    helio_vel_arr_halpha = ((redwav - halpha_air_wav) / halpha_air_wav) * lightspeed
+
+    # convert to velocities wrt to systemic
+    vel_arr_oiii = helio_vel_arr_oiii - sys_vel
+    vel_arr_halpha = helio_vel_arr_halpha - sys_vel
+
     # plot spectra
-    axesblue.plot(bluewav, bluespec, color=myblue)
-    axesred.plot(redwav, redspec, color=myred)
+    axesblue.plot(vel_arr_oiii, bluespec, color=myblue)
+    axesred.plot(vel_arr_halpha, redspec, color=myred)
 
     # Set limits
-    axesblue.set_xlim(5070, 5090)
-    axesred.set_xlim(6645, 6675)
+    b_low_idx = np.argmin(abs(bluewav - 5070))
+    b_high_idx = np.argmin(abs(bluewav - 5090))
+    axesblue.set_xlim(vel_arr_oiii[b_low_idx], vel_arr_oiii[b_high_idx])
+
+    r_low_idx = np.argmin(abs(redwav - 6645))
+    r_high_idx = np.argmin(abs(redwav - 6675))
+    axesred.set_xlim(vel_arr_halpha[r_low_idx], vel_arr_halpha[r_high_idx])
 
     axesblue.set_ylim(b_ylow, b_yhigh)
     axesred.set_ylim(r_ylow, r_yhigh)
 
-    # commands to make the plot pretty
-    # do not show the spines except at the bottom
+    # --- commands to make the plot pretty --- #
+    # do not show the spines except at the bottom and left
     axesblue.spines["top"].set_visible(False)
     axesblue.spines["right"].set_visible(False)
+    axesblue.spines["bottom"].set_visible(True)
     axesblue.spines["left"].set_visible(True)
 
     axesred.spines["top"].set_visible(False)
     axesred.spines["right"].set_visible(False)
+    axesred.spines["bottom"].set_visible(True)
     axesred.spines["left"].set_visible(True)
 
-    # do not show the ticks
-    #axesblue.get_yaxis().set_ticklabels([])
-    #axesblue.get_yaxis().set_ticks([])
-    #axesred.get_yaxis().set_ticklabels([])
-    #axesred.get_yaxis().set_ticks([])
+    # Increase y axis ticklabel size
+    # First convert to a numpy array of ints because it is float by default
+    blue_ax_ytickslist = np.array(axesblue.get_yticks().tolist(), dtype=np.int)
+    red_ax_ytickslist = np.array(axesred.get_yticks().tolist(), dtype=np.int)
+    axesblue.set_yticklabels(blue_ax_ytickslist, size=12, rotation=20)
+    axesred.set_yticklabels(red_ax_ytickslist, size=12, rotation=20)
 
-    axesblue.tick_params(axis='y', which='both', right=False)
-    axesred.tick_params(axis='y', which='both', right=False)
-
-    # for now set xticklabels to empty # it will be edited by hand in __main__
+    # do not show the velocity axis ticklabels 
+    # instead we will just show the velocity ticks
+    # in the bottom panels which will be done in __main__
     axesblue.get_xaxis().set_ticklabels([])
     axesred.get_xaxis().set_ticklabels([])
 
+    # Turn on minor ticks
+    axesblue.minorticks_on()
+    axesred.minorticks_on()
+
+    # turn off ticks on the right
+    axesblue.tick_params(axis='y', which='both', right=False)
+    axesred.tick_params(axis='y', which='both', right=False)
+
     # Draw a vertical line at the systemic recessional velocity
-    axesblue.axvline(x=5079.6, ls='--', color='grey')
-    axesred.axvline(x=6658.2, ls='--', color='grey')
+    axesblue.axvline(x=0.0, ls='--', color='grey')
+    axesred.axvline(x=0.0, ls='--', color='grey')
 
     return axesblue, axesred
 
@@ -293,12 +323,12 @@ if __name__ == '__main__':
     ax.text(0.73, 0.68, 'S5', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=12)
 
-    ax.text(0.02, 0.1, r'$\mathrm{[OIII]\lambda 5007}$' + '  ' + r'$\mathrm{Velocity\ scale\, (km/s):[-575,+623]}$', \
-        verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color=myblue, size=16)
-    ax.text(0.02, 0.06, r'$\mathrm{H\alpha}$' + '               ' + r'$\mathrm{Velocity\ scale\, (km/s):[-602,+770]}$', \
-        verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color=myred, size=16)
+    #ax.text(0.02, 0.1, r'$\mathrm{[OIII]\lambda 5007}$' + '  ' + r'$\mathrm{Velocity\ scale\, (km/s):[-575,+623]}$', \
+    #    verticalalignment='top', horizontalalignment='left', \
+    #    transform=ax.transAxes, color=myblue, size=16)
+    #ax.text(0.02, 0.06, r'$\mathrm{H\alpha}$' + '               ' + r'$\mathrm{Velocity\ scale\, (km/s):[-602,+770]}$', \
+    #    verticalalignment='top', horizontalalignment='left', \
+    #    transform=ax.transAxes, color=myred, size=16)
 
     # Add text for galaxies and bridge
     #r'$\mathrm{Taffy}$' + '-' + r'$\mathrm{N}$' + '\n' + r'$\mathrm{UGC\ 12915}$', \
@@ -330,14 +360,14 @@ if __name__ == '__main__':
         ax.add_patch(region)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
-    ax_n_1_blue, ax_n_1_red = plot_line_profiles(ax_n_1_blue, ax_n_1_red, north_majax_1_blue['wav'], north_majax_1_blue['flux'], north_majax_1_red['wav'], north_majax_1_red['flux'], 55,90, 40,180)
+    ax_n_1_blue, ax_n_1_red = plot_line_profiles(ax_n_1_blue, ax_n_1_red, north_majax_1_blue['wav'], north_majax_1_blue['flux'], north_majax_1_red['wav'], north_majax_1_red['flux'], 55,100, 40,190)
     ax_n_2_blue, ax_n_2_red = plot_line_profiles(ax_n_2_blue, ax_n_2_red, north_majax_2_blue['wav'], north_majax_2_blue['flux'], north_majax_2_red['wav'], north_majax_2_red['flux'], 40,80, 60,320)
     ax_n_3_blue, ax_n_3_red = plot_line_profiles(ax_n_3_blue, ax_n_3_red, north_majax_3_blue['wav'], north_majax_3_blue['flux'], north_majax_3_red['wav'], north_majax_3_red['flux'], 20,48, 20,235)
     ax_n_4_blue, ax_n_4_red = plot_line_profiles(ax_n_4_blue, ax_n_4_red, north_majax_4_blue['wav'], north_majax_4_blue['flux'], north_majax_4_red['wav'], north_majax_4_red['flux'], 15,50, 15,95)
     ax_n_5_blue, ax_n_5_red = plot_line_profiles(ax_n_5_blue, ax_n_5_red, north_majax_5_blue['wav'], north_majax_5_blue['flux'], north_majax_5_red['wav'], north_majax_5_red['flux'], 20,75, 0,175)
 
-    ax_s_1_blue, ax_s_1_red = plot_line_profiles(ax_s_1_blue, ax_s_1_red, south_majax_1_blue['wav'], south_majax_1_blue['flux'], south_majax_1_red['wav'], south_majax_1_red['flux'], 24,58, 30,350)
-    ax_s_2_blue, ax_s_2_red = plot_line_profiles(ax_s_2_blue, ax_s_2_red, south_majax_2_blue['wav'], south_majax_2_blue['flux'], south_majax_2_red['wav'], south_majax_2_red['flux'], 95,160, 120,260)
+    ax_s_1_blue, ax_s_1_red = plot_line_profiles(ax_s_1_blue, ax_s_1_red, south_majax_1_blue['wav'], south_majax_1_blue['flux'], south_majax_1_red['wav'], south_majax_1_red['flux'], 24,60, 30,370)
+    ax_s_2_blue, ax_s_2_red = plot_line_profiles(ax_s_2_blue, ax_s_2_red, south_majax_2_blue['wav'], south_majax_2_blue['flux'], south_majax_2_red['wav'], south_majax_2_red['flux'], 105,160, 140,260)
     ax_s_3_blue, ax_s_3_red = plot_line_profiles(ax_s_3_blue, ax_s_3_red, south_majax_3_blue['wav'], south_majax_3_blue['flux'], south_majax_3_red['wav'], south_majax_3_red['flux'], 25,63, 40,275)
     ax_s_4_blue, ax_s_4_red = plot_line_profiles(ax_s_4_blue, ax_s_4_red, south_majax_4_blue['wav'], south_majax_4_blue['flux'], south_majax_4_red['wav'], south_majax_4_red['flux'], 40,120, 40,340)
     ax_s_5_blue, ax_s_5_red = plot_line_profiles(ax_s_5_blue, ax_s_5_red, south_majax_5_blue['wav'], south_majax_5_blue['flux'], south_majax_5_red['wav'], south_majax_5_red['flux'], 25,75, 20,130)
@@ -346,136 +376,93 @@ if __name__ == '__main__':
     ax_br_2_blue, ax_br_2_red = plot_line_profiles(ax_br_2_blue, ax_br_2_red, bridge_2_blue['wav'], bridge_2_blue['flux'], bridge_2_red['wav'], bridge_2_red['flux'], -10,10, -10,45)
     ax_br_3_blue, ax_br_3_red = plot_line_profiles(ax_br_3_blue, ax_br_3_red, bridge_3_blue['wav'], bridge_3_blue['flux'], bridge_3_red['wav'], bridge_3_red['flux'], -10,25, -10,50)
 
-    # Wavelength axis labels
-    ax_n_5_blue.set_xticklabels(ax_n_5_blue.get_xticks().tolist(), size=10, rotation=20)
-    ax_n_5_blue.tick_params('both', which='major', pad=-1)
-    ax_n_5_red.set_xticklabels(ax_n_5_red.get_xticks().tolist(), size=10, rotation=20)
-    ax_n_5_red.tick_params('both', which='major', pad=1)
+    # Velocity axis labels
+    blue_ax_xtickslist_n5 = np.array(ax_n_5_blue.get_xticks().tolist(), dtype=np.int)
+    red_ax_xtickslist_n5 = np.array(ax_n_5_red.get_xticks().tolist(), dtype=np.int)
+    ax_n_5_blue.set_xticklabels(blue_ax_xtickslist_n5, size=12)
+    ax_n_5_red.set_xticklabels(red_ax_xtickslist_n5, size=12)
 
-    ax_s_5_blue.set_xticklabels(ax_s_5_blue.get_xticks().tolist(), size=10, rotation=20)
-    ax_s_5_blue.tick_params('both', which='major', pad=1)
-    ax_s_5_red.set_xticklabels(ax_s_5_red.get_xticks().tolist(), size=10, rotation=20)
-    ax_s_5_red.tick_params('both', which='major', pad=-1)
+    blue_ax_xtickslist_s5 = np.array(ax_s_5_blue.get_xticks().tolist(), dtype=np.int)
+    red_ax_xtickslist_s5 = np.array(ax_s_5_red.get_xticks().tolist(), dtype=np.int)
+    ax_s_5_blue.set_xticklabels(blue_ax_xtickslist_s5, size=12)
+    ax_s_5_red.set_xticklabels(red_ax_xtickslist_s5, size=12)
 
-    #ax_br_1_blue.set_xticklabels(ax_br_1_blue.get_xticks().tolist(), size=10, rotation=20)
-    ax_br_1_red.set_xticklabels(ax_br_1_red.get_xticks().tolist(), size=10, rotation=20)
-
-    #ax_br_2_blue.set_xticklabels(ax_br_2_blue.get_xticks().tolist(), size=10, rotation=20)
-    ax_br_2_red.set_xticklabels(ax_br_2_red.get_xticks().tolist(), size=10, rotation=20)
-
-    #ax_br_3_blue.set_xticklabels(ax_br_3_blue.get_xticks().tolist(), size=10, rotation=20)
-    ax_br_3_red.set_xticklabels(ax_br_3_red.get_xticks().tolist(), size=10, rotation=20)
-
-    # ------------------ Twin velocity axis ------------------ #
-    par_vel_axis_oiii = ax_s_2_blue.twiny()
-    par_vel_axis_halpha = ax_s_2_red.twiny()
-
-    # Define speed of light and convert air wav to heliocentric vel
-    lightspeed = 3e5 # 299792.458  # km/s
-    halpha_air_wav = 6562.80
-    oiii_air_wav = 5006.84
-    helio_vel_arr_oiii = ((south_majax_2_blue['wav'] - oiii_air_wav) / oiii_air_wav) * lightspeed
-    helio_vel_arr_halpha = ((south_majax_2_red['wav'] - halpha_air_wav) / halpha_air_wav) * lightspeed
-
-    # convert to velocities wrt to systemic
-    vel_arr_oiii = helio_vel_arr_oiii - 4350.0
-    vel_arr_halpha = helio_vel_arr_halpha - 4350.0
-
-    par_vel_axis_oiii.plot(vel_arr_oiii, south_majax_2_blue['flux'], alpha=0.0)
-    b_low_idx = np.argmin(abs(south_majax_2_blue['wav'] - 5070))
-    b_high_idx = np.argmin(abs(south_majax_2_blue['wav'] - 5090))
-    par_vel_axis_oiii.set_xlim(vel_arr_oiii[b_low_idx], vel_arr_oiii[b_high_idx])
-    par_vel_axis_oiii.spines['bottom'].set_position(('outward', -14))
-    par_vel_axis_oiii.set_xlabel('Velocity', fontsize=13)
-
-    par_vel_axis_halpha.plot(vel_arr_halpha, south_majax_2_red['flux'], alpha=0.0)
-    r_low_idx = np.argmin(abs(south_majax_2_red['wav'] - 6645))
-    r_high_idx = np.argmin(abs(south_majax_2_red['wav'] - 6675))
-    par_vel_axis_halpha.set_xlim(vel_arr_halpha[r_low_idx], vel_arr_halpha[r_high_idx])
-    par_vel_axis_halpha.spines['bottom'].set_position(('outward', -14))
-    par_vel_axis_halpha.set_xlabel('Velocity', fontsize=13)
-
-    # Ticks and other stuff
-    par_vel_axis_oiii.minorticks_on()
-    par_vel_axis_halpha.minorticks_on()
-
-    par_vel_axis_oiii.xaxis.set_ticks_position('bottom')
-    par_vel_axis_oiii.xaxis.set_label_position('bottom')
-    par_vel_axis_halpha.xaxis.set_ticks_position('bottom')
-    par_vel_axis_halpha.xaxis.set_label_position('bottom')
-
-    par_vel_axis_oiii.xaxis.set_label_coords(0.5, 0.2)
-    par_vel_axis_halpha.xaxis.set_label_coords(0.5, 0.2)
+    red_ax_xtickslist_b1 = np.array(ax_br_1_red.get_xticks().tolist(), dtype=np.int)
+    red_ax_xtickslist_b2 = np.array(ax_br_2_red.get_xticks().tolist(), dtype=np.int)
+    red_ax_xtickslist_b3 = np.array(ax_br_3_red.get_xticks().tolist(), dtype=np.int)
+    ax_br_1_red.set_xticklabels(red_ax_xtickslist_b1, size=12)
+    ax_br_2_red.set_xticklabels(red_ax_xtickslist_b2, size=12)
+    ax_br_3_red.set_xticklabels(red_ax_xtickslist_b3, size=12)
 
     # ------------------ Text for regionname ------------------- #
-    ax_n_1_red.text(0.05, 0.96, 'N1', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_1_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_n_2_red.text(0.05, 0.96, 'N2', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_2_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_n_3_red.text(0.05, 0.96, 'N3', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_3_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_n_4_red.text(0.05, 0.96, 'N4', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_4_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_n_5_red.text(0.05, 0.96, 'N5', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_5_red.transAxes, color='k', fontproperties=f, size=12)
+    ax_n_1_blue.text(0.05, 0.75, 'N1', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_n_1_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_n_2_blue.text(0.05, 0.9, 'N2', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_n_2_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_n_3_blue.text(0.05, 0.9, 'N3', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_n_3_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_n_4_blue.text(0.05, 0.9, 'N4', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_n_4_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_n_5_blue.text(0.05, 0.9, 'N5', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_n_5_blue.transAxes, color='k', fontproperties=f, size=16)
 
-    ax_s_1_red.text(0.05, 0.96, 'S1', verticalalignment='top', horizontalalignment='left', \
-       transform=ax_s_1_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_s_2_red.text(0.05, 0.96, 'S2', verticalalignment='top', horizontalalignment='left', \
-       transform=ax_s_2_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_s_3_red.text(0.05, 0.96, 'S3', verticalalignment='top', horizontalalignment='left', \
-       transform=ax_s_3_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_s_4_red.text(0.05, 0.96, 'S4', verticalalignment='top', horizontalalignment='left', \
-       transform=ax_s_4_red.transAxes, color='k', fontproperties=f, size=12)
-    ax_s_5_red.text(0.05, 0.96, 'S5', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_5_red.transAxes, color='k', fontproperties=f, size=12)
+    ax_s_1_blue.text(0.05, 0.75, 'S1', verticalalignment='top', horizontalalignment='left', \
+       transform=ax_s_1_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_s_2_blue.text(0.05, 0.9, 'S2', verticalalignment='top', horizontalalignment='left', \
+       transform=ax_s_2_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_s_3_blue.text(0.05, 0.9, 'S3', verticalalignment='top', horizontalalignment='left', \
+       transform=ax_s_3_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_s_4_blue.text(0.05, 0.9, 'S4', verticalalignment='top', horizontalalignment='left', \
+       transform=ax_s_4_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_s_5_blue.text(0.05, 0.9, 'S5', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_s_5_blue.transAxes, color='k', fontproperties=f, size=16)
 
-    ax_br_1_blue.text(0.05, 0.96, 'B1', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_br_1_blue.transAxes, color='k', fontproperties=f, size=12)
-    ax_br_2_blue.text(0.05, 0.96, 'B2', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_br_2_blue.transAxes, color='k', fontproperties=f, size=12)
-    ax_br_3_blue.text(0.05, 0.96, 'B3', verticalalignment='top', horizontalalignment='left', \
-        transform=ax_br_3_blue.transAxes, color='k', fontproperties=f, size=12)
+    ax_br_1_blue.text(0.05, 0.9, 'B1', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_br_1_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_br_2_blue.text(0.05, 0.9, 'B2', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_br_2_blue.transAxes, color='k', fontproperties=f, size=16)
+    ax_br_3_blue.text(0.05, 0.9, 'B3', verticalalignment='top', horizontalalignment='left', \
+        transform=ax_br_3_blue.transAxes, color='k', fontproperties=f, size=16)
 
     # Text for flux units
-    ax_n_1_blue.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+    ax_n_1_blue.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_1_blue.transAxes, color='k', size=9)
-    ax_n_1_red.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+        transform=ax_n_1_blue.transAxes, color='k', size=14)
+    ax_n_1_red.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_1_red.transAxes, color='k', size=9)
+        transform=ax_n_1_red.transAxes, color='k', size=14)
 
-    ax_s_1_blue.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+    ax_s_1_blue.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_1_blue.transAxes, color='k', size=9)
-    ax_s_1_red.text(0.03, 1.04, r'$\times 10^{-18}\, \mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
+        transform=ax_s_1_blue.transAxes, color='k', size=14)
+    ax_s_1_red.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_1_red.transAxes, color='k', size=9)
+        transform=ax_s_1_red.transAxes, color='k', size=14)
 
     # Text for [NII] lines seen in some cases
-    ax_n_3_red.text(0.08, 0.42, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
+    ax_n_3_red.text(0.08, 0.44, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_3_red.transAxes, color='k', size=10)
-    ax_n_4_red.text(0.07, 0.51, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
+        transform=ax_n_3_red.transAxes, color='k', size=13)
+    ax_n_4_red.text(0.07, 0.55, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_n_4_red.transAxes, color='k', size=10)
+        transform=ax_n_4_red.transAxes, color='k', size=13)
 
-    ax_s_1_red.text(0.05, 0.39, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
+    ax_s_1_red.text(0.05, 0.43, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_1_red.transAxes, color='k', size=10)
-    ax_s_3_red.text(0.75, 0.52, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
+        transform=ax_s_1_red.transAxes, color='k', size=13)
+    ax_s_3_red.text(0.75, 0.6, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_3_red.transAxes, color='k', size=10)
-    ax_s_4_red.text(0.75, 0.73, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
+        transform=ax_s_3_red.transAxes, color='k', size=13)
+    ax_s_4_red.text(0.75, 0.85, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_4_red.transAxes, color='k', size=10)
-    ax_s_5_red.text(0.75, 0.77, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
+        transform=ax_s_4_red.transAxes, color='k', size=13)
+    ax_s_5_red.text(0.75, 0.83, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6583$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_s_5_red.transAxes, color='k', size=10)
+        transform=ax_s_5_red.transAxes, color='k', size=13)
 
-    ax_br_1_red.text(0.03, 0.39, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
+    ax_br_1_red.text(0.03, 0.43, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \
         verticalalignment='top', horizontalalignment='left', \
-        transform=ax_br_1_red.transAxes, color='k', size=10)
+        transform=ax_br_1_red.transAxes, color='k', size=13)
 
     # Save figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.png', dpi=300, bbox_inches='tight')
