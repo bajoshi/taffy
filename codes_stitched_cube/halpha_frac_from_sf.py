@@ -56,13 +56,13 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
 
     ax.errorbar(xarr_br[valid_indices], yarr_br[valid_indices], \
         xerr=xarr_err_br[valid_indices], yerr=yarr_err_br[valid_indices], \
-        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+        color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(xarr_n[valid_indices], yarr_n[valid_indices], \
         xerr=xarr_err_n[valid_indices], yerr=yarr_err_n[valid_indices], \
-        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(xarr_s[valid_indices], yarr_s[valid_indices], \
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
-        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     # Circle interesting regions
     ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=50, edgecolors='lightblue', facecolors='none')

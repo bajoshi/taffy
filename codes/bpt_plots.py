@@ -826,13 +826,13 @@ if __name__ == '__main__':
 
     ax.errorbar(nii_halpha_withcut_bridge[nii_nonzero], oiii_hbeta_for_nii_withcut_bridge[nii_nonzero], \
         xerr=nii_halpha_err_withcut_bridge[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_bridge[nii_nonzero], \
-        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+        color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
         xerr=nii_halpha_err_withcut_north[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_north[nii_nonzero], \
-        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
         xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
-        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
         s=50, facecolors='None', edgecolors='lightblue')
@@ -908,13 +908,13 @@ if __name__ == '__main__':
 
     ax.errorbar(oi_halpha_withcut_bridge[oi_nonzero], oiii_hbeta_for_oi_withcut_bridge[oi_nonzero], \
         xerr=oi_halpha_err_withcut_bridge[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_bridge[oi_nonzero], \
-        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+        color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
         xerr=oi_halpha_err_withcut_north[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_north[oi_nonzero], \
-        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
         xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
-        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
         s=50, facecolors='None', edgecolors='lightblue')
@@ -989,13 +989,13 @@ if __name__ == '__main__':
 
     ax.errorbar(sii_halpha_withcut_bridge[sii_nonzero], oiii_hbeta_for_sii_withcut_bridge[sii_nonzero], \
         xerr=sii_halpha_err_withcut_bridge[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_bridge[sii_nonzero], \
-        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+        color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
         xerr=sii_halpha_err_withcut_north[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_north[sii_nonzero], \
-        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
         xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
-        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
         s=50, facecolors='None', edgecolors='lightblue')
