@@ -267,7 +267,12 @@ if __name__ == '__main__':
 
     ax.coords.frame.set_color('None')
 
-    # Add polygon patches for galaxies and bridge
+    # Add polygon patches for galaxies and bridge.
+    # I copied these directly from the ds9 regions file
+    # There is a file called all_regions.reg which has
+    # all of the regions in the required format.
+    # These have to be in degrees as [dec, ra]
+    # i.e. a list of coordinate lists .
     north_poly_points = [[0.422200173,23.50396718],[0.4152304334,23.50387652],[0.4155502808,23.50226454],\
     [0.414591942,23.49908922],[0.4180543574,23.49850344],[0.4199720955,23.49723355],[0.4259616693,23.49127482],\
     [0.4286967795,23.48904169],[0.4291162163,23.49004197],[0.4313178761,23.49288664],[0.4291871345,23.49689221]]

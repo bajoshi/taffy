@@ -185,16 +185,17 @@ if __name__ == '__main__':
 
     # conv ds9 coords to array coords 
     # to be able to check with ds9
-    pix_x = 36
-    pix_y = 25
+    pix_x = 39
+    pix_y = 19
     arr_x = pix_y - 1
     arr_y = pix_x - 1
     box_size = 5
 
-    # If you want to analyze a block enter the pix coords of the low left corner above
-    # Otherwise you need to loop both i and j over range(58)
-    for i in range(58):  #arr_x, arr_x + box_size):
-        for j in range(58):  #arr_y, arr_y + box_size):
+    # If you want to analyze a block enter the ds9 pix coords of the low 
+    # left corner above. Otherwise you need to loop both i and j over range(58)
+    # Also uncomment plotting below if you want to check individual fits
+    for i in range(arr_x, arr_x + box_size):
+        for j in range(arr_y, arr_y + box_size):
 
             # find the center of the biggest peak and call that the line idx
             line_wav = line_air_wav*(1+redshift)
@@ -340,7 +341,6 @@ if __name__ == '__main__':
             # uncomment the follwing block to run checks and 
             # add sys.exit(0) right after for loop is done
             # also uncomment the for loop range
-            """
             print "amp diff", amp_comp2[i,j] - amp_comp1[i,j]
             print "at pixel", j+1, i+1
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
@@ -375,7 +375,8 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-            """
+
+    sys.exit(0)
 
     if save_profile:
         np.save(taffy_extdir + 'halpha_profile_mylinefits.npy', halpha_profile_mylinefits)
