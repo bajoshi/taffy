@@ -269,31 +269,44 @@ if __name__ == '__main__':
 
     # Add polygon patches for galaxies and bridge.
     # I copied these directly from the ds9 regions file
-    # There is a file called all_regions.reg which has
-    # all of the regions in the required format.
-    # These have to be in degrees as [dec, ra]
-    # i.e. a list of coordinate lists .
-    north_poly_points = [[0.422200173,23.50396718],[0.4152304334,23.50387652],[0.4155502808,23.50226454],\
-    [0.414591942,23.49908922],[0.4180543574,23.49850344],[0.4199720955,23.49723355],[0.4259616693,23.49127482],\
-    [0.4286967795,23.48904169],[0.4291162163,23.49004197],[0.4313178761,23.49288664],[0.4291871345,23.49689221]]
-    south_poly_points = [[0.4071288157,23.49766402],[0.4027494899,23.49619723],[0.4031346441,23.48922165],\
-    [0.4060123993,23.48189481],[0.4078664731,23.47872971],[0.410943916,23.47614935],[0.4158554494,23.47630534],\
-    [0.4202012426,23.47791063],[0.4217348365,23.48048999],[0.4213999114,23.48310946],[0.417944079,23.48275696],\
-    [0.4133603491,23.48707351],[0.4114718625,23.48932533],[0.4090425678,23.49400985]]
-    bridge_poly_points = [[0.4071288316,23.49758635],[0.4090459205,23.49391271],[0.4114969024,23.48922357],\
-    [0.4133614547,23.48697676],[0.4179534303,23.48268663],[0.421404655,23.48303866],[0.4251755324,23.48233549],\
-    [0.4271566586,23.48509069],[0.4286953339,23.48900495],[0.4258300899,23.49137329],[0.4199687248,23.49723481],\
-    [0.4180519391,23.49850339],[0.412549028,23.49960668]]
+    # There is a file called all_regions.reg in $HOME/Desktop/ipac/taffy_lzifu/
+    # which has all of the regions in the required format.
+    # These have to be in degrees as [dec, ra], i.e. a list of coordinate lists .
+    north_poly_points = [[0.4221999963,23.50396722],[0.4134583314,23.50394611],[0.412683328,23.502875],\
+    	[0.4127041658,23.50115528],[0.4168249925,23.49923944],[0.4199708303,23.49723361],[0.4259624958,23.49127472],\
+    	[0.4286958377,23.48904167],[0.4291166623,23.49004194],[0.4313166618,23.49288667],[0.4291875045,23.49689222]]
+    south_poly_points = [[0.4071291606,23.49766389],[0.4027499994,23.49619722],[0.4031333288,23.48922167],\
+        [0.4060125033,23.48189472],[0.4078666687,23.47872972],[0.4109458288,23.47614944],[0.4158541679,23.47630528],\
+        [0.4201999982,23.47791056],[0.4217333317,23.48049],[0.4214000066,23.48310944],[0.41794583,23.48275694],\
+        [0.4133583387,23.48707361],[0.4114708265,23.48932528],[0.409041659,23.49400972]]
+    bridge_poly_points = [[0.4071291606,23.49758639],[0.4114374955,23.4893825],[0.4133458296,23.48707306],\
+        [0.4179583391,23.48273472],[0.4213874976,23.48308472],[0.4228458405,23.48838778],[0.4258291721,23.49137333],\
+        [0.4199666659,23.49723472],[0.4167291641,23.49936111],[0.4127541701,23.50118361]]
+    bridge_north_poly_points = [[0.4127250036,23.50113444],[0.4071333408,23.49758472],[0.4080041726,23.49578778],\
+        [0.4114833355,23.48936833],[0.4143750032,23.49176806],[0.4193958282,23.49761556],[0.4167374929,23.49928694]]
+    north_west_poly_points = [[0.4221999963,23.50395139],[0.4134458383,23.50394639],[0.4127000014,23.50286139],\
+        [0.4127333323,23.50115639],[0.4167583307,23.49929667],[0.4193874995,23.49760556],[0.424620835,23.50152333]]
+    south_nuc_poly_points = [[0.4109875043,23.48449194],[0.4090958277,23.48535917],[0.4080208302,23.48467111],\
+        [0.4084750017,23.48272667],[0.4094875018,23.48191917],[0.4110541662,23.48191917],[0.4116416613,23.48263722]]
 
-    pn = Polygon(np.array(north_poly_points), edgecolor='k', facecolor='None', \
+    pn = Polygon(np.array(north_poly_points), edgecolor='forestgreen', facecolor='None', \
         closed=True, transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(pn)
-    ps = Polygon(np.array(south_poly_points), edgecolor='k', facecolor='None', \
+    ps = Polygon(np.array(south_poly_points), edgecolor='midnightblue', facecolor='None', \
         closed=True, transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(ps)
-    pb = Polygon(np.array(bridge_poly_points), edgecolor='k', facecolor='None', \
+    pb = Polygon(np.array(bridge_poly_points), edgecolor='maroon', facecolor='None', \
         closed=True, transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(pb)
+    pbn = Polygon(np.array(bridge_north_poly_points), edgecolor='teal', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(pbn)
+    pnw = Polygon(np.array(north_west_poly_points), edgecolor='darkorchid', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(pnw)
+    psnuc = Polygon(np.array(south_nuc_poly_points), edgecolor='midnightblue', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+    ax.add_patch(psnuc)
 
     # Add text to figure to indicate region name
     f = FontProperties()
@@ -358,7 +371,7 @@ if __name__ == '__main__':
 
         reg_color = 'forestgreen'
         if 'color=blue' in ln:
-            reg_color = 'midnightblue'
+            reg_color = 'maroon'  # Now coloring the bridge circles maroon to be consistent with teh BPT plots
 
         region = SphericalCircle((ra * u.deg, dec * u.deg), circ_size * u.degree, \
             edgecolor=reg_color, facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
