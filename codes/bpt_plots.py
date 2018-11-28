@@ -829,17 +829,17 @@ if __name__ == '__main__':
         color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(nii_halpha_withcut_north[nii_nonzero], oiii_hbeta_for_nii_withcut_north[nii_nonzero], \
         xerr=nii_halpha_err_withcut_north[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_north[nii_nonzero], \
-        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='darkgreen', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(nii_halpha_withcut_south[nii_nonzero], oiii_hbeta_for_nii_withcut_south[nii_nonzero], \
         xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
-        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
-        s=50, facecolors='None', edgecolors='lightblue')
+        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
     ax.scatter(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
-        s=50, facecolors='None', edgecolors='olive')
+        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(nii_halpha_withcut_nb[nii_nonzero], oiii_hbeta_for_nii_withcut_nb[nii_nonzero], \
-        s=50, facecolors='None', edgecolors='rebeccapurple')
+        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -911,17 +911,17 @@ if __name__ == '__main__':
         color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(oi_halpha_withcut_north[oi_nonzero], oiii_hbeta_for_oi_withcut_north[oi_nonzero], \
         xerr=oi_halpha_err_withcut_north[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_north[oi_nonzero], \
-        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='darkgreen', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(oi_halpha_withcut_south[oi_nonzero], oiii_hbeta_for_oi_withcut_south[oi_nonzero], \
         xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
-        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
-        s=50, facecolors='None', edgecolors='lightblue')
+        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
     ax.scatter(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
-        s=50, facecolors='None', edgecolors='olive')
+        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(oi_halpha_withcut_nb[oi_nonzero], oiii_hbeta_for_oi_withcut_nb[oi_nonzero], \
-        s=50, facecolors='None', edgecolors='rebeccapurple')
+        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
@@ -992,17 +992,17 @@ if __name__ == '__main__':
         color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(sii_halpha_withcut_north[sii_nonzero], oiii_hbeta_for_sii_withcut_north[sii_nonzero], \
         xerr=sii_halpha_err_withcut_north[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_north[sii_nonzero], \
-        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='darkgreen', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(sii_halpha_withcut_south[sii_nonzero], oiii_hbeta_for_sii_withcut_south[sii_nonzero], \
         xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
-        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     ax.scatter(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
-        s=50, facecolors='None', edgecolors='lightblue')
+        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
     ax.scatter(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
-        s=50, facecolors='None', edgecolors='olive')
+        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(sii_halpha_withcut_nb[sii_nonzero], oiii_hbeta_for_sii_withcut_nb[sii_nonzero], \
-        s=50, facecolors='None', edgecolors='rebeccapurple')
+        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')

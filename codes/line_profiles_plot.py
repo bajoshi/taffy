@@ -298,7 +298,7 @@ if __name__ == '__main__':
     pb = Polygon(np.array(bridge_poly_points), edgecolor='maroon', facecolor='None', \
         closed=True, transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(pb)
-    pbn = Polygon(np.array(bridge_north_poly_points), edgecolor='teal', facecolor='None', \
+    pbn = Polygon(np.array(bridge_north_poly_points), edgecolor='darkorange', facecolor='None', \
         closed=True, transform=ax.get_transform('fk5'), lw=1.5)
     ax.add_patch(pbn)
     pnw = Polygon(np.array(north_west_poly_points), edgecolor='darkorchid', facecolor='None', \

@@ -56,18 +56,18 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     # -------------- Actual plotting -------------- #
     ax.errorbar(xarr_br[valid_indices], yarr_br[valid_indices], \
         xerr=xarr_err_br[valid_indices], yerr=yarr_err_br[valid_indices], \
-        color='maroon', markersize=8, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
+        color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.25)
     ax.errorbar(xarr_n[valid_indices], yarr_n[valid_indices], \
         xerr=xarr_err_n[valid_indices], yerr=yarr_err_n[valid_indices], \
-        color='goldenrod', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='darkgreen', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
     ax.errorbar(xarr_s[valid_indices], yarr_s[valid_indices], \
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
-        color='midnightblue', markersize=3, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
+        color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.25)
 
     # Circle interesting regions
-    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=50, edgecolors='lightblue', facecolors='none')
-    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='olive', facecolors='none')
-    ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, edgecolors='rebeccapurple', facecolors='none')
+    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=30, marker='d', edgecolors='midnightblue', facecolors='midnightblue')
+    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='darkorchid', facecolors='none', zorder=5)
+    ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, lw=1.5, edgecolors='darkorange', facecolors='none', zorder=5)
 
     if plottype == 'nii':
         ax.set_xlabel(r'$\mathrm{log\left( \frac{[NII]}{H\alpha} \right)}$', fontsize=15)

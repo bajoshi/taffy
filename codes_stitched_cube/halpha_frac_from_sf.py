@@ -59,15 +59,15 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
         color='maroon', markersize=6, markeredgecolor='maroon', fmt='x', capsize=0, elinewidth=0.2)
     ax.errorbar(xarr_n[valid_indices], yarr_n[valid_indices], \
         xerr=xarr_err_n[valid_indices], yerr=yarr_err_n[valid_indices], \
-        color='goldenrod', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='darkgreen', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
     ax.errorbar(xarr_s[valid_indices], yarr_s[valid_indices], \
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
-        color='midnightblue', markersize=2.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
+        color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
     # Circle interesting regions
-    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=50, edgecolors='lightblue', facecolors='none')
-    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='olive', facecolors='none')
-    ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, edgecolors='rebeccapurple', facecolors='none')
+    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=30, marker='d', edgecolors='midnightblue', facecolors='midnightblue')
+    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='darkorchid', facecolors='none', zorder=5)
+    ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, lw=1.5, edgecolors='darkorange', facecolors='none', zorder=5)
 
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
