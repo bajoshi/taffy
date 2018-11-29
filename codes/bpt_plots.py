@@ -696,6 +696,7 @@ if __name__ == '__main__':
     # i.e. like the south nucleus and the north west regions
     # Read masks in
     south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
+    snuc_minoraxis_mask = vcm.get_region_mask('snuc_minorax_bpt')
     north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
     north_bridge_mask = vcm.get_region_mask('north_bridge_bpt')
 
@@ -712,6 +713,7 @@ if __name__ == '__main__':
     north_mask = north_mask.astype(bool)
     south_mask = south_mask.astype(bool)
     south_nuc_mask = south_nuc_mask.astype(bool)
+    snuc_minoraxis_mask = snuc_minoraxis_mask.astype(bool)
     north_west_mask = north_west_mask.astype(bool)
     north_bridge_mask = north_bridge_mask.astype(bool)
 
@@ -719,6 +721,7 @@ if __name__ == '__main__':
     north_mask = np.ma.mask_or(checkerboard_mask, north_mask)
     south_mask = np.ma.mask_or(checkerboard_mask, south_mask)
     south_nuc_mask = np.ma.mask_or(checkerboard_mask, south_nuc_mask)
+    snuc_minoraxis_mask = np.ma.mask_or(checkerboard_mask, snuc_minoraxis_mask)
     north_west_mask = np.ma.mask_or(checkerboard_mask, north_west_mask)
     north_bridge_mask = np.ma.mask_or(checkerboard_mask, north_bridge_mask)
 
@@ -726,6 +729,11 @@ if __name__ == '__main__':
     oiii_hbeta_for_nii_withcut_snuc, oiii_hbeta_for_oi_withcut_snuc, oiii_hbeta_for_sii_withcut_snuc, \
     nii_halpha_err_withcut_snuc, oi_halpha_err_withcut_snuc, sii_halpha_err_withcut_snuc, \
     oiii_hbeta_for_nii_err_withcut_snuc, oiii_hbeta_for_oi_err_withcut_snuc, oiii_hbeta_for_sii_err_withcut_snuc = apply_mask(south_nuc_mask)
+
+    nii_halpha_withcut_snucm, oi_halpha_withcut_snucm, sii_halpha_withcut_snucm, \
+    oiii_hbeta_for_nii_withcut_snucm, oiii_hbeta_for_oi_withcut_snucm, oiii_hbeta_for_sii_withcut_snucm, \
+    nii_halpha_err_withcut_snucm, oi_halpha_err_withcut_snucm, sii_halpha_err_withcut_snucm, \
+    oiii_hbeta_for_nii_err_withcut_snucm, oiii_hbeta_for_oi_err_withcut_snucm, oiii_hbeta_for_sii_err_withcut_snucm = apply_mask(snuc_minoraxis_mask)
 
     nii_halpha_withcut_nw, oi_halpha_withcut_nw, sii_halpha_withcut_nw, \
     oiii_hbeta_for_nii_withcut_nw, oiii_hbeta_for_oi_withcut_nw, oiii_hbeta_for_sii_withcut_nw, \
@@ -836,11 +844,32 @@ if __name__ == '__main__':
 
     ax.scatter(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
         s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
+    ax.scatter(nii_halpha_withcut_snucm[nii_nonzero], oiii_hbeta_for_nii_withcut_snucm[nii_nonzero], \
+        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
     ax.scatter(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
         s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(nii_halpha_withcut_nb[nii_nonzero], oiii_hbeta_for_nii_withcut_nb[nii_nonzero], \
         s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
+    # Try plotting the entire north bridge region as a single point too
+    # Make sure you only consider the valid indices
+    valid_idx1 = np.where(nii_halpha_withcut_nb[nii_nonzero] != -9999.0)[0]
+    valid_idx2 = np.where(oiii_hbeta_for_nii_withcut_nb[nii_nonzero] != -9999.0)[0]
+    valid_idx3 = np.where(nii_halpha_err_withcut_nb[nii_nonzero] != -9999.0)[0]
+    valid_idx4 = np.where(oiii_hbeta_for_nii_err_withcut_nb[nii_nonzero] != -9999.0)
+    valid_idx = reduce(np.intersect1d, (valid_idx1, valid_idx2, valid_idx3, valid_idx4))
+
+    nii_halpha_nb = np.mean(nii_halpha_withcut_nb[nii_nonzero][valid_idx])
+    oiii_hbeta_for_nii_nb = np.mean(oiii_hbeta_for_nii_withcut_nb[nii_nonzero][valid_idx])
+    nii_halpha_nb_err = np.sqrt(np.sum(nii_halpha_err_withcut_nb[nii_nonzero][valid_idx]**2)) / len(nii_halpha_err_withcut_nb[nii_nonzero][valid_idx])
+    oiii_hbeta_for_nii_nb_err = \
+    np.sqrt(np.sum(oiii_hbeta_for_nii_err_withcut_nb[nii_nonzero][valid_idx]**2)) / len(oiii_hbeta_for_nii_err_withcut_nb[nii_nonzero][valid_idx])
+
+    ax.errorbar(nii_halpha_nb, oiii_hbeta_for_nii_nb, \
+        xerr=nii_halpha_nb_err, yerr=oiii_hbeta_for_nii_nb_err, \
+        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+
+    # Plot classification lines
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
@@ -918,11 +947,32 @@ if __name__ == '__main__':
 
     ax.scatter(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
         s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
+    ax.scatter(oi_halpha_withcut_snucm[oi_nonzero], oiii_hbeta_for_oi_withcut_snucm[oi_nonzero], \
+        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
     ax.scatter(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
         s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(oi_halpha_withcut_nb[oi_nonzero], oiii_hbeta_for_oi_withcut_nb[oi_nonzero], \
         s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
+    # Try plotting the entire north bridge region as a single point too
+    # Make sure you only consider the valid indices
+    valid_idx1 = np.where(oi_halpha_withcut_nb[oi_nonzero] != -9999.0)[0]
+    valid_idx2 = np.where(oiii_hbeta_for_oi_withcut_nb[oi_nonzero] != -9999.0)[0]
+    valid_idx3 = np.where(oi_halpha_err_withcut_nb[oi_nonzero] != -9999.0)[0]
+    valid_idx4 = np.where(oiii_hbeta_for_oi_err_withcut_nb[oi_nonzero] != -9999.0)
+    valid_idx = reduce(np.intersect1d, (valid_idx1, valid_idx2, valid_idx3, valid_idx4))
+
+    oi_halpha_nb = np.mean(oi_halpha_withcut_nb[oi_nonzero][valid_idx])
+    oiii_hbeta_for_oi_nb = np.mean(oiii_hbeta_for_oi_withcut_nb[oi_nonzero][valid_idx])
+    oi_halpha_nb_err = np.sqrt(np.sum(oi_halpha_err_withcut_nb[oi_nonzero][valid_idx]**2)) / len(oi_halpha_err_withcut_nb[oi_nonzero][valid_idx])
+    oiii_hbeta_for_oi_nb_err = \
+    np.sqrt(np.sum(oiii_hbeta_for_oi_err_withcut_nb[oi_nonzero][valid_idx]**2)) / len(oiii_hbeta_for_oi_err_withcut_nb[oi_nonzero][valid_idx])
+
+    ax.errorbar(oi_halpha_nb, oiii_hbeta_for_oi_nb, \
+        xerr=oi_halpha_nb_err, yerr=oiii_hbeta_for_oi_nb_err, \
+        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+
+    # Plot classification lines
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
@@ -999,11 +1049,32 @@ if __name__ == '__main__':
 
     ax.scatter(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
         s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
+    ax.scatter(sii_halpha_withcut_snucm[sii_nonzero], oiii_hbeta_for_sii_withcut_snucm[sii_nonzero], \
+        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
     ax.scatter(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
         s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
     ax.scatter(sii_halpha_withcut_nb[sii_nonzero], oiii_hbeta_for_sii_withcut_nb[sii_nonzero], \
         s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
 
+    # Try plotting the entire north bridge region as a single point too
+    # Make sure you only consider the valid indices
+    valid_idx1 = np.where(sii_halpha_withcut_nb[sii_nonzero] != -9999.0)[0]
+    valid_idx2 = np.where(oiii_hbeta_for_sii_withcut_nb[sii_nonzero] != -9999.0)[0]
+    valid_idx3 = np.where(sii_halpha_err_withcut_nb[sii_nonzero] != -9999.0)[0]
+    valid_idx4 = np.where(oiii_hbeta_for_sii_err_withcut_nb[sii_nonzero] != -9999.0)
+    valid_idx = reduce(np.intersect1d, (valid_idx1, valid_idx2, valid_idx3, valid_idx4))
+
+    sii_halpha_nb = np.mean(sii_halpha_withcut_nb[sii_nonzero][valid_idx])
+    oiii_hbeta_for_sii_nb = np.mean(oiii_hbeta_for_sii_withcut_nb[sii_nonzero][valid_idx])
+    sii_halpha_nb_err = np.sqrt(np.sum(sii_halpha_err_withcut_nb[sii_nonzero][valid_idx]**2)) / len(sii_halpha_err_withcut_nb[sii_nonzero][valid_idx])
+    oiii_hbeta_for_sii_nb_err = \
+    np.sqrt(np.sum(oiii_hbeta_for_sii_err_withcut_nb[sii_nonzero][valid_idx]**2)) / len(oiii_hbeta_for_sii_err_withcut_nb[sii_nonzero][valid_idx])
+
+    ax.errorbar(sii_halpha_nb, oiii_hbeta_for_sii_nb, \
+        xerr=sii_halpha_nb_err, yerr=oiii_hbeta_for_sii_nb_err, \
+        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+
+    # Plot classification lines
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 

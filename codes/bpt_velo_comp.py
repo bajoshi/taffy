@@ -23,7 +23,7 @@ import vel_channel_map as vcm
 
 def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s, \
     xarr_err_br, yarr_err_br, xarr_err_n, yarr_err_n, xarr_err_s, yarr_err_s, \
-    xarr_snuc, yarr_snuc, xarr_nw, yarr_nw, xarr_nb, yarr_nb, valid_indices, figdir):
+    xarr_snuc, yarr_snuc, xarr_nw, yarr_nw, xarr_nb, yarr_nb, xarr_snucm, yarr_snucm, valid_indices, figdir):
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
     """
@@ -66,8 +66,23 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
 
     # Circle interesting regions
     ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=30, marker='d', edgecolors='midnightblue', facecolors='midnightblue')
+    ax.scatter(xarr_snucm[valid_indices], yarr_snucm[valid_indices], s=50, edgecolors='limegreen', facecolors='none', zorder=5)
     ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='darkorchid', facecolors='none', zorder=5)
     ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, lw=1.5, edgecolors='darkorange', facecolors='none', zorder=5)
+
+    # Try plotting the entire north bridge region as a single point too
+    # Make sure you only consider the valid indices
+    # I'm not plotting hte errors here. Too much effort and I'm not sure I'll learn anything new.
+    valid_idx1 = np.where(xarr_nb[valid_indices] != -9999.0)[0]
+    valid_idx2 = np.where(yarr_nb[valid_indices] != -9999.0)[0]
+    valid_idx = reduce(np.intersect1d, (valid_idx1, valid_idx2))
+
+    x_nb = np.mean(xarr_nb[valid_indices][valid_idx])
+    y_nb = np.mean(yarr_nb[valid_indices][valid_idx])
+
+    print x_nb, y_nb
+
+    ax.scatter(x_nb, y_nb, s=50, edgecolors='darkorange', facecolors='darkorange', zorder=5)
 
     if plottype == 'nii':
         ax.set_xlabel(r'$\mathrm{log\left( \frac{[NII]}{H\alpha} \right)}$', fontsize=15)
@@ -419,6 +434,7 @@ if __name__ == '__main__':
     # i.e. like the south nucleus and the north west regions
     # Read masks in
     south_nuc_mask = vcm.get_region_mask('south_galaxy_nuc_bpt')
+    snuc_minoraxis_mask = vcm.get_region_mask('snuc_minorax_bpt')
     north_west_mask = vcm.get_region_mask('north_galaxy_west_bpt')
     north_bridge_mask = vcm.get_region_mask('north_bridge_bpt')
 
@@ -521,6 +537,16 @@ if __name__ == '__main__':
     oiii_hbeta_for_nii_err_withcut_southnuc_comp2, oiii_hbeta_for_oi_err_withcut_southnuc_comp2, oiii_hbeta_for_sii_err_withcut_southnuc_comp2 \
     = apply_mask(south_nuc_mask)
 
+    nii_halpha_withcut_southnucm_comp1, oi_halpha_withcut_southnucm_comp1, sii_halpha_withcut_southnucm_comp1, \
+    oiii_hbeta_for_nii_withcut_southnucm_comp1, oiii_hbeta_for_oi_withcut_southnucm_comp1, oiii_hbeta_for_sii_withcut_southnucm_comp1, \
+    nii_halpha_err_withcut_southnucm_comp1, oi_halpha_err_withcut_southnucm_comp1, sii_halpha_err_withcut_southnucm_comp1, \
+    oiii_hbeta_for_nii_err_withcut_southnucm_comp1, oiii_hbeta_for_oi_err_withcut_southnucm_comp1, oiii_hbeta_for_sii_err_withcut_southnucm_comp1, \
+    nii_halpha_withcut_southnucm_comp2, oi_halpha_withcut_southnucm_comp2, sii_halpha_withcut_southnucm_comp2, \
+    oiii_hbeta_for_nii_withcut_southnucm_comp2, oiii_hbeta_for_oi_withcut_southnucm_comp2, oiii_hbeta_for_sii_withcut_southnucm_comp2, \
+    nii_halpha_err_withcut_southnucm_comp2, oi_halpha_err_withcut_southnucm_comp2, sii_halpha_err_withcut_southnucm_comp2, \
+    oiii_hbeta_for_nii_err_withcut_southnucm_comp2, oiii_hbeta_for_oi_err_withcut_southnucm_comp2, oiii_hbeta_for_sii_err_withcut_southnucm_comp2 \
+    = apply_mask(snuc_minoraxis_mask)
+
     nii_halpha_withcut_nw_comp1, oi_halpha_withcut_nw_comp1, sii_halpha_withcut_nw_comp1, \
     oiii_hbeta_for_nii_withcut_nw_comp1, oiii_hbeta_for_oi_withcut_nw_comp1, oiii_hbeta_for_sii_withcut_nw_comp1, \
     nii_halpha_err_withcut_nw_comp1, oi_halpha_err_withcut_nw_comp1, sii_halpha_err_withcut_nw_comp1, \
@@ -551,6 +577,7 @@ if __name__ == '__main__':
     nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
     nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1,
     nii_halpha_withcut_nb_comp1, oiii_hbeta_for_nii_withcut_nb_comp1,
+    nii_halpha_withcut_southnucm_comp1, oiii_hbeta_for_nii_withcut_southnucm_comp1,
     np.nonzero(nii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('nii', '2', nii_halpha_withcut_bridge_comp2, oiii_hbeta_for_nii_withcut_bridge_comp2, nii_halpha_withcut_north_comp2, \
@@ -560,6 +587,7 @@ if __name__ == '__main__':
     nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2, \
     nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2,
     nii_halpha_withcut_nb_comp2, oiii_hbeta_for_nii_withcut_nb_comp2,
+    nii_halpha_withcut_southnucm_comp2, oiii_hbeta_for_nii_withcut_southnucm_comp2,
     np.nonzero(nii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [OI]
@@ -571,6 +599,7 @@ if __name__ == '__main__':
     oi_halpha_withcut_southnuc_comp1, oiii_hbeta_for_oi_withcut_southnuc_comp1, \
     oi_halpha_withcut_nw_comp1, oiii_hbeta_for_oi_withcut_nw_comp1,
     oi_halpha_withcut_nb_comp1, oiii_hbeta_for_oi_withcut_nb_comp1,
+    oi_halpha_withcut_southnucm_comp1, oiii_hbeta_for_oi_withcut_southnucm_comp1,
     np.nonzero(oi_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('oi', '2', oi_halpha_withcut_bridge_comp2, oiii_hbeta_for_oi_withcut_bridge_comp2, oi_halpha_withcut_north_comp2, \
@@ -580,6 +609,7 @@ if __name__ == '__main__':
     oi_halpha_withcut_southnuc_comp2, oiii_hbeta_for_oi_withcut_southnuc_comp2, \
     oi_halpha_withcut_nw_comp2, oiii_hbeta_for_oi_withcut_nw_comp2,
     oi_halpha_withcut_nb_comp2, oiii_hbeta_for_oi_withcut_nb_comp2,
+    oi_halpha_withcut_southnucm_comp2, oiii_hbeta_for_oi_withcut_southnucm_comp2,
     np.nonzero(oi_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # BPT with [SII]
@@ -591,6 +621,7 @@ if __name__ == '__main__':
     sii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_sii_withcut_southnuc_comp1, \
     sii_halpha_withcut_nw_comp1, oiii_hbeta_for_sii_withcut_nw_comp1,
     sii_halpha_withcut_nb_comp1, oiii_hbeta_for_sii_withcut_nb_comp1,
+    sii_halpha_withcut_southnucm_comp1, oiii_hbeta_for_sii_withcut_southnucm_comp1,
     np.nonzero(sii_halpha_withcut_comp1), ipac_taffy_figdir)
     # -------------- component 2 -------------- #
     plotbpt('sii', '2', sii_halpha_withcut_bridge_comp2, oiii_hbeta_for_sii_withcut_bridge_comp2, sii_halpha_withcut_north_comp2, \
@@ -600,6 +631,7 @@ if __name__ == '__main__':
     sii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_sii_withcut_southnuc_comp2, \
     sii_halpha_withcut_nw_comp2, oiii_hbeta_for_sii_withcut_nw_comp2,
     sii_halpha_withcut_nb_comp2, oiii_hbeta_for_sii_withcut_nb_comp2,
+    sii_halpha_withcut_southnucm_comp2, oiii_hbeta_for_sii_withcut_southnucm_comp2,
     np.nonzero(sii_halpha_withcut_comp2), ipac_taffy_figdir)
 
     # total run time

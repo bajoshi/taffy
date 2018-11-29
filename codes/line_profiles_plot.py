@@ -290,22 +290,22 @@ if __name__ == '__main__':
         [0.4084750017,23.48272667],[0.4094875018,23.48191917],[0.4110541662,23.48191917],[0.4116416613,23.48263722]]
 
     pn = Polygon(np.array(north_poly_points), edgecolor='forestgreen', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(pn)
     ps = Polygon(np.array(south_poly_points), edgecolor='midnightblue', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(ps)
     pb = Polygon(np.array(bridge_poly_points), edgecolor='maroon', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(pb)
     pbn = Polygon(np.array(bridge_north_poly_points), edgecolor='darkorange', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(pbn)
     pnw = Polygon(np.array(north_west_poly_points), edgecolor='darkorchid', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(pnw)
     psnuc = Polygon(np.array(south_nuc_poly_points), edgecolor='midnightblue', facecolor='None', \
-        closed=True, transform=ax.get_transform('fk5'), lw=1.5)
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0)
     ax.add_patch(psnuc)
 
     # Add text to figure to indicate region name
@@ -313,33 +313,33 @@ if __name__ == '__main__':
     f.set_weight('bold')
 
     ax.text(0.18, 0.7, 'N1', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.23, 0.75, 'N2', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.27, 0.8, 'N3', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.32, 0.85, 'N4', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.38, 0.9, 'N5', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
 
     ax.text(0.38, 0.63, 'B1', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='k', fontproperties=f, size=13)
     ax.text(0.54, 0.79, 'B2', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='k', fontproperties=f, size=13)
     ax.text(0.47, 0.52, 'B3', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='k', fontproperties=f, size=13)
 
     ax.text(0.54, 0.3, 'S1', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.65, 0.4, 'S2', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.71, 0.49, 'S3', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.74, 0.6, 'S4', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.73, 0.68, 'S5', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=12)
+        transform=ax.transAxes, color='w', fontproperties=f, size=13)
 
     #ax.text(0.02, 0.1, r'$\mathrm{[OIII]\lambda 5007}$' + '  ' + r'$\mathrm{Velocity\ scale\, (km/s):[-575,+623]}$', \
     #    verticalalignment='top', horizontalalignment='left', \
@@ -369,12 +369,12 @@ if __name__ == '__main__':
         dec = float(ln.split(',')[1])
         ra = float(ln.split(',')[0].split('circle(')[1])
 
-        reg_color = 'forestgreen'
+        reg_color = 'white'
         if 'color=blue' in ln:
-            reg_color = 'maroon'  # Now coloring the bridge circles maroon to be consistent with teh BPT plots
+            reg_color = 'k'  # Now coloring the bridge circles maroon to be consistent with teh BPT plots
 
         region = SphericalCircle((ra * u.deg, dec * u.deg), circ_size * u.degree, \
-            edgecolor=reg_color, facecolor='none', transform=ax.get_transform('fk5'), lw=1.5)
+            edgecolor=reg_color, facecolor='none', transform=ax.get_transform('fk5'), lw=2.0)
         ax.add_patch(region)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
