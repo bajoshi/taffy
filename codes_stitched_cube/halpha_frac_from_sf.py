@@ -25,7 +25,10 @@ import bpt_plots as bpt
 
 def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_br, yarr_n, yarr_s, \
     xarr_err_br, xarr_err_n, xarr_err_s, yarr_err_br, yarr_err_n, yarr_err_s, \
-    xarr_snuc, yarr_snuc, xarr_nw, yarr_nw, xarr_nb, yarr_nb, xarr_snucm, yarr_snucm, \
+    xarr_snuc, yarr_snuc, xarr_err_snuc, yarr_err_snuc, \
+    xarr_nw, yarr_nw, xarr_err_nw, yarr_err_nw, \
+    xarr_nb, yarr_nb, xarr_err_nb, yarr_err_nb, \
+    xarr_snucm, yarr_snucm, xarr_err_snucm, yarr_err_snucm, \
     valid_indices, figdir, yerr_avg):
 
     fig = plt.figure()
@@ -64,11 +67,18 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
         xerr=xarr_err_s[valid_indices], yerr=yarr_err_s[valid_indices], \
         color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
-    # Circle interesting regions
-    ax.scatter(xarr_snuc[valid_indices], yarr_snuc[valid_indices], s=30, marker='d', edgecolors='midnightblue', facecolors='midnightblue')
-    ax.scatter(xarr_snucm[valid_indices], yarr_snucm[valid_indices], s=50, edgecolors='limegreen', facecolors='none', zorder=5)
-    ax.scatter(xarr_nw[valid_indices], yarr_nw[valid_indices], s=50, edgecolors='darkorchid', facecolors='none', zorder=5)
-    ax.scatter(xarr_nb[valid_indices], yarr_nb[valid_indices], s=50, lw=1.5, edgecolors='darkorange', facecolors='none', zorder=5)
+    ax.errorbar(xarr_snuc[valid_indices], yarr_snuc[valid_indices], \
+        xerr=xarr_err_snuc[valid_indices], yerr=yarr_err_snuc[valid_indices], \
+        color='midnightblue', markersize=4.5, markeredgecolor='midnightblue', fmt='d', zorder=5, capsize=0, elinewidth=0.2)
+    #ax.errorbar(xarr_snucm[valid_indices], yarr_snucm[valid_indices], \
+    #    xerr=xarr_err_snucm[valid_indices], yerr=yarr_err_snucm[valid_indices], \
+    #    color='None', markersize=5, markeredgecolor='limegreen', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(xarr_nw[valid_indices], yarr_nw[valid_indices], \
+        xerr=xarr_err_nw[valid_indices], yerr=yarr_err_nw[valid_indices], \
+        color='darkgreen', markersize=6, markeredgecolor='darkgreen', fmt='+', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(xarr_nb[valid_indices], yarr_nb[valid_indices], \
+        xerr=xarr_err_nb[valid_indices], yerr=yarr_err_nb[valid_indices], \
+        color='darkorange', markersize=4, markeredgecolor='darkorange', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
 
     """
     All of the BPT classifications are taken from Kewley et al 2006, MNRAS, 372, 961
@@ -552,12 +562,20 @@ def apply_mask_to_nii(mask_to_apply):
     nii_halpha_withcut_comp1_withmask = ma.array(nii_halpha_withcut_comp1, mask=mask_to_apply)
     oiii_hbeta_for_nii_withcut_comp1_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp1, mask=mask_to_apply)
 
+    nii_halpha_err_withcut_comp1_withmask = ma.array(nii_halpha_err_withcut_comp1, mask=mask_to_apply)
+    oiii_hbeta_for_nii_err_withcut_comp1_withmask = ma.array(oiii_hbeta_for_nii_err_withcut_comp1, mask=mask_to_apply)
+
     # Comp2
     nii_halpha_withcut_comp2_withmask = ma.array(nii_halpha_withcut_comp2, mask=mask_to_apply)
     oiii_hbeta_for_nii_withcut_comp2_withmask = ma.array(oiii_hbeta_for_nii_withcut_comp2, mask=mask_to_apply)
 
+    nii_halpha_err_withcut_comp2_withmask = ma.array(nii_halpha_err_withcut_comp2, mask=mask_to_apply)
+    oiii_hbeta_for_nii_err_withcut_comp2_withmask = ma.array(oiii_hbeta_for_nii_err_withcut_comp2, mask=mask_to_apply)
+
     return nii_halpha_withcut_comp1_withmask, oiii_hbeta_for_nii_withcut_comp1_withmask, \
-    nii_halpha_withcut_comp2_withmask, oiii_hbeta_for_nii_withcut_comp2_withmask
+    nii_halpha_withcut_comp2_withmask, oiii_hbeta_for_nii_withcut_comp2_withmask, \
+    nii_halpha_err_withcut_comp1_withmask, oiii_hbeta_for_nii_err_withcut_comp1_withmask, \
+    nii_halpha_err_withcut_comp2_withmask, oiii_hbeta_for_nii_err_withcut_comp2_withmask
 
 if __name__ == '__main__':
     """
@@ -839,16 +857,24 @@ if __name__ == '__main__':
 
     # apply SNuc and NW masks
     nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
-    nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2 = apply_mask_to_nii(south_nuc_mask)
+    nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2, \
+    nii_halpha_err_withcut_southnuc_comp1, oiii_hbeta_for_nii_err_withcut_southnuc_comp1, \
+    nii_halpha_err_withcut_southnuc_comp2, oiii_hbeta_for_nii_err_withcut_southnuc_comp2 = apply_mask_to_nii(south_nuc_mask)
 
     nii_halpha_withcut_southnucm_comp1, oiii_hbeta_for_nii_withcut_southnucm_comp1, \
-    nii_halpha_withcut_southnucm_comp2, oiii_hbeta_for_nii_withcut_southnucm_comp2 = apply_mask_to_nii(snuc_minoraxis_mask)
+    nii_halpha_withcut_southnucm_comp2, oiii_hbeta_for_nii_withcut_southnucm_comp2, \
+    nii_halpha_err_withcut_southnucm_comp1, oiii_hbeta_for_nii_err_withcut_southnucm_comp1, \
+    nii_halpha_err_withcut_southnucm_comp2, oiii_hbeta_for_nii_err_withcut_southnucm_comp2 = apply_mask_to_nii(snuc_minoraxis_mask)
 
     nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1, \
-    nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2 = apply_mask_to_nii(north_west_mask)
+    nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2, \
+    nii_halpha_err_withcut_nw_comp1, oiii_hbeta_for_nii_err_withcut_nw_comp1, \
+    nii_halpha_err_withcut_nw_comp2, oiii_hbeta_for_nii_err_withcut_nw_comp2 = apply_mask_to_nii(north_west_mask)
 
     nii_halpha_withcut_nb_comp1, oiii_hbeta_for_nii_withcut_nb_comp1, \
-    nii_halpha_withcut_nb_comp2, oiii_hbeta_for_nii_withcut_nb_comp2 = apply_mask_to_nii(north_bridge_mask)
+    nii_halpha_withcut_nb_comp2, oiii_hbeta_for_nii_withcut_nb_comp2, \
+    nii_halpha_err_withcut_nb_comp1, oiii_hbeta_for_nii_err_withcut_nb_comp1, \
+    nii_halpha_err_withcut_nb_comp2, oiii_hbeta_for_nii_err_withcut_nb_comp2 = apply_mask_to_nii(north_bridge_mask)
 
     # print info
     print '\n', "COMPONENT 1"
@@ -900,9 +926,13 @@ if __name__ == '__main__':
         oiii_hbeta_for_nii_err_withcut_bridge_comp1, oiii_hbeta_for_nii_err_withcut_north_comp1, \
         oiii_hbeta_for_nii_err_withcut_south_comp1, \
         nii_halpha_withcut_southnuc_comp1, oiii_hbeta_for_nii_withcut_southnuc_comp1, \
+        nii_halpha_err_withcut_southnuc_comp1, oiii_hbeta_for_nii_err_withcut_southnuc_comp1, \
         nii_halpha_withcut_nw_comp1, oiii_hbeta_for_nii_withcut_nw_comp1, \
+        nii_halpha_err_withcut_nw_comp1, oiii_hbeta_for_nii_err_withcut_nw_comp1, \
         nii_halpha_withcut_nb_comp1, oiii_hbeta_for_nii_withcut_nb_comp1, \
+        nii_halpha_err_withcut_nb_comp1, oiii_hbeta_for_nii_err_withcut_nb_comp1, \
         nii_halpha_withcut_southnucm_comp1, oiii_hbeta_for_nii_withcut_southnucm_comp1, \
+        nii_halpha_err_withcut_southnucm_comp1, oiii_hbeta_for_nii_err_withcut_southnucm_comp1, \
         np.nonzero(nii_halpha_withcut_comp1), ipac_taffy_figdir, yerr_avg_comp1)
 
     print '\n', 'Component 2 (High velocity):'
@@ -921,9 +951,13 @@ if __name__ == '__main__':
         oiii_hbeta_for_nii_err_withcut_bridge_comp2, oiii_hbeta_for_nii_err_withcut_north_comp2, \
         oiii_hbeta_for_nii_err_withcut_south_comp2, \
         nii_halpha_withcut_southnuc_comp2, oiii_hbeta_for_nii_withcut_southnuc_comp2, \
+        nii_halpha_err_withcut_southnuc_comp2, oiii_hbeta_for_nii_err_withcut_southnuc_comp2, \
         nii_halpha_withcut_nw_comp2, oiii_hbeta_for_nii_withcut_nw_comp2, \
+        nii_halpha_err_withcut_nw_comp2, oiii_hbeta_for_nii_err_withcut_nw_comp2, \
         nii_halpha_withcut_nb_comp2, oiii_hbeta_for_nii_withcut_nb_comp2, \
+        nii_halpha_err_withcut_nb_comp2, oiii_hbeta_for_nii_err_withcut_nb_comp2, \
         nii_halpha_withcut_southnucm_comp2, oiii_hbeta_for_nii_withcut_southnucm_comp2, \
+        nii_halpha_err_withcut_southnucm_comp2, oiii_hbeta_for_nii_err_withcut_southnucm_comp2, \
         np.nonzero(nii_halpha_withcut_comp2), ipac_taffy_figdir, yerr_avg_comp2)
 
     # Close HDU

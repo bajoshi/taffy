@@ -842,14 +842,18 @@ if __name__ == '__main__':
         xerr=nii_halpha_err_withcut_south[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_south[nii_nonzero], \
         color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
-    ax.scatter(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
-        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
-    ax.scatter(nii_halpha_withcut_snucm[nii_nonzero], oiii_hbeta_for_nii_withcut_snucm[nii_nonzero], \
-        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
-    ax.scatter(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
-        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
-    ax.scatter(nii_halpha_withcut_nb[nii_nonzero], oiii_hbeta_for_nii_withcut_nb[nii_nonzero], \
-        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
+    ax.errorbar(nii_halpha_withcut_snuc[nii_nonzero], oiii_hbeta_for_nii_withcut_snuc[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_snuc[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_snuc[nii_nonzero], \
+        color='midnightblue', markersize=4.5, markeredgecolor='midnightblue', fmt='d', zorder=5, capsize=0, elinewidth=0.2)
+    #ax.scatter(nii_halpha_withcut_snucm[nii_nonzero], oiii_hbeta_for_nii_withcut_snucm[nii_nonzero], \
+    #    xerr=nii_halpha_err_withcut_snucm[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_snucm[nii_nonzero], \
+    #    color='None', markersize=5, markeredgecolor='limegreen', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(nii_halpha_withcut_nw[nii_nonzero], oiii_hbeta_for_nii_withcut_nw[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_nw[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_nw[nii_nonzero], \
+        color='darkgreen', markersize=6, markeredgecolor='darkgreen', fmt='+', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(nii_halpha_withcut_nb[nii_nonzero], oiii_hbeta_for_nii_withcut_nb[nii_nonzero], \
+        xerr=nii_halpha_err_withcut_nb[nii_nonzero], yerr=oiii_hbeta_for_nii_err_withcut_nb[nii_nonzero], \
+        color='darkorange', markersize=4, markeredgecolor='darkorange', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
 
     # Try plotting the entire north bridge region as a single point too
     # Make sure you only consider the valid indices
@@ -867,7 +871,7 @@ if __name__ == '__main__':
 
     ax.errorbar(nii_halpha_nb, oiii_hbeta_for_nii_nb, \
         xerr=nii_halpha_nb_err, yerr=oiii_hbeta_for_nii_nb_err, \
-        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+        color='None', markersize=7, markeredgecolor='darkorange', fmt='o', capsize=0, elinewidth=0.4)
 
     # Plot classification lines
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
@@ -945,14 +949,18 @@ if __name__ == '__main__':
         xerr=oi_halpha_err_withcut_south[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_south[oi_nonzero], \
         color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
-    ax.scatter(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
-        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
-    ax.scatter(oi_halpha_withcut_snucm[oi_nonzero], oiii_hbeta_for_oi_withcut_snucm[oi_nonzero], \
-        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
-    ax.scatter(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
-        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
-    ax.scatter(oi_halpha_withcut_nb[oi_nonzero], oiii_hbeta_for_oi_withcut_nb[oi_nonzero], \
-        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
+    ax.errorbar(oi_halpha_withcut_snuc[oi_nonzero], oiii_hbeta_for_oi_withcut_snuc[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_snuc[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_snuc[oi_nonzero], \
+        color='midnightblue', markersize=4.5, markeredgecolor='midnightblue', fmt='d', zorder=5, capsize=0, elinewidth=0.2)
+    #ax.scatter(oi_halpha_withcut_snucm[oi_nonzero], oiii_hbeta_for_oi_withcut_snucm[oi_nonzero], \
+    #    xerr=oi_halpha_err_withcut_snucm[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_snucm[oi_nonzero], \
+    #    color='None', markersize=5, markeredgecolor='limegreen', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(oi_halpha_withcut_nw[oi_nonzero], oiii_hbeta_for_oi_withcut_nw[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_nw[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_nw[oi_nonzero], \
+        color='darkgreen', markersize=6, markeredgecolor='darkgreen', fmt='+', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(oi_halpha_withcut_nb[oi_nonzero], oiii_hbeta_for_oi_withcut_nb[oi_nonzero], \
+        xerr=oi_halpha_err_withcut_nb[oi_nonzero], yerr=oiii_hbeta_for_oi_err_withcut_nb[oi_nonzero], \
+        color='darkorange', markersize=4, markeredgecolor='darkorange', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
 
     # Try plotting the entire north bridge region as a single point too
     # Make sure you only consider the valid indices
@@ -970,7 +978,7 @@ if __name__ == '__main__':
 
     ax.errorbar(oi_halpha_nb, oiii_hbeta_for_oi_nb, \
         xerr=oi_halpha_nb_err, yerr=oiii_hbeta_for_oi_nb_err, \
-        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+        color='None', markersize=7, markeredgecolor='darkorange', fmt='o', capsize=0, elinewidth=0.4)
 
     # Plot classification lines
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
@@ -1047,14 +1055,18 @@ if __name__ == '__main__':
         xerr=sii_halpha_err_withcut_south[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_south[sii_nonzero], \
         color='midnightblue', markersize=3.5, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.2)
 
-    ax.scatter(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
-        s=30, marker='d', facecolors='midnightblue', edgecolors='midnightblue')
-    ax.scatter(sii_halpha_withcut_snucm[sii_nonzero], oiii_hbeta_for_sii_withcut_snucm[sii_nonzero], \
-        s=50, facecolors='None', edgecolors='limegreen', zorder=5)
-    ax.scatter(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
-        s=50, facecolors='None', edgecolors='darkorchid', zorder=5)
-    ax.scatter(sii_halpha_withcut_nb[sii_nonzero], oiii_hbeta_for_sii_withcut_nb[sii_nonzero], \
-        s=50, lw=1.5, facecolors='None', edgecolors='darkorange', zorder=5)
+    ax.errorbar(sii_halpha_withcut_snuc[sii_nonzero], oiii_hbeta_for_sii_withcut_snuc[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_snuc[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_snuc[sii_nonzero], \
+        color='midnightblue', markersize=4.5, markeredgecolor='midnightblue', fmt='d', zorder=5, capsize=0, elinewidth=0.2)
+    #ax.scatter(sii_halpha_withcut_snucm[sii_nonzero], oiii_hbeta_for_sii_withcut_snucm[sii_nonzero], \
+    #    xerr=sii_halpha_err_withcut_snucm[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_snucm[sii_nonzero], \
+    #    color='None', markersize=5, markeredgecolor='limegreen', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(sii_halpha_withcut_nw[sii_nonzero], oiii_hbeta_for_sii_withcut_nw[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_nw[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_nw[sii_nonzero], \
+        color='darkgreen', markersize=6, markeredgecolor='darkgreen', fmt='+', zorder=5, capsize=0, elinewidth=0.2)
+    ax.errorbar(sii_halpha_withcut_nb[sii_nonzero], oiii_hbeta_for_sii_withcut_nb[sii_nonzero], \
+        xerr=sii_halpha_err_withcut_nb[sii_nonzero], yerr=oiii_hbeta_for_sii_err_withcut_nb[sii_nonzero], \
+        color='darkorange', markersize=4, markeredgecolor='darkorange', fmt='o', zorder=5, capsize=0, elinewidth=0.2)
 
     # Try plotting the entire north bridge region as a single point too
     # Make sure you only consider the valid indices
@@ -1072,7 +1084,7 @@ if __name__ == '__main__':
 
     ax.errorbar(sii_halpha_nb, oiii_hbeta_for_sii_nb, \
         xerr=sii_halpha_nb_err, yerr=oiii_hbeta_for_sii_nb_err, \
-        color='darkorange', markersize=7, markeredgecolor='None', fmt='o', capsize=0, elinewidth=0.4)
+        color='None', markersize=7, markeredgecolor='darkorange', fmt='o', capsize=0, elinewidth=0.4)
 
     # Plot classification lines
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
