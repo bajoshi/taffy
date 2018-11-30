@@ -391,7 +391,7 @@ if __name__ == '__main__':
     ax_n_4_blue, ax_n_4_red = plot_line_profiles(ax_n_4_blue, ax_n_4_red, north_majax_4_blue['wav'], north_majax_4_blue['flux'], north_majax_4_red['wav'], north_majax_4_red['flux'], 15,50, 15,95)
     ax_n_5_blue, ax_n_5_red = plot_line_profiles(ax_n_5_blue, ax_n_5_red, north_majax_5_blue['wav'], north_majax_5_blue['flux'], north_majax_5_red['wav'], north_majax_5_red['flux'], 20,75, 0,175)
 
-    ax_s_1_blue, ax_s_1_red = plot_line_profiles(ax_s_1_blue, ax_s_1_red, south_majax_1_blue['wav'], south_majax_1_blue['flux'], south_majax_1_red['wav'], south_majax_1_red['flux'], 24,60, 30,370)
+    ax_s_1_blue, ax_s_1_red = plot_line_profiles(ax_s_1_blue, ax_s_1_red, south_majax_1_blue['wav'], south_majax_1_blue['flux'], south_majax_1_red['wav'], south_majax_1_red['flux'], 24,56, 30,340)
     ax_s_2_blue, ax_s_2_red = plot_line_profiles(ax_s_2_blue, ax_s_2_red, south_majax_2_blue['wav'], south_majax_2_blue['flux'], south_majax_2_red['wav'], south_majax_2_red['flux'], 105,160, 140,260)
     ax_s_3_blue, ax_s_3_red = plot_line_profiles(ax_s_3_blue, ax_s_3_red, south_majax_3_blue['wav'], south_majax_3_blue['flux'], south_majax_3_red['wav'], south_majax_3_red['flux'], 25,63, 40,275)
     ax_s_4_blue, ax_s_4_red = plot_line_profiles(ax_s_4_blue, ax_s_4_red, south_majax_4_blue['wav'], south_majax_4_blue['flux'], south_majax_4_red['wav'], south_majax_4_red['flux'], 40,120, 40,340)
