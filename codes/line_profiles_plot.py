@@ -176,15 +176,22 @@ if __name__ == '__main__':
     # define axes using above grid
     ax = fig.add_subplot(gs[:36,24:60], projection=wcs_sdss)
 
+    """
+    These rightward increasing looking zorder values for hte subplots are to make sure that
+    the axes of a graph do not get cut off by the plot to its left.
+    Try making the plot without the zorder in the subplots and it'll be clear (check B1 in particular).
+    I'm not entirely sure why the problem arises in the first place but this fixes it.
+    """
+
     # Bridge
-    ax_br_1_blue = fig.add_subplot(gs[36:48,24:36])
-    ax_br_1_red  = fig.add_subplot(gs[48:,24:36])
+    ax_br_1_blue = fig.add_subplot(gs[36:48,24:36], zorder=5)
+    ax_br_1_red  = fig.add_subplot(gs[48:,24:36], zorder=5)
 
-    ax_br_2_blue = fig.add_subplot(gs[36:48,36:48])
-    ax_br_2_red  = fig.add_subplot(gs[48:,36:48])
+    ax_br_2_blue = fig.add_subplot(gs[36:48,36:48], zorder=6)
+    ax_br_2_red  = fig.add_subplot(gs[48:,36:48], zorder=6)
 
-    ax_br_3_blue = fig.add_subplot(gs[36:48,48:60])
-    ax_br_3_red  = fig.add_subplot(gs[48:,48:60])
+    ax_br_3_blue = fig.add_subplot(gs[36:48,48:60], zorder=7)
+    ax_br_3_red  = fig.add_subplot(gs[48:,48:60], zorder=7)
 
     # North galaxy
     ax_n_1_blue = fig.add_subplot(gs[:12,:12])
@@ -232,14 +239,14 @@ if __name__ == '__main__':
     ax_s_1_blue = fig.add_subplot(gs[:12,60:72])
     ax_s_2_blue = fig.add_subplot(gs[12:24,60:72])
     ax_s_3_blue = fig.add_subplot(gs[24:36,60:72])
-    ax_s_4_blue = fig.add_subplot(gs[36:48,60:72])
-    ax_s_5_blue = fig.add_subplot(gs[48:,60:72])
+    ax_s_4_blue = fig.add_subplot(gs[36:48,60:72], zorder=8)
+    ax_s_5_blue = fig.add_subplot(gs[48:,60:72], zorder=8)
 
     ax_s_1_red  = fig.add_subplot(gs[:12,72:])
     ax_s_2_red  = fig.add_subplot(gs[12:24,72:])
     ax_s_3_red  = fig.add_subplot(gs[24:36,72:])
-    ax_s_4_red  = fig.add_subplot(gs[36:48,72:])
-    ax_s_5_red  = fig.add_subplot(gs[48:,72:])
+    ax_s_4_red  = fig.add_subplot(gs[36:48,72:], zorder=9)
+    ax_s_5_red  = fig.add_subplot(gs[48:,72:], zorder=9)
 
     # ------------ Plot galaxy ------------ #
     # SDSS g band image with proper stretch
@@ -378,7 +385,7 @@ if __name__ == '__main__':
         ax.add_patch(region)
 
     # ------------------------ PLOT THE SPECTRA ------------------------ #
-    ax_n_1_blue, ax_n_1_red = plot_line_profiles(ax_n_1_blue, ax_n_1_red, north_majax_1_blue['wav'], north_majax_1_blue['flux'], north_majax_1_red['wav'], north_majax_1_red['flux'], 55,100, 40,190)
+    ax_n_1_blue, ax_n_1_red = plot_line_profiles(ax_n_1_blue, ax_n_1_red, north_majax_1_blue['wav'], north_majax_1_blue['flux'], north_majax_1_red['wav'], north_majax_1_red['flux'], 55,90, 40,175)
     ax_n_2_blue, ax_n_2_red = plot_line_profiles(ax_n_2_blue, ax_n_2_red, north_majax_2_blue['wav'], north_majax_2_blue['flux'], north_majax_2_red['wav'], north_majax_2_red['flux'], 40,80, 60,320)
     ax_n_3_blue, ax_n_3_red = plot_line_profiles(ax_n_3_blue, ax_n_3_red, north_majax_3_blue['wav'], north_majax_3_blue['flux'], north_majax_3_red['wav'], north_majax_3_red['flux'], 20,48, 20,235)
     ax_n_4_blue, ax_n_4_red = plot_line_profiles(ax_n_4_blue, ax_n_4_red, north_majax_4_blue['wav'], north_majax_4_blue['flux'], north_majax_4_red['wav'], north_majax_4_red['flux'], 15,50, 15,95)
@@ -443,6 +450,7 @@ if __name__ == '__main__':
         transform=ax_br_3_blue.transAxes, color='k', fontproperties=f, size=16)
 
     # Text for flux units
+    """
     ax_n_1_blue.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
         transform=ax_n_1_blue.transAxes, color='k', size=14)
@@ -456,6 +464,7 @@ if __name__ == '__main__':
     ax_s_1_red.text(0.03, 1.06, r'$\times 10^{-18}$' + '\n' + r'$\mathrm{erg\, s^{-1}\, cm^{-2}\, \AA^{-1}}$', \
         verticalalignment='top', horizontalalignment='left', \
         transform=ax_s_1_red.transAxes, color='k', size=14)
+    """
 
     # Text for [NII] lines seen in some cases
     ax_n_3_red.text(0.08, 0.44, r'$\mathrm{[NII]}$' + '\n' + r'$\lambda6548$', \

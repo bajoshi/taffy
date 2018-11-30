@@ -12,6 +12,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
+from matplotlib.font_manager import FontProperties
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
@@ -127,6 +128,17 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
                                          bbox_to_anchor=(0.32, 0.3),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
+
+    # Text indicating panel # also make it bold
+    f = FontProperties()
+    f.set_weight('bold')
+
+    if vel_comp == '1':
+        ax.text(0.05, 0.97, '(a)', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=16)
+    elif vel_comp == '2':
+        ax.text(0.05, 0.97, '(b)', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=16)
 
     # Other auxilliary plot commands
     ax.legend(loc='center left', prop={'size':10})

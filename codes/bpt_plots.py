@@ -15,6 +15,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea, AnchoredText
+from matplotlib.font_manager import FontProperties
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
@@ -912,6 +913,11 @@ if __name__ == '__main__':
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
 
+    # Text indicating panel # also make it bold
+    f = FontProperties()
+    f.set_weight('bold')
+    ax.text(0.05, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=16)
 
     fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
@@ -1014,6 +1020,12 @@ if __name__ == '__main__':
                                          bbox_to_anchor=(0.2, 0.2),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
+
+    # Text indicating panel # also make it bold
+    f = FontProperties()
+    f.set_weight('bold')
+    ax.text(0.03, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=16)
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
@@ -1120,6 +1132,12 @@ if __name__ == '__main__':
                                          bbox_to_anchor=(0.22, 0.3),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_hiibox)
+
+    # Text indicating panel # also make it bold
+    f = FontProperties()
+    f.set_weight('bold')
+    ax.text(0.03, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=16)
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
