@@ -51,7 +51,8 @@ if __name__ == '__main__':
     obs_data_r = obs_r[0].data
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
+    #h = fits.open(taffy_extdir + 'Taffy_2_comp_patched.fits')
+    h = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     # assign line arrays
     # Each one of these cubes has the shape 
@@ -189,7 +190,7 @@ if __name__ == '__main__':
     pix_y = 19
     arr_x = pix_y - 1
     arr_y = pix_x - 1
-    box_size = 5
+    box_size = 3
 
     # If you want to analyze a block enter the ds9 pix coords of the low 
     # left corner above. Otherwise you need to loop both i and j over range(58)
@@ -346,7 +347,7 @@ if __name__ == '__main__':
             print "line idx and center", line_idx, line_idx * 0.3 + red_wav_start
             print "mean vel 1 and 2 [km/s]", phys_vel_comp1, phys_vel_comp2
             print "mean diff", format((((vel_comp2[i,j] - vel_comp1[i,j]) * 0.3) / line_air_wav) * speed_of_light, '.2f'), "km/s"
-            print "std devs", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
+            print "std devs comp2 and comp1", format(std_comp2[i,j], '.2f'), format(std_comp1[i,j], '.2f')
             print "continuum level, amp and vdisp for onecomp fit", format(cont_level, '.2f'), format(amp_onecomp[i,j], '.2f'), format(std_onecomp[i,j], '.2f')
             print "All zeros in comp1", np.allclose(g1(line_x_arr_comp1), np.zeros(len(g1(line_x_arr_comp1))), rtol=1e-5, atol=1e-3)
             print "All zeros in comp2", np.allclose(g2(line_x_arr_comp2), np.zeros(len(g2(line_x_arr_comp2))), rtol=1e-5, atol=1e-3)
@@ -370,6 +371,8 @@ if __name__ == '__main__':
             # also show the raw data and *MY* single gaussian fit to the raw data
             ax.plot(line_x_arr_data, line_y_arr_data, color='gray')
             ax.plot(line_x_arr_data, g(line_x_arr_data), ls='--', color='g', lw=2)
+
+            ax.minorticks_on()
 
             plt.show()
             plt.clf()
