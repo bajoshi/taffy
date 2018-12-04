@@ -134,11 +134,11 @@ def plot_bpt_with_hii_shaded(plottype, vel_comp, xarr_br, xarr_n, xarr_s, yarr_b
     f.set_weight('bold')
 
     if vel_comp == '1':
-        ax.text(0.05, 0.97, '(a)', verticalalignment='top', horizontalalignment='left', \
-            transform=ax.transAxes, color='k', fontproperties=f, size=16)
+        ax.text(0.05, 0.97, '(a) Low velocity component', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=14)
     elif vel_comp == '2':
-        ax.text(0.05, 0.97, '(b)', verticalalignment='top', horizontalalignment='left', \
-            transform=ax.transAxes, color='k', fontproperties=f, size=16)
+        ax.text(0.05, 0.97, '(b) High velocity component', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
     # Other auxilliary plot commands
     ax.legend(loc='center left', prop={'size':10})

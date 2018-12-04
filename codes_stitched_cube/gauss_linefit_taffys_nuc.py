@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     # also show the raw data and *MY* single gaussian fit to the raw data
     ax.plot(line_x_arr_data, line_y_arr_data, color='gray', label='Raw data')
-    ax.plot(line_x_arr_data, g(line_x_arr_data), ls='--', color='g', lw=2, label='Single Gaussian fit')
+    #ax.plot(line_x_arr_data, g(line_x_arr_data), ls='--', color='g', lw=2, label='Single Gaussian fit')
 
     # Text for line FWHM
     f = FontProperties()

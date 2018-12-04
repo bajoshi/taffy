@@ -916,8 +916,8 @@ if __name__ == '__main__':
     # Text indicating panel # also make it bold
     f = FontProperties()
     f.set_weight('bold')
-    ax.text(0.05, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=16)
+    ax.text(0.03, 0.97, '(c) All velocity components', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
     fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
@@ -1024,8 +1024,8 @@ if __name__ == '__main__':
     # Text indicating panel # also make it bold
     f = FontProperties()
     f.set_weight('bold')
-    ax.text(0.03, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=16)
+    ax.text(0.03, 0.97, '(c) All velocity components', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
@@ -1117,7 +1117,7 @@ if __name__ == '__main__':
     # region labels
     seyfertbox = TextArea('Seyfert', textprops=dict(color='k', size=16))
     anc_seyfertbox = AnchoredOffsetbox(loc=2, child=seyfertbox, pad=0.0, frameon=False,\
-                                         bbox_to_anchor=(0.35, 0.93),\
+                                         bbox_to_anchor=(0.3, 0.86),\
                                          bbox_transform=ax.transAxes, borderpad=0.0)
     ax.add_artist(anc_seyfertbox) 
 
@@ -1136,8 +1136,8 @@ if __name__ == '__main__':
     # Text indicating panel # also make it bold
     f = FontProperties()
     f.set_weight('bold')
-    ax.text(0.03, 0.97, '(c)', verticalalignment='top', horizontalalignment='left', \
-        transform=ax.transAxes, color='k', fontproperties=f, size=16)
+    ax.text(0.03, 0.97, '(c) All velocity components', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')

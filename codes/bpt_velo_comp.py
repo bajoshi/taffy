@@ -193,7 +193,7 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
         # labels
         seyfertbox = TextArea('Seyfert', textprops=dict(color='k', size=16))
         anc_seyfertbox = AnchoredOffsetbox(loc=2, child=seyfertbox, pad=0.0, frameon=False,\
-                                             bbox_to_anchor=(0.35, 0.93),\
+                                             bbox_to_anchor=(0.3, 0.86),\
                                              bbox_transform=ax.transAxes, borderpad=0.0)
         ax.add_artist(anc_seyfertbox) 
 
@@ -216,11 +216,11 @@ def plotbpt(plottype, vel_comp, xarr_br, yarr_br, xarr_n, yarr_n, xarr_s, yarr_s
     f.set_weight('bold')
 
     if vel_comp == '1':
-        ax.text(0.03, 0.97, '(a)', verticalalignment='top', horizontalalignment='left', \
-            transform=ax.transAxes, color='k', fontproperties=f, size=16)
+        ax.text(0.03, 0.97, '(a) Low velocity component', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=14)
     elif vel_comp == '2':
-        ax.text(0.03, 0.97, '(b)', verticalalignment='top', horizontalalignment='left', \
-            transform=ax.transAxes, color='k', fontproperties=f, size=16)
+        ax.text(0.03, 0.97, '(b) High velocity component', verticalalignment='top', horizontalalignment='left', \
+            transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
     ax.minorticks_on()
     ax.tick_params('both', width=1, length=3, which='minor')
