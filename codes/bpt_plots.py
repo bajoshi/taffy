@@ -878,12 +878,13 @@ if __name__ == '__main__':
     ax.plot(np.arange(-1, 0, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1, 0.4, 0.01), y_liner_seyfert_line, '--', color='k')
 
-    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
-    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
-    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
-    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s')
-    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s')
-    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s')
+    #ax.plot(mappings_nii_halpha_v100, mappings_oiii_hbeta_v100, '.-', lw=2, label='100 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v300, mappings_oiii_hbeta_v300, '.-', lw=2, label='300 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v500, mappings_oiii_hbeta_v500, '.-', lw=2, label='500 km/s', zorder=6)
+    ax.plot(mappings_nii_halpha_v800, mappings_oiii_hbeta_v800, '.-', lw=2, label='800 km/s', zorder=6)
 
     ax.legend(loc=0, prop={'size':10})
 
@@ -919,7 +920,17 @@ if __name__ == '__main__':
     ax.text(0.03, 0.97, '(c) All velocity components', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='k', fontproperties=f, size=14)
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
+    """
+    f = FontProperties()
+    f.set_weight('bold')
+    mpl.rcParams['text.usetex'] = False
+    mpl.rcParams['font.serif'] = 'Times New Roman'
+    ax.text(0.03, 0.1, 'Shock+Precursor', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=16)
+    mpl.rcParams['text.usetex'] = True
+    """
+
+    fig.savefig(ipac_taffy_figdir + 'bpt_nii.pdf', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_nii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -990,6 +1001,7 @@ if __name__ == '__main__':
     ax.plot(np.arange(-2.5, -0.8, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-1.1, 0, 0.01), y_liner_seyfert_line, '--', color='k')
 
+    ax.plot(mappings_oi_halpha_v100, mappings_oiii_hbeta_v100, '.-', lw=2, label='100 km/s')
     ax.plot(mappings_oi_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
     ax.plot(mappings_oi_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
     ax.plot(mappings_oi_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
@@ -1031,7 +1043,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_oi.pdf', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_oi_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
@@ -1102,6 +1114,7 @@ if __name__ == '__main__':
     ax.plot(np.arange(-1, 0.1, 0.01), y_agn_hii_line, '-', color='k')
     ax.plot(np.arange(-0.3, 1, 0.01), y_liner_seyfert_line, '--', color='k')
 
+    ax.plot(mappings_sii_halpha_v100, mappings_oiii_hbeta_v100, '.-', lw=2, label='100 km/s')
     ax.plot(mappings_sii_halpha_v125, mappings_oiii_hbeta_v125, '.-', lw=2, label='125 km/s')
     ax.plot(mappings_sii_halpha_v175, mappings_oiii_hbeta_v175, '.-', lw=2, label='175 km/s')
     ax.plot(mappings_sii_halpha_v200, mappings_oiii_hbeta_v200, '.-', lw=2, label='200 km/s')
@@ -1143,7 +1156,7 @@ if __name__ == '__main__':
     ax.tick_params('both', width=1, length=3, which='minor')
     ax.tick_params('both', width=1, length=4.7, which='major')
 
-    fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh_full_errbar_indep.png', dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'bpt_sii.pdf', dpi=300, bbox_inches='tight')
     #fig.savefig(ipac_taffy_figdir + 'bpt_sii_no_thresh.eps', dpi=300, bbox_inches='tight')
 
     plt.clf()
