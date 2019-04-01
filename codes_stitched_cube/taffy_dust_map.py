@@ -8,10 +8,12 @@ import os
 import sys
 
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
 taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+taffy_data = home + '/Desktop/ipac/taffy_lzifu/data/'
 ipac_taffy_figdir = home + '/Desktop/ipac/taffy_lzifu/figures_stitched_cube/'
 
 sys.path.append(taffydir + 'codes/')
@@ -187,6 +189,37 @@ def get_halpha_lum(stitched_cube, a_Halpha_map):
 
     return None
 
+def get_wav_arr():
+
+    # create wavelength array
+    # I read these data from the corresponding headers
+    delt_b = 0.3  # i.e. the wav axis is sampled at 0.3A
+    blue_wav_start = 4662.0
+    total_blue_res_elem = 2227
+    blue_res = 1.6
+
+    blue_wav_arr = [blue_wav_start + delt_b*i for i in range(total_blue_res_elem)]
+    blue_wav_arr = np.asarray(blue_wav_arr)
+
+    # red wav arr
+    delt_r = 0.3  # i.e. the wav axis is sampled at 0.3A
+    red_wav_start = 6165.0
+    total_red_res_elem = 2350
+    red_res = 1.5
+
+    red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
+    red_wav_arr = np.asarray(red_wav_arr)
+
+    return blue_wav_arr, red_wav_arr
+
+def get_pseudo_cont_level(obs_data, line_idx, linepad_left, linepad_right):
+
+    pseudo_cont_arr_left = obs_data[line_idx-10-(linepad_left-10):line_idx-10, i, j]
+    pseudo_cont_arr_right = obs_data[line_idx+10:line_idx+10+(linepad_right-10), i, j]
+    cont_level = np.nanmean(np.concatenate((pseudo_cont_arr_left, pseudo_cont_arr_right)))
+
+    return cont_level
+
 if __name__ == '__main__':
     """
     To get extinction corrected emission line fluxes.
@@ -234,7 +267,7 @@ if __name__ == '__main__':
 
     # ----------------------------------- Read in arrays ----------------------------------- #
     # Read in stitched cube
-    stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
+    #stitched_cube = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     # read in halpha and hbeta maps from stitched cube
     halpha = fits.open(taffy_extdir + 'stitched_cube_HALPHA.fits')
@@ -248,6 +281,28 @@ if __name__ == '__main__':
 
     halpha_total_err = halpha_err[0].data[0]
     hbeta_total_err = hbeta_err[0].data[0]
+
+    # ------- Read lines to plot when checking individual fits --------- #
+    b_line = fits.open(taffy_extdir + 'stitched_cube_B_LINE.fits')
+    r_line = fits.open(taffy_extdir + 'stitched_cube_R_LINE.fits')
+    # read in observed data
+    obs_b = fits.open(taffy_data + 'Taffy_B.fits')
+    obs_r = fits.open(taffy_data + 'Taffy_R.fits')
+    obs_data_b = obs_b[0].data
+    obs_data_r = obs_r[0].data
+
+    # find line index in wavelength array
+    redshift = 0.0145  # average z
+    hbeta_air_wav = 4861.363
+    halpha_air_wav = 6562.80
+
+    blue_wav_arr, red_wav_arr = get_wav_arr()
+
+    hbeta_wav = hbeta_air_wav*(1+redshift)
+    hbeta_idx = np.argmin(abs(blue_wav_arr - hbeta_wav))
+
+    halpha_wav = halpha_air_wav*(1+redshift)
+    halpha_idx = np.argmin(abs(red_wav_arr - halpha_wav))
 
     # ----------------------------------- Cut on significance ----------------------------------- #
     # make snr maps
@@ -267,9 +322,55 @@ if __name__ == '__main__':
     # ----------------------------------- Make E(B-V) map ----------------------------------- #
     ebv_map = np.zeros((58,58))
 
-    for i in range(58):
-        for j in range(58):
+    # conv ds9 coords to array coords 
+    # to be able to check with ds9
+    pix_x = 39
+    pix_y = 19
+    arr_x = pix_y - 1
+    arr_y = pix_x - 1
+    box_size = 5
+
+    # If you want to analyze a block enter the ds9 pix coords of the low 
+    # left corner above. Otherwise you need to loop both i and j over range(58)
+    # Also uncomment plotting below if you want to check individual fits
+    for i in range(arr_x, arr_x + box_size):
+        for j in range(arr_y, arr_y + box_size):
+
             ebv_map[i,j] = 1.97 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.86)
+
+            print j+1, i+1, "{:.2f}".format(halpha_total[i,j]), "{:.2f}".format(hbeta_total[i,j]), \
+            "{:.2f}".format(ebv_map[i,j]), "{:.2f}".format(4.05 * ebv_map[i,j])
+
+            # PLot to check
+            fig = plt.figure()
+            gs = gridspec.GridSpec(5,10)
+            gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=1.0, hspace=0)
+
+            ax1 = fig.add_subplot(gs[:,:5])
+            ax2 = fig.add_subplot(gs[:,5:])
+
+            linepad_left = 70
+            linepad_right = 70
+            
+            hbeta_y_arr_data = obs_data_b[hbeta_idx-linepad_left:hbeta_idx+linepad_right, i, j]
+            hbeta_x_arr_data = np.linspace(hbeta_idx-linepad_left, hbeta_idx+linepad_right, len(hbeta_y_arr_data))
+
+            halpha_y_arr_data = obs_data_r[halpha_idx-linepad_left:halpha_idx+linepad_right, i, j]
+            halpha_x_arr_data = np.linspace(halpha_idx-linepad_left, halpha_idx+linepad_right, len(halpha_y_arr_data))
+
+            # find pseudo continuum and subtract
+            hbeta_cont_level= get_pseudo_cont_level(obs_data_b, hbeta_idx, linepad_left, linepad_right)
+            halpha_cont_level= get_pseudo_cont_level(obs_data_r, halpha_idx, linepad_left, linepad_right)
+            hbeta_y_arr_data -= hbeta_cont_level
+            halpha_y_arr_data -= halpha_cont_level
+
+            ax1.plot(hbeta_x_arr_data, hbeta_y_arr_data, color='midnightblue')
+            ax2.plot(halpha_x_arr_data, halpha_y_arr_data, color='maroon')
+
+            plt.show()
+            sys.exit()
+
+    sys.exit(0)
 
     # apply snr mask
     ebv_map = ma.array(ebv_map, mask=val_idx)
