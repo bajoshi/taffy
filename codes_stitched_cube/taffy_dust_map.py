@@ -283,8 +283,16 @@ if __name__ == '__main__':
     hbeta_total_err = hbeta_err[0].data[0]
 
     # ------- Read lines to plot when checking individual fits --------- #
-    b_line = fits.open(taffy_extdir + 'stitched_cube_B_LINE.fits')
-    r_line = fits.open(taffy_extdir + 'stitched_cube_R_LINE.fits')
+    b_line_hdu = fits.open(taffy_extdir + 'stitched_cube_B_LINE.fits')
+    r_line_hdu = fits.open(taffy_extdir + 'stitched_cube_R_LINE.fits')
+    b_cont_hdu = fits.open(taffy_extdir + 'stitched_cube_B_CONTINUUM.fits')
+    r_cont_hdu = fits.open(taffy_extdir + 'stitched_cube_R_CONTINUUM.fits')
+
+    b_line = b_line_hdu[0].data
+    r_line = r_line_hdu[0].data
+    b_cont = b_cont_hdu[0].data
+    r_cont = r_cont_hdu[0].data
+
     # read in observed data
     obs_b = fits.open(taffy_data + 'Taffy_B.fits')
     obs_r = fits.open(taffy_data + 'Taffy_R.fits')
@@ -329,6 +337,10 @@ if __name__ == '__main__':
     arr_x = pix_y - 1
     arr_y = pix_x - 1
     box_size = 5
+    check_plots = True
+
+    if check_plots:
+        print "\n", "DS9 x, y    ", "H-alpha area    ", "H-beta area    ", "E(B-V)    ", "Av"
 
     # If you want to analyze a block enter the ds9 pix coords of the low 
     # left corner above. Otherwise you need to loop both i and j over range(58)
@@ -338,37 +350,87 @@ if __name__ == '__main__':
 
             ebv_map[i,j] = 1.97 * np.log10(halpha_total[i,j]/hbeta_total[i,j] / 2.86)
 
-            print j+1, i+1, "{:.2f}".format(halpha_total[i,j]), "{:.2f}".format(hbeta_total[i,j]), \
-            "{:.2f}".format(ebv_map[i,j]), "{:.2f}".format(4.05 * ebv_map[i,j])
+            if check_plots:
+                halpha_area_to_print = "{:.2f}".format(halpha_total[i,j])
+                hbeta_area_to_print = str("{:.2f}".format(hbeta_total[i,j]))
+                if len(hbeta_area_to_print) == 5:
+                    hbeta_area_to_print += " "
 
-            # PLot to check
-            fig = plt.figure()
-            gs = gridspec.GridSpec(5,10)
-            gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=1.0, hspace=0)
+                ebv_to_print = str("{:.2f}".format(ebv_map[i,j]))
+                if ebv_map[i,j] > 0:
+                    ebv_to_print = " " + ebv_to_print
 
-            ax1 = fig.add_subplot(gs[:,:5])
-            ax2 = fig.add_subplot(gs[:,5:])
+                av_to_print = "{:.2f}".format(4.05 * ebv_map[i,j])
+                if ebv_map[i,j] > 0:
+                    av_to_print = " " + av_to_print
 
-            linepad_left = 70
-            linepad_right = 70
+                print "   ", j+1, i+1, "    ",
+                print halpha_area_to_print, "        ",
+                print hbeta_area_to_print, "       ",
+                print ebv_to_print, "    ",
+                print av_to_print
+
+                # Plot to check
+                fig = plt.figure(figsize=(10,4))
+                gs = gridspec.GridSpec(6,20)
+                gs.update(left=0.05, right=0.95, bottom=0.05, top=0.95, wspace=1.1, hspace=0.5)
+
+                # assign axes on grid
+                ax1 = fig.add_subplot(gs[:,:5])
+                ax2 = fig.add_subplot(gs[:,5:10])
+                ax3 = fig.add_subplot(gs[:3,10:])
+                ax4 = fig.add_subplot(gs[3:,10:])
+
+                # ---- Get observed data arrays for plotting
+                linepad_left = 70
+                linepad_right = 70
             
-            hbeta_y_arr_data = obs_data_b[hbeta_idx-linepad_left:hbeta_idx+linepad_right, i, j]
-            hbeta_x_arr_data = np.linspace(hbeta_idx-linepad_left, hbeta_idx+linepad_right, len(hbeta_y_arr_data))
+                hbeta_y_arr_data = obs_data_b[hbeta_idx-linepad_left:hbeta_idx+linepad_right, i, j]
+                hbeta_x_arr_data = np.linspace(hbeta_idx-linepad_left, hbeta_idx+linepad_right, len(hbeta_y_arr_data))
 
-            halpha_y_arr_data = obs_data_r[halpha_idx-linepad_left:halpha_idx+linepad_right, i, j]
-            halpha_x_arr_data = np.linspace(halpha_idx-linepad_left, halpha_idx+linepad_right, len(halpha_y_arr_data))
+                halpha_y_arr_data = obs_data_r[halpha_idx-linepad_left:halpha_idx+linepad_right, i, j]
+                halpha_x_arr_data = np.linspace(halpha_idx-linepad_left, halpha_idx+linepad_right, len(halpha_y_arr_data))
 
-            # find pseudo continuum and subtract
-            hbeta_cont_level= get_pseudo_cont_level(obs_data_b, hbeta_idx, linepad_left, linepad_right)
-            halpha_cont_level= get_pseudo_cont_level(obs_data_r, halpha_idx, linepad_left, linepad_right)
-            hbeta_y_arr_data -= hbeta_cont_level
-            halpha_y_arr_data -= halpha_cont_level
+                # find pseudo continuum and subtract
+                #hbeta_cont_level= get_pseudo_cont_level(obs_data_b, hbeta_idx, linepad_left, linepad_right)
+                #halpha_cont_level= get_pseudo_cont_level(obs_data_r, halpha_idx, linepad_left, linepad_right)
+                #hbeta_y_arr_data -= hbeta_cont_level
+                #halpha_y_arr_data -= halpha_cont_level
 
-            ax1.plot(hbeta_x_arr_data, hbeta_y_arr_data, color='midnightblue')
-            ax2.plot(halpha_x_arr_data, halpha_y_arr_data, color='maroon')
+                # Now plot observed data
+                ax1.plot(hbeta_x_arr_data, hbeta_y_arr_data, color='midnightblue')
+                ax2.plot(halpha_x_arr_data, halpha_y_arr_data, color='maroon')
 
-            plt.show()
-            sys.exit()
+                # Horizontal line at zero
+                ax1.axhline(y=0.0, ls='--', color='k')
+                ax2.axhline(y=0.0, ls='--', color='k')
+
+                # ---- Get LZIFU fit to observed data and plot
+                hbeta_cont = b_cont[hbeta_idx-linepad_left:hbeta_idx+linepad_right, i, j]
+                hbeta_line = b_line[hbeta_idx-linepad_left:hbeta_idx+linepad_right, i, j]
+                halpha_cont = r_cont[halpha_idx-linepad_left:halpha_idx+linepad_right, i, j]
+                halpha_line = r_line[halpha_idx-linepad_left:halpha_idx+linepad_right, i, j]
+
+                ax1.plot(hbeta_x_arr_data, hbeta_cont, color='dodgerblue')
+                ax1.plot(hbeta_x_arr_data, hbeta_line, color='dodgerblue')
+                ax2.plot(halpha_x_arr_data, halpha_cont, color='magenta')
+                ax2.plot(halpha_x_arr_data, halpha_line, color='magenta')
+
+                # Plot data and full continuum fit
+                ax3.plot(blue_wav_arr, obs_data_b[:, i, j], color='midnightblue')
+                ax3.plot(blue_wav_arr, b_cont[:, i,j], color='dodgerblue')
+
+                ax4.plot(red_wav_arr, obs_data_r[:, i, j], color='maroon')
+                ax4.plot(red_wav_arr, r_cont[:, i,j], color='magenta')
+
+                # ---- Other formatting stuff
+                ax1.minorticks_on()
+                ax2.minorticks_on()
+                ax3.minorticks_on()
+                ax4.minorticks_on()
+
+                plt.show()
+                #sys.exit()
 
     sys.exit(0)
 
