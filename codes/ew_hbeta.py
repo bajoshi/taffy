@@ -108,9 +108,9 @@ if __name__ == '__main__':
     """
 
     # read in lzifu output file
-    h = fits.open(taffy_extdir + 'stitched_cube.fits')
-
-    blue_cont = h['B_CONTINUUM'].data
+    #h = fits.open(taffy_extdir + 'stitched_cube.fits')
+    #blue_cont = h['B_CONTINUUM'].data
+    blue_cont = fits.open(taffy_extdir + 'stitched_cube_B_CONTINUUM.fits')
 
     # mask elements where LZIFU gave NaNs
     region_file = open(taffy_extdir + 'NS_EW.reg')
