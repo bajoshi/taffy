@@ -110,7 +110,8 @@ if __name__ == '__main__':
     # read in lzifu output file
     #h = fits.open(taffy_extdir + 'stitched_cube.fits')
     #blue_cont = h['B_CONTINUUM'].data
-    blue_cont = fits.open(taffy_extdir + 'stitched_cube_B_CONTINUUM.fits')
+    blue_cont_hdu = fits.open(taffy_extdir + 'stitched_cube_B_CONTINUUM.fits')
+    blue_cont = blue_cont_hdu[0].data
 
     # mask elements where LZIFU gave NaNs
     region_file = open(taffy_extdir + 'NS_EW.reg')
@@ -130,8 +131,8 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    read_map_and_plot(north_mask, south_mask)
-    sys.exit(0)
+    #read_map_and_plot(north_mask, south_mask)
+    #sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -255,7 +256,7 @@ if __name__ == '__main__':
                 abs_area_analytic = 0.0
 
             ew_map[i,j] = abs_area_analytic
-            """
+            
             # Print info
             print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
             print "    Continuum mean:", cont_mean,
@@ -276,7 +277,6 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
-            """
 
     # save map as numpy array
     np.save(taffy_extdir + 'ew_map.npy', ew_map)
@@ -294,6 +294,6 @@ if __name__ == '__main__':
     plt.show()
 
     plot_map(ew_map, north_mask, south_mask)
-    save_map_as_fits(h['B_CONTINUUM'], north_mask, south_mask)
+    save_map_as_fits(blue_cont_hdu, north_mask, south_mask)
 
     sys.exit(0)
