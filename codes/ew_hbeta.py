@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"
 taffy_extdir = home + "/Desktop/ipac/taffy_lzifu/"
+taffy_data = taffy_extdir + 'data/'
 
 sys.path.append(taffydir + 'codes/')
 import vel_channel_map as vcm
@@ -113,6 +114,10 @@ if __name__ == '__main__':
     blue_cont_hdu = fits.open(taffy_extdir + 'stitched_cube_B_CONTINUUM.fits')
     blue_cont = blue_cont_hdu[0].data
 
+    # read in observed data
+    obs_b = fits.open(taffy_data + 'Taffy_B.fits')
+    obs_data_b = obs_b[0].data
+
     # mask elements where LZIFU gave NaNs
     region_file = open(taffy_extdir + 'NS_EW.reg')
 
@@ -161,15 +166,15 @@ if __name__ == '__main__':
 
     # To check the high EW region in the north galaxy east.
 
-    for i in range(17,23):
-        for j in range(27,32):
+    for i in range(17,23):#(0,58):
+        for j in range(27,32):#(0,58):
 
     # To check the high EW region in the south galaxy east.
     """
 
     # get continuum value at hbeta
-    for i in range(58):
-        for j in range(58):
+    for i in range(32, 37):#(0,58):
+        for j in range(8, 13):#(0,58):
 
             pix_x = j + 1
             pix_y = i + 1
@@ -256,33 +261,87 @@ if __name__ == '__main__':
                 abs_area_analytic = 0.0
 
             ew_map[i,j] = abs_area_analytic
-            
-            # Print info
-            print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
-            print "    Continuum mean:", cont_mean,
-            print "Amplitude:", "{:.2f}".format(comb_amp),
-            print "Std Dev:", "{:.2f}".format(comb_stddev)
 
-            # plot to check fit
+            # Plot to check fit
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
-            ax.plot(np.arange(len(blue_cont[:,i,j])), blue_cont[:,i,j] / cont_mean, color='k')
-            ax.plot(blue_cont_fit_xarr, blue_cont_fit_yarr_norm, lw=2)
-            ax.plot(blue_cont_fit_xarr, g(blue_cont_fit_xarr), ls='--', color='g', lw=2)
-            ax.plot(blue_cont_fit_xarr, l(blue_cont_fit_xarr), ls='--', color='r', lw=2)
-            ax.plot(blue_cont_fit_xarr, gl(blue_cont_fit_xarr), ls='--', color='orange', lw=2)
+            # Plots
+            ax.plot(np.arange(len(blue_cont[:,i,j])), blue_cont[:,i,j] / cont_mean, color='k', zorder=2)  # LZIFU fit result
+            ax.plot(blue_cont_fit_xarr, blue_cont_fit_yarr_norm, lw=2, zorder=2)  # LZIFU fit result used in my fitting
+            ax.plot(blue_cont_fit_xarr, g(blue_cont_fit_xarr), ls='--', color='g', lw=2, zorder=2)  # my Gaussian fit
+            ax.plot(blue_cont_fit_xarr, l(blue_cont_fit_xarr), ls='--', color='r', lw=2, zorder=2)  # my straight line fit
+            ax.plot(blue_cont_fit_xarr, gl(blue_cont_fit_xarr), ls='--', color='orange', lw=2, zorder=2)  # my Gaussian + straight line fit
+
+            # Plot data
+            ax.plot(blue_cont_fit_xarr, obs_data_b[hbeta_idx-500:hbeta_idx+500, i , j] / cont_mean, color='gray', lw=0.5, zorder=1)
+
+            # Some helpful text
+            ax.axhline(y=1.0, ls='--', lw=0.8, color='k')
+            ax.text(0.8, 0.08, 'G+L fit', verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='orange', size=15)
+            ax.text(0.8, 0.14, 'G fit', verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='g', size=15)
+            ax.text(0.8, 0.2, 'L fit', verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='r', size=15)
+
+            ax.text(0.02, 0.07, 'Amplitude = ' + str("{:.2f}".format(comb_amp)), \
+                verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='k', size=14)
+            sigma_spec_elem = r'$\sigma\, =\, $' + str("{:.2f}".format(comb_stddev)) + ' spec. elem.'
+            sigma_ang = r'$\sigma\mathrm{[\AA]}\, =\, $' + str("{:.2f}".format(comb_stddev * delt))
+            ax.text(0.02, 0.14, sigma_spec_elem, \
+                verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='k', size=14)
+            ax.text(0.02, 0.21, sigma_ang, \
+                verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='k', size=14)
+            ax.text(0.02, 0.28, r'$\mathrm{EW\,[{\AA}]}\, =\, $' + str("{:.2f}".format(ew_map[i,j])), \
+                verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='k', size=14)
+
+            # Other formatting stuff
+            ax.minorticks_on()
+
+            # Fill area computed for EW
+            # First you will need the line at the base of the Gaussian
+            xmin, xmax = ax.get_xlim()
+            intercept_for_base_line = gl(xmin)
+            gauss_fit_upper_base = comb_slope * blue_cont_fit_xarr + intercept_for_base_line
+            ax.fill_between(blue_cont_fit_xarr, gl(blue_cont_fit_xarr), gauss_fit_upper_base, facecolor='gray', alpha=0.3)
+
+            # ----- Compute area using Polygon
+            # Create polygon first
+            area_pn_list = []
+
+            # 2x the length of the x arr because it has to wrap around
+            for u in range(len(blue_cont_fit_xarr)):
+                area_pn_list.append([blue_cont_fit_xarr[u], gl(blue_cont_fit_xarr[u])])
+            blue_cont_fit_xarr_rev = blue_cont_fit_xarr[::-1]
+            gauss_fit_upper_base_rev = gauss_fit_upper_base[::-1]
+            for v in range(len(blue_cont_fit_xarr)):
+                area_pn_list.append([blue_cont_fit_xarr_rev[v], gauss_fit_upper_base_rev[v]])
+
+            area_pn = pg.Polygon(area_pn_list)
+
+            # Print info
+            print "H-beta EW:", "{:.2f}".format(ew_map[i,j]), "at DS9 pixel (x,y)", pix_x, pix_y,
+            print "       Area from shaded polygon:", "{:.2f}".format(area_pn.area() * delt), "\n", 
+            print "Continuum mean:", cont_mean,
+            print "Amplitude:", "{:.2f}".format(comb_amp),
+            print "Std Dev:", "{:.2f}".format(comb_stddev)
 
             plt.show()
             plt.clf()
             plt.cla()
             plt.close()
 
+    sys.exit(0)
     # save map as numpy array
     np.save(taffy_extdir + 'ew_map.npy', ew_map)
 
     # close file
-    h.close()
+    blue_cont_hdu.close()
 
     # Mask spaxels with low SNR
     val_idx = np.where(snr_map >= 5.0)
