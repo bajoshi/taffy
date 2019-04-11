@@ -200,9 +200,9 @@ if __name__ == '__main__':
     ax_n_4_blue = fig.add_subplot(gs[36:48,:12])
     ax_n_5_blue = fig.add_subplot(gs[48:,:12])
 
-    ax_n_1_red  = fig.add_subplot(gs[:12,12:24])
-    ax_n_2_red  = fig.add_subplot(gs[12:24,12:24])
-    ax_n_3_red  = fig.add_subplot(gs[24:36,12:24])
+    ax_n_1_red  = fig.add_subplot(gs[:12,12:24], zorder=1)
+    ax_n_2_red  = fig.add_subplot(gs[12:24,12:24], zorder=1)
+    ax_n_3_red  = fig.add_subplot(gs[24:36,12:24], zorder=1)
     ax_n_4_red  = fig.add_subplot(gs[36:48,12:24])
     ax_n_5_red  = fig.add_subplot(gs[48:,12:24])
 
@@ -258,21 +258,21 @@ if __name__ == '__main__':
     norm = ImageNormalize(sdss_i[0].data, stretch=LogStretch())
     orig_cmap = mpl.cm.Greys
     shifted_cmap = vcm.shiftedColorMap(orig_cmap, midpoint=0.5, name='shifted')
-    im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=0.05, vmax=8, norm=norm)
+    im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=0.05, vmax=8, norm=norm, zorder=2)
 
     ax.set_autoscale_on(False)
 
     lon = ax.coords[0]
     lat = ax.coords[1]
 
-    lon.set_ticks_visible(False)
-    lon.set_ticklabel_visible(False)
-    lat.set_ticks_visible(False)
-    lat.set_ticklabel_visible(False)
+    #lon.set_ticks_visible(False)
+    #lon.set_ticklabel_visible(False)
+    #lat.set_ticks_visible(False)
+    #lat.set_ticklabel_visible(False)
     lon.set_axislabel('')
     lat.set_axislabel('')
 
-    ax.coords.frame.set_color('None')
+    ax.coords.frame.set_color('k')
 
     # Add polygon patches for galaxies and bridge.
     # I copied these directly from the ds9 regions file
@@ -492,6 +492,6 @@ if __name__ == '__main__':
         transform=ax_br_1_red.transAxes, color='k', size=13)
 
     # Save figure
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.png', dpi=300, bbox_inches='tight')
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/line_profile_plot_newgrid.pdf', dpi=300, bbox_inches='tight')
 
     sys.exit(0)
