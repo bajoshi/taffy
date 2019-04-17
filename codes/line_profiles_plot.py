@@ -13,7 +13,7 @@ import os
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from matplotlib.patches import Rectangle, Polygon
+from matplotlib.patches import Rectangle, Polygon, Arrow
 import matplotlib.gridspec as gridspec
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
 from matplotlib.font_manager import FontProperties
@@ -194,15 +194,15 @@ if __name__ == '__main__':
     ax_br_3_red  = fig.add_subplot(gs[48:,48:60], zorder=7)
 
     # North galaxy
-    ax_n_1_blue = fig.add_subplot(gs[:12,:12])
-    ax_n_2_blue = fig.add_subplot(gs[12:24,:12])
-    ax_n_3_blue = fig.add_subplot(gs[24:36,:12])
+    ax_n_1_blue = fig.add_subplot(gs[:12,:12], zorder=-2)
+    ax_n_2_blue = fig.add_subplot(gs[12:24,:12], zorder=-2)
+    ax_n_3_blue = fig.add_subplot(gs[24:36,:12], zorder=-2)
     ax_n_4_blue = fig.add_subplot(gs[36:48,:12])
     ax_n_5_blue = fig.add_subplot(gs[48:,:12])
 
-    ax_n_1_red  = fig.add_subplot(gs[:12,12:24], zorder=1)
-    ax_n_2_red  = fig.add_subplot(gs[12:24,12:24], zorder=1)
-    ax_n_3_red  = fig.add_subplot(gs[24:36,12:24], zorder=1)
+    ax_n_1_red  = fig.add_subplot(gs[:12,12:24], zorder=-1)
+    ax_n_2_red  = fig.add_subplot(gs[12:24,12:24], zorder=-1)
+    ax_n_3_red  = fig.add_subplot(gs[24:36,12:24], zorder=-1)
     ax_n_4_red  = fig.add_subplot(gs[36:48,12:24])
     ax_n_5_red  = fig.add_subplot(gs[48:,12:24])
 
@@ -258,7 +258,7 @@ if __name__ == '__main__':
     norm = ImageNormalize(sdss_i[0].data, stretch=LogStretch())
     orig_cmap = mpl.cm.Greys
     shifted_cmap = vcm.shiftedColorMap(orig_cmap, midpoint=0.5, name='shifted')
-    im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=0.05, vmax=8, norm=norm, zorder=2)
+    im = ax.imshow(sdss_i[0].data, origin='lower', cmap=shifted_cmap, vmin=0.05, vmax=8, norm=norm)
 
     ax.set_autoscale_on(False)
 
@@ -273,6 +273,18 @@ if __name__ == '__main__':
     lat.set_axislabel('')
 
     ax.coords.frame.set_color('k')
+    ax.grid(color='gray', ls='dashed', lw=0.7)
+
+    # Add scale and compass
+    # Bold text
+    f = FontProperties()
+    f.set_weight('bold')
+
+    scalebar_x = [0.435, 0.435]
+    scalebar_y = [23.469, 23.469 + 60/3600]
+    ax.plot(scalebar_x, scalebar_y, color='k', lw=4.0, transform=ax.get_transform('fk5'), zorder=5)
+    ax.text(0.1, 0.1, '1 arcmin = 18 kpc', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=13)
 
     # Add polygon patches for galaxies and bridge.
     # I copied these directly from the ds9 regions file
@@ -316,9 +328,6 @@ if __name__ == '__main__':
     ax.add_patch(psnuc)
 
     # Add text to figure to indicate region name
-    f = FontProperties()
-    f.set_weight('bold')
-
     ax.text(0.18, 0.7, 'N1', verticalalignment='top', horizontalalignment='left', \
         transform=ax.transAxes, color='w', fontproperties=f, size=13)
     ax.text(0.23, 0.75, 'N2', verticalalignment='top', horizontalalignment='left', \
