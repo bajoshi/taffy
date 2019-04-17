@@ -17,11 +17,10 @@ home = os.getenv('HOME')  # does not have a trailing slash
 desktop = home + '/Desktop/'
 stacking_analysis_dir = home + "/Desktop/FIGS/stacking-analysis-pears/"
 
-taffy_products = home + '/Desktop/ipac/taffy_lzifu/products/'
 taffy_data = home + '/Desktop/ipac/taffy_lzifu/data/'
 ipac_taffy_dir = home + '/Desktop/ipac/taffy/'
-ipac_taffy_figdir = ipac_taffy_dir + 'figures/'
 taffy_extdir = home + '/Desktop/ipac/taffy_lzifu/'
+ipac_taffy_figdir = taffy_extdir + 'figures_stitched_cube/'
 
 sys.path.append(stacking_analysis_dir + 'codes/')
 import fast_chi2_jackknife as fcj
@@ -34,7 +33,7 @@ if __name__ == '__main__':
     print "Starting at --", dt.now()
 
     # read in products fits file
-    h = fits.open(taffy_products + 'Taffy_2_comp.fits')
+    h = fits.open(taffy_extdir + 'stitched_cube.fits')
 
     #total_ext = fcj.get_total_extensions(h)
     #bpt.print_extnames(h, total_ext)
@@ -94,8 +93,24 @@ if __name__ == '__main__':
     #     for j=35,40 do begin
     # will include both x pixel values from 9 (+1) to 14 (+1) (ds9 values) including both numbers
     # and similarly for y.
-    pix_x = 23
-    pix_y = 46
+
+    # FOr the figures in paper:
+    # 1. pix_x = 25, pix_y = 40
+    # Limits:
+    # ax1.set_ylim(-10,50)
+    # ax1.set_xlim(4900, 5120)
+    # ax2.set_xlim(4900, 5120)
+    # ax3.set_ylim(-20,125)
+    # ax3.set_xlim(6620, 6700)
+    # ax4.set_xlim(6620, 6700)
+    # TickLabels:
+    # ax2.get_xaxis().set_ticklabels(['4900', '4950', '5000', '5050', '5100'], fontsize=10, rotation=35)
+    # ax4.get_xaxis().set_ticklabels(['6620', '6640', '6660', '6680', '6700'], fontsize=10, rotation=35)
+
+    # 2. pix_x = , pix_y = 
+
+    pix_x = 25
+    pix_y = 40
     arr_x = pix_y - 1
     arr_y = pix_x - 1
 
@@ -103,7 +118,7 @@ if __name__ == '__main__':
 
     # actual plot using gridspec 
     gs = gridspec.GridSpec(20,20)
-    gs.update(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.00, hspace=3.0)
+    gs.update(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=16.0, hspace=3.0)
 
     fig = plt.figure()
     ax1 = fig.add_subplot(gs[:15,:10])
@@ -130,26 +145,26 @@ if __name__ == '__main__':
     #ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
     #ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
     
-    ax1.plot(lam_b, flam_obs_b, '-', color='gray')
+    ax1.plot(lam_b, flam_obs_b, '-', color='gray', lw=1.0)
     #ax1.plot(lam_b, ferr_obs_b, '--', color='lightgray', linewidth=1, zorder=5)
     #ax1.axhline(y=ferr_obs_b[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax1.fill_between(lam_b, flam_obs_b + ferr_obs_b, flam_obs_b - ferr_obs_b, color='lightgray')
 
-    print "valid wavlength indices for B, continuum:", np.unique(np.where(np.isfinite(cont_fit_b)))
-    print "valid wavlength indices for B, line:", np.unique(np.where(np.isfinite(line_fit_b)))
+    print "valid wav indices for B, continuum:", np.unique(np.where(np.isfinite(cont_fit_b)))
+    print "valid wav indices for B, line:", np.unique(np.where(np.isfinite(line_fit_b)))
     
     trans = mtransforms.blended_transform_factory(ax1.transData, ax1.transAxes)
     #ax1.fill_between(lam_b_masked, 0, 1, facecolor='b', alpha=0.3, transform=trans)
 
-    ax1.set_xlim(4800, 5300)  # old lims (4800, 5300)
-    #ax1.set_ylim(35,90)
+    ax1.set_xlim(4900, 5120)  # old lims (4800, 5300)
+    ax1.set_ylim(-10,50)
 
     ax1.get_xaxis().set_ticklabels([])
     #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
     # fontsize=10, rotation=35)
     ax1.tick_params(axis='both', which='major', labelsize=10)
 
-    ax1.set_ylabel(r'$\mathrm{f_\lambda\ [erg\,s^{-1}\,cm^{-2}\,\AA^{-1}] / 1\times10^{-18}}$')
+    ax1.set_ylabel(r'$\mathrm{f_\lambda\ [erg\,s^{-1}\,cm^{-2}\,\AA^{-1}] / 1\times10^{-18}}$', fontsize=13)
     ax1.yaxis.set_label_coords(-0.1, 0.5)
 
     ax1.minorticks_on()
@@ -158,14 +173,14 @@ if __name__ == '__main__':
     ax1.grid(True)
 
     # second blue subplot
-    ax2.plot(lam_b, residfit_b, color='gray')
+    ax2.plot(lam_b, residfit_b, color='gray', lw=1.0)
 
-    ax2.set_xlim(4800, 5300)
-    ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''],\
-     fontsize=10, rotation=35)
+    ax2.set_xlim(4900, 5120)
+    # ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''], fontsize=10, rotation=35)
+    ax2.get_xaxis().set_ticklabels(['4900', '4950', '5000', '5050', '5100'], fontsize=10, rotation=35)
     ax2.tick_params(axis='both', which='major', labelsize=10)
 
-    ax2.set_ylabel(r'$\mathrm{(f^{data}_\lambda - f^{model}_\lambda)/\sigma}$')
+    ax2.set_ylabel(r'$\mathrm{(f^{data}_\lambda - f^{model}_\lambda)/\sigma}$', fontsize=13)
 
     ax2.minorticks_on()
     ax2.tick_params('both', width=1, length=3, which='minor')
@@ -182,8 +197,8 @@ if __name__ == '__main__':
 
     lam_r_masked = np.ma.array(lam_r, mask=mask_fit_r)
 
-    print "valid wavlength indices for R, continuum:", np.unique(np.where(np.isfinite(cont_fit_r)))
-    print "valid wavlength indices for R, line:", np.unique(np.where(np.isfinite(line_fit_r)))
+    print "valid wav indices for R, continuum:", np.unique(np.where(np.isfinite(cont_fit_r)))
+    print "valid wav indices for R, line:", np.unique(np.where(np.isfinite(line_fit_r)))
 
     if np.any(np.isfinite(line_fit_r+cont_fit_r)):
         ax3.plot(lam_r, line_fit_r+cont_fit_r, color='r', lw=1.3, zorder=10)
@@ -193,7 +208,7 @@ if __name__ == '__main__':
     #ax3.plot(lam_r, cont_fit_r, color='g', zorder=10)
     #ax3.plot(lam_r, line_fit_r, color='g', zorder=10)
 
-    ax3.plot(lam_r, flam_obs_r, '-', color='gray')
+    ax3.plot(lam_r, flam_obs_r, '-', color='gray', lw=1.0)
     #ax3.plot(lam_r, ferr_obs_r, '--', color='lightgray', linewidth=1, zorder=5)
     #ax3.axhline(y=ferr_obs_r[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax3.fill_between(lam_r, flam_obs_r + ferr_obs_r, flam_obs_r - ferr_obs_r, color='lightgray')
@@ -201,8 +216,8 @@ if __name__ == '__main__':
     trans = mtransforms.blended_transform_factory(ax3.transData, ax3.transAxes)
     #ax3.fill_between(lam_r_masked, 0, 1, facecolor='r', alpha=0.3, transform=trans)
 
-    ax3.set_xlim(6370, 6700)  # old lims (6370, 6700)
-    #ax3.set_ylim(0,300)
+    ax3.set_xlim(6620, 6700)  # old lims (6370, 6700)
+    ax3.set_ylim(-20,125)  # comment out if not making plots for paper
 
     ax3.get_xaxis().set_ticklabels([])
     #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
@@ -215,14 +230,14 @@ if __name__ == '__main__':
     ax3.grid(True)
 
     # second red subplot
-    ax4.plot(lam_r, residfit_r, color='gray')
+    ax4.plot(lam_r, residfit_r, color='gray', lw=1.0)
 
-    ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$')
+    ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$', labelpad=10, fontsize=13)
     ax4.xaxis.set_label_coords(0.00, -0.3)
 
-    ax4.set_xlim(6370, 6700)
-    ax4.get_xaxis().set_ticklabels(['', '6400', '6450', '6500', '6500', '6600', '6650', '6700'],\
-     fontsize=10, rotation=35)
+    ax4.set_xlim(6620, 6700)
+    #ax4.get_xaxis().set_ticklabels(['', '6400', '6450', '6500', '6500', '6600', '6650', '6700'], fontsize=10, rotation=35)
+    ax4.get_xaxis().set_ticklabels(['6620', '6640', '6660', '6680', '6700'], fontsize=10, rotation=35)
     ax4.tick_params(axis='both', which='major', labelsize=10)
 
     ax4.minorticks_on()
@@ -230,10 +245,10 @@ if __name__ == '__main__':
     ax4.tick_params('both', width=1, length=4.7, which='major')
     ax4.grid(True)
 
-    plt.show()
+    #plt.show()
 
-    #fig.savefig(ipac_taffy_figdir + 'lzifu_fit_pix_ds9xy_' + str(pix_x) + '_' + str(pix_y) + '_gray.eps',\
-    # dpi=300, bbox_inches='tight')
+    fig.savefig(ipac_taffy_figdir + 'lzifu_fit_pix_ds9xy_' + str(pix_x) + '_' + str(pix_y) + '_gray.pdf',\
+     dpi=300, bbox_inches='tight')
 
     plt.clf()
     plt.cla()

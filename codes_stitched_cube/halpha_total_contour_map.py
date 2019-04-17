@@ -9,9 +9,11 @@ import sys
 import time
 import datetime
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.patches import Rectangle
+from matplotlib.font_manager import FontProperties
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_dir = home + '/Desktop/ipac/taffy/'
@@ -38,6 +40,12 @@ if __name__ == '__main__':
     # read in lzifu output file
     lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
 
+    # modify rc Params
+    mpl.rcParams["font.family"] = "serif"
+    mpl.rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+    mpl.rcParams["text.usetex"] = False
+    mpl.rcParams["text.latex.preamble"] = r"\usepackage{cmbright}"
+
     # plot sdss image
     fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
 
@@ -58,7 +66,7 @@ if __name__ == '__main__':
 
     c = ax.contour(X, Y, halpha_total, transform=ax.get_transform(wcs_lzifu),\
      levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
-    ax.clabel(c, inline=True, inline_spacing=0, fontsize=5, fmt='%1.1f', lw=4, ls='-')
+    #ax.clabel(c, inline=True, inline_spacing=0, fontsize=12, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
     cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
@@ -72,7 +80,31 @@ if __name__ == '__main__':
      edgecolor='red', facecolor='none', lw=2, ls='--')
     ax.add_patch(ifu_cover)
 
+    # OTher formatting stuff
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+
+    lon.set_ticks_visible(True)
+    lon.set_ticklabel_visible(True)
+    lat.set_ticks_visible(True)
+    lat.set_ticklabel_visible(True)
+    
+    lon.display_minor_ticks(True)
+    lat.display_minor_ticks(True)
+    
+    lon.set_axislabel('Right Ascension', fontsize=16)
+    lat.set_axislabel('Declination', fontsize=16)
+
+    ax.coords.frame.set_color('k')
+    ax.grid(color='gray', ls='dashed', lw=0.7)
+
+    # Add text for figure panel
+    f = FontProperties()
+    f.set_weight('bold')
+    ax.text(0.03, 0.97, '(a)', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=20)
+
     # save the figure
-    fig.savefig(taffy_extdir + 'figures_stitched_cube/halpha_contour_smooth.png', dpi=200, bbox_inches='tight')
+    fig.savefig(taffy_extdir + 'figures_stitched_cube/halpha_contour_smooth.pdf', dpi=300, bbox_inches='tight')
 
     sys.exit(0)

@@ -10,7 +10,9 @@ from astropy.modeling import models, fitting
 import os
 import sys
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + "/Desktop/ipac/taffy/"
@@ -55,20 +57,50 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
 
     ew_map = ma.array(ew_map, mask=comb_mask)
 
+    # modify rc Params
+    mpl.rcParams["font.family"] = "serif"
+    mpl.rcParams["font.sans-serif"] = ["Computer Modern Sans"]
+    mpl.rcParams["text.usetex"] = False
+    mpl.rcParams["text.latex.preamble"] = r"\usepackage{cmbright}"
+
     # make figure
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
+    ax = fig.add_subplot(111, projection=wcs_lzifu)
 
     cax = ax.imshow(ew_map, vmin=2.0, vmax=15.0, cmap='inferno', origin='lower', interpolation='None')
     cbar = fig.colorbar(cax)
-    cbar.ax.set_ylabel(r'$\mathrm{H \beta\ EW\, [\AA]}$')
+    cbar.ax.set_ylabel(r'$\mathrm{H \beta\ EW\, [\AA]}$', fontsize=14)
 
-    ax.minorticks_on()
+    #ax.set_autoscale_on(False)  # to stop matplotlib from changing zoom level and able actually overplot the image and contours
 
-    plt.show()
+    lon = ax.coords[0]
+    lat = ax.coords[1]
+
+    lon.set_ticks_visible(True)
+    lon.set_ticklabel_visible(True)
+    lat.set_ticks_visible(True)
+    lat.set_ticklabel_visible(True)
+    
+    lon.display_minor_ticks(True)
+    lat.display_minor_ticks(True)
+    
+    lon.set_axislabel('Right Ascension', fontsize=14)
+    lat.set_axislabel('Declination', fontsize=14)
+
+    ax.coords.frame.set_color('k')
+    ax.grid(color='gray', ls='dashed', lw=0.7)
+
+    # Add text for figure panel
+    f = FontProperties()
+    f.set_weight('bold')
+    ax.text(0.05, 0.97, '(b)', verticalalignment='top', horizontalalignment='left', \
+        transform=ax.transAxes, color='k', fontproperties=f, size=18)
 
     fig.savefig(taffy_extdir + 'figures_stitched_cube/hbeta_ew_map.png', \
         dpi=300, bbox_inches='tight')
+    # DO NOT save this as pdf. Save as png and convert to pdf with preview.
+    # For some reason, the underlying EW map loses resolution when saving as pdf.
 
     return None
 
@@ -136,8 +168,8 @@ if __name__ == '__main__':
 
     region_file.close()
 
-    #read_map_and_plot(north_mask, south_mask)
-    #sys.exit(0)
+    read_map_and_plot(north_mask, south_mask)
+    sys.exit(0)
 
     # create wavelength array
     # I read these data from the header
@@ -173,8 +205,8 @@ if __name__ == '__main__':
     """
 
     # get continuum value at hbeta
-    for i in range(32, 37):#(0,58):
-        for j in range(8, 13):#(0,58):
+    for i in range(0,58):
+        for j in range(0,58):
 
             pix_x = j + 1
             pix_y = i + 1
@@ -263,6 +295,7 @@ if __name__ == '__main__':
             ew_map[i,j] = abs_area_analytic
 
             # Plot to check fit
+            """
             fig = plt.figure()
             ax = fig.add_subplot(111)
 
@@ -335,8 +368,8 @@ if __name__ == '__main__':
             plt.clf()
             plt.cla()
             plt.close()
+            """
 
-    sys.exit(0)
     # save map as numpy array
     np.save(taffy_extdir + 'ew_map.npy', ew_map)
 
