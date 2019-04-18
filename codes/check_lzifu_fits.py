@@ -95,6 +95,9 @@ if __name__ == '__main__':
     # and similarly for y.
 
     # FOr the figures in paper:
+    # Comment out the ylims if not making plots for paper
+    # Change xlims back to old lims in comments below
+    # Also set x_ticklabels back to old tick labels. These are also given below.
     # 1. pix_x = 25, pix_y = 40
     # Limits:
     # ax1.set_ylim(-10,50)
@@ -103,11 +106,19 @@ if __name__ == '__main__':
     # ax3.set_ylim(-20,125)
     # ax3.set_xlim(6620, 6700)
     # ax4.set_xlim(6620, 6700)
-    # TickLabels:
-    # ax2.get_xaxis().set_ticklabels(['4900', '4950', '5000', '5050', '5100'], fontsize=10, rotation=35)
-    # ax4.get_xaxis().set_ticklabels(['6620', '6640', '6660', '6680', '6700'], fontsize=10, rotation=35)
+    # TickLabels: Not needed since the newer matplotlib does a good job automatically
+    # Simply comment out the old ticklabels
 
-    # 2. pix_x = , pix_y = 
+    # 2. pix_x = 16 , pix_y = 41
+    # Limits:
+    # ax1.set_ylim(35,90)
+    # ax1.set_xlim(4800, 5220)
+    # ax2.set_xlim(4800, 5220)
+    # ax3.set_ylim(0,300)
+    # ax3.set_xlim(6620, 6700)
+    # ax4.set_xlim(6620, 6700)
+    # TickLabels: Not needed since the newer matplotlib does a good job automatically
+    # Simply comment out the old ticklabels
 
     pix_x = 25
     pix_y = 40
@@ -117,14 +128,14 @@ if __name__ == '__main__':
     print 'Current pixel (ds9 coords)', pix_x, pix_y
 
     # actual plot using gridspec 
-    gs = gridspec.GridSpec(20,20)
-    gs.update(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=16.0, hspace=3.0)
+    gs = gridspec.GridSpec(21,21)
+    gs.update(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=1.0, hspace=3.0)
 
     fig = plt.figure()
     ax1 = fig.add_subplot(gs[:15,:10])
     ax2 = fig.add_subplot(gs[15:,:10])
-    ax3 = fig.add_subplot(gs[:15,10:])
-    ax4 = fig.add_subplot(gs[15:,10:])
+    ax3 = fig.add_subplot(gs[:15,11:])
+    ax4 = fig.add_subplot(gs[15:,11:])
 
     # blue subplots
     flam_obs_b = obs_data_b[:,arr_x,arr_y]
@@ -145,7 +156,7 @@ if __name__ == '__main__':
     #ax1.plot(lam_b, cont_fit_b, color='g', zorder=10)
     #ax1.plot(lam_b, line_fit_b, color='g', zorder=10)
     
-    ax1.plot(lam_b, flam_obs_b, '-', color='gray', lw=1.0)
+    ax1.plot(lam_b, flam_obs_b, '-', color='gray', lw=0.8)
     #ax1.plot(lam_b, ferr_obs_b, '--', color='lightgray', linewidth=1, zorder=5)
     #ax1.axhline(y=ferr_obs_b[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax1.fill_between(lam_b, flam_obs_b + ferr_obs_b, flam_obs_b - ferr_obs_b, color='lightgray')
@@ -157,27 +168,26 @@ if __name__ == '__main__':
     #ax1.fill_between(lam_b_masked, 0, 1, facecolor='b', alpha=0.3, transform=trans)
 
     ax1.set_xlim(4900, 5120)  # old lims (4800, 5300)
-    ax1.set_ylim(-10,50)
+    #ax1.set_ylim(-10,50)  # comment out if not making plots for paper
 
     ax1.get_xaxis().set_ticklabels([])
     #ax1.get_xaxis().set_ticklabels(['4600', '4700', '4800', '4900', '5000', '5100', '5200', '5300', ''],\
     # fontsize=10, rotation=35)
     ax1.tick_params(axis='both', which='major', labelsize=10)
 
-    ax1.set_ylabel(r'$\mathrm{f_\lambda\ [erg\,s^{-1}\,cm^{-2}\,\AA^{-1}] / 1\times10^{-18}}$', fontsize=13)
+    ax1.set_ylabel(r'$\mathrm{f_\lambda\ [erg\,s^{-1}\,cm^{-2}\,\AA^{-1}] / 10^{-18}}$', fontsize=13)
     ax1.yaxis.set_label_coords(-0.1, 0.5)
 
     ax1.minorticks_on()
     ax1.tick_params('both', width=1, length=3, which='minor')
     ax1.tick_params('both', width=1, length=4.7, which='major')
-    ax1.grid(True)
+    ax1.grid(True, ls='--', lw=0.3)
 
     # second blue subplot
-    ax2.plot(lam_b, residfit_b, color='gray', lw=1.0)
+    ax2.plot(lam_b, residfit_b, color='gray', lw=0.8)
 
     ax2.set_xlim(4900, 5120)
-    # ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''], fontsize=10, rotation=35)
-    ax2.get_xaxis().set_ticklabels(['4900', '4950', '5000', '5050', '5100'], fontsize=10, rotation=35)
+    ax2.get_xaxis().set_ticklabels(['4800', '4900', '5000', '5100', '5200', '5300', ''], fontsize=10, rotation=35)
     ax2.tick_params(axis='both', which='major', labelsize=10)
 
     ax2.set_ylabel(r'$\mathrm{(f^{data}_\lambda - f^{model}_\lambda)/\sigma}$', fontsize=13)
@@ -185,7 +195,7 @@ if __name__ == '__main__':
     ax2.minorticks_on()
     ax2.tick_params('both', width=1, length=3, which='minor')
     ax2.tick_params('both', width=1, length=4.7, which='major')
-    ax2.grid(True)
+    ax2.grid(True, ls='--', lw=0.3)
 
     # red subplots
     flam_obs_r = obs_data_r[:,arr_x,arr_y]
@@ -208,7 +218,7 @@ if __name__ == '__main__':
     #ax3.plot(lam_r, cont_fit_r, color='g', zorder=10)
     #ax3.plot(lam_r, line_fit_r, color='g', zorder=10)
 
-    ax3.plot(lam_r, flam_obs_r, '-', color='gray', lw=1.0)
+    ax3.plot(lam_r, flam_obs_r, '-', color='gray', lw=0.8)
     #ax3.plot(lam_r, ferr_obs_r, '--', color='lightgray', linewidth=1, zorder=5)
     #ax3.axhline(y=ferr_obs_r[100], linestyle='--', linewidth=3, color='lightgray', zorder=5)
     #ax3.fill_between(lam_r, flam_obs_r + ferr_obs_r, flam_obs_r - ferr_obs_r, color='lightgray')
@@ -217,7 +227,7 @@ if __name__ == '__main__':
     #ax3.fill_between(lam_r_masked, 0, 1, facecolor='r', alpha=0.3, transform=trans)
 
     ax3.set_xlim(6620, 6700)  # old lims (6370, 6700)
-    ax3.set_ylim(-20,125)  # comment out if not making plots for paper
+    #ax3.set_ylim(-20,125)  # comment out if not making plots for paper
 
     ax3.get_xaxis().set_ticklabels([])
     #ax3.get_xaxis().set_ticklabels(['6100', '6200', '6300', '6400', '6500', '6600', '6700', '6800', '6900'],\
@@ -227,23 +237,22 @@ if __name__ == '__main__':
     ax3.minorticks_on()
     ax3.tick_params('both', width=1, length=3, which='minor')
     ax3.tick_params('both', width=1, length=4.7, which='major')
-    ax3.grid(True)
+    ax3.grid(True, ls='--', lw=0.3)
 
     # second red subplot
-    ax4.plot(lam_r, residfit_r, color='gray', lw=1.0)
+    ax4.plot(lam_r, residfit_r, color='gray', lw=0.8)
 
-    ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$', labelpad=10, fontsize=13)
-    ax4.xaxis.set_label_coords(0.00, -0.3)
+    ax4.set_xlabel(r'$\mathrm{Wavelength\ [\AA]}$', fontsize=13)
+    ax4.xaxis.set_label_coords(0.00, -0.2)
 
     ax4.set_xlim(6620, 6700)
-    #ax4.get_xaxis().set_ticklabels(['', '6400', '6450', '6500', '6500', '6600', '6650', '6700'], fontsize=10, rotation=35)
-    ax4.get_xaxis().set_ticklabels(['6620', '6640', '6660', '6680', '6700'], fontsize=10, rotation=35)
+    ax4.get_xaxis().set_ticklabels(['', '6400', '6450', '6500', '6500', '6600', '6650', '6700'], fontsize=10, rotation=35)
     ax4.tick_params(axis='both', which='major', labelsize=10)
 
     ax4.minorticks_on()
     ax4.tick_params('both', width=1, length=3, which='minor')
     ax4.tick_params('both', width=1, length=4.7, which='major')
-    ax4.grid(True)
+    ax4.grid(True, ls='--', lw=0.3)
 
     #plt.show()
 
