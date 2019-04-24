@@ -2,11 +2,15 @@ from __future__ import division
 
 import numpy as np
 from astropy.io import fits
+from astropy.convolution import convolve, Gaussian2DKernel
 
 import os
 import sys
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from matplotlib.font_manager import FontProperties
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffy_products = home + '/Desktop/ipac/taffy_lzifu/products_work/'
@@ -131,7 +135,60 @@ def main():
     """
 
     # ------- Contours --------- # 
+    # Plotting
+    # Change MPL RC params first to stop using TeX for all text
+    # becasue I can't use bold text with TeX.
+    mpl.rcParams['text.usetex'] = False
+    # Bold text
+    f = FontProperties()
+    f.set_weight('bold')
 
+    # read in i band SDSS image
+    sdss_i, wcs_sdss = vcm.get_sdss('i')
+
+    # read in lzifu output file
+    lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
+
+    # plot sdss image
+    fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
+
+    # draw contours
+    x = np.arange(58)
+    y = np.arange(58)
+    X, Y = np.meshgrid(x,y)
+
+    # get colormap
+    colorbrewer_cm = vcm.get_colorbrewer_cm('blue2yellow')
+
+    # select contour map to plot and set the variables 
+    # set the variables, levels, and limits below
+    con_map = map_vel_comp2_new
+
+    # apply min and max limits
+    minlim = -500
+    maxlim = 500
+    minidx = np.where(con_map < minlim)
+    maxidx = np.where(con_map > maxlim)
+    con_map[minidx] = np.nan
+    con_map[maxidx] = np.nan
+
+    levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel both comp
+
+    # try smoothing the map to get smoother contours
+    # define kernel
+    kernel = Gaussian2DKernel(stddev=0.9)
+    con_map = convolve(con_map, kernel, boundary='extend')
+
+    c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
+     levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
+
+    # add colorbar inside figure
+    cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
+    cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
+    cb.ax.get_children()[0].set_linewidths(16.0)
+    cb.ax.set_xlabel(r'$\mathrm{Radial\ Velocity\ [km\, s^{-1}]}$', fontsize=15)
+
+    plt.show()
 
     return None
 
