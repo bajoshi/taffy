@@ -50,10 +50,18 @@ def main():
     red_wav_arr = [red_wav_start + delt_r*i for i in range(total_red_res_elem)]
     red_wav_arr = np.asarray(red_wav_arr)
 
-    print r_line_total.shape
-    print obs_r.shape
-    print red_wav_arr.shape
-    sys.exit(0)
+    # get mask of all possible not NaN pixels
+    all_mask = vcm.get_region_mask('all_possibly_notnan_pixels_new')
+
+    # Make sure that rest wavelength is Halpha wavelength in air!! the IFU data was taken on the ground
+    # find line index in wavelength array
+    redshift = 0.0145  # average z 
+    sys_vel = redshift * lightspeed  # avg systemic velocity is z*c = 4350 km/s
+    halpha_air_wav = 6562.80
+    halpha_wav = halpha_air_wav*(1+redshift)
+    halpha_idx = np.argmin(abs(red_wav_arr - halpha_wav))
+
+    #  
 
     return None
 
