@@ -22,17 +22,7 @@ import stitch_map as sm
 speed_of_light = 299792.458  # km/s
 redshift = 0.0145
 
-def main():
-    """
-    The purpose of this code is to compare the Vs+V1+V1n map
-    (this is currently the top middle panel in Fig 7) with the
-    Vs+V2+V1n map. This is one of the plots the referee wanted 
-    to see. I think they think that this will display the rotation
-    of Taffy-N better. Not entirely sure.
-
-    This code is completely based on the codes --
-    1. stitche_vel_vdisp_cube.py and 2. contours_from_linefits.py.
-    """
+def genmap():
 
     # ---------------- Read in Inputs ---------------- #
     # read in indices file
@@ -75,85 +65,72 @@ def main():
     # get nan spaxel array from stich_map code
     nan_single_comp_arr = sm.get_nan_arr()
 
-    # Create final map array
-    # loop over all spaxels and check case and save in array
-    map_cube = np.ones((58,58)) * -9999.0
-    # This is set to -9999.0 by default and NOT zeros because 
-    # zeros would be a valid measurement which is not what we want.
+    # Read in both velocity component maps
+    # Comp2 map already has Vs + V2 + V2b stitched
+    # You only need to replace the V2b spaxels wtih V1n
+    # You can simply replace those spaxels from the comp1 map
+    map_vel_comp2_hdu = fits.open(gaussfits_dir + 'vel_cube_comp2.fits')
+    map_vel_comp1_hdu = fits.open(gaussfits_dir + 'vel_cube_comp1.fits')
 
-    # ---------------- Loop over all spaxels and stitch as required ---------------- #
-    # In the two nested loops below, I'm using only the results of my OWN fits.
+    map_vel_comp1 = map_vel_comp1_hdu[0].data
+    map_vel_comp2 = map_vel_comp2_hdu[0].data
+
+    # Create empty new map
+    map_vel_comp2_new = np.zeros(map_vel_comp2.shape)
+
     for i in range(58):
         for j in range(58):
 
-            # If spaxel is outside what I defined earlier as the 
-            # "could be NOT NaN" area then skip it. I defined this 
-            # area to be outside both galaxies and bridge.
-            if all_mask[i,j]:
-                continue
+            map_vel_comp2_new[i,j] = map_vel_comp2[i,j]
 
-            # If spaxel is one of those that are defined as nan in 
-            # the above array then it is a spaxel I want to force 
-            # to a single compoennt fit.
-            if (i,j) in nan_single_comp_arr:
-                map_cube[i,j] = map_onecomp[i,j]
-                continue
+            if diffstd_idx[i,j]:
+                map_vel_comp2_new[i,j] = map_vel_comp1[i,j]
 
-            # Now use the indices defined previously to stitch as required
-            # --- IF the single component fits better
-            if single_idx[i,j]:
-                map_cube[i,j] = map_onecomp[i,j]
+    # write out map
+    # get header from lzifu output
+    hdr = one_comp['CHI2'].header
+    hdr['EXTNAME'] = 'vel_comp_vs_v2_v1n'
+    hdu = fits.PrimaryHDU(data=map_vel_comp2_new, header=hdr)
+    hdu.writeto(gaussfits_dir + 'vel_cube_vs_v2_v1n.fits', overwrite=True)
 
-            # --- IF the two component fits better
-            elif diffmean_idx[i,j] or diffstd_idx[i,j] or diffboth_idx[i,j]:
-                # --- IF the two component fits are invalid
-                if comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
-                    map_cube[i,j] = map_onecomp[i,j]
+    return None
 
-                # --- Component 2
-                elif comp1_inv_idx[i,j] and not comp2_inv_idx[i,j]:
-                    map_cube[i,j] = map_comp2[i,j]
+def main():
+    """
+    The purpose of this code is to compare the Vs+V1+V1n map
+    (this is currently the top middle panel in Fig 7) with the
+    Vs+V2+V1n map. This is one of the plots the referee wanted 
+    to see. I think they think that this will display the rotation
+    better. I'm not entirely sure.
 
-                # --- Component 1
-                elif not comp1_inv_idx[i,j] and comp2_inv_idx[i,j]:
-                    map_cube[i,j] = map_comp1[i,j]
+    This code is completely based on the codes --
+    1. stitche_vel_vdisp_cube.py and 2. contours_from_linefits.py.
+    """
 
-                # --- This catches all other cases
-                else:
-                    if comp == 1:
-                        map_cube[i,j] = map_comp1[i,j]
-                    elif comp == 2:
-                        map_cube[i,j] = map_comp2[i,j]
+    # Generate the Vs + V2 + V1n map
+    #genmap()
 
-    # convert velocities and velocity dispersions to physical units
-    # this has to be done separately because of the continue statement
-    # in the previous for loop that causes it to skip converting units 
-    # for pixels that were in the nan_single_comp_arr. This means that
-    # the values in those pixels are not within the physical range and
-    # later on get replaced by np.nan
-    for u in range(58):
-        for v in range(58):
-            if mapname == 'vel':
-                try:
-                    current_wavidx = int(map_cube[u,v])
-                    # heliocentric
-                    map_cube[u,v] = ((red_wav_arr[current_wavidx] - halpha_air_wav) / halpha_air_wav) * speed_of_light
-                    # relative to systemic
-                    map_cube[u,v] -= speed_of_light * redshift
+    # Read in the new map and make contours
+    map_vel_comp2_hdu = fits.open(gaussfits_dir + 'vel_cube_comp2.fits')
+    map_vel_comp2_new_hdu = fits.open(gaussfits_dir + 'vel_cube_vs_v2_v1n.fits')
 
-                except IndexError as e:
-                    map_cube[u,v] = np.nan
+    map_vel_comp2 = map_vel_comp2_hdu[0].data
+    map_vel_comp2_new = map_vel_comp2_new_hdu[0].data
 
-            if mapname == 'vdisp':
-                try:
-                    map_cube[u,v] = ((map_cube[u,v] * 0.3) / halpha_air_wav) * speed_of_light
-                except IndexError as e:
-                    map_cube[u,v] = np.nan
+    # Diagnostic figures
+    # Do not delete this code block. Useful for checking.
+    """
+    fig = plt.figure()
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
 
-    # apply mask
-    # first nan all spaxels that still have -9999.0
-    mask_idx = np.where(map_cube == -9999.0) 
-    map_cube[mask_idx] = np.nan
+    ax1.imshow(map_vel_comp2, origin='lower', vmin=-350, vmax=350)
+    ax2.imshow(map_vel_comp2_new, origin='lower', vmin=-350, vmax=350)
+
+    plt.show()
+    """
+
+    # ------- Contours --------- # 
 
 
     return None
