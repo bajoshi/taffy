@@ -86,43 +86,56 @@ def genreg():
 
     file_cat.write(hdrstr1 + '\n' + hdrstr2 + hdrstr3 + '\n')
 
-    # Needs some basic coordinate info and grid info to know how to draw the grid
-    # MY IFU data has dimensions 58x58.
-    # 1. I'm going to make this grid in pixel space so it is easier to impose on the IFU grid.
-    # 2. Then I'll use ds9 to convert the resulting regions file .
-    # to wcs and impose that on the HI cube. 
-    # 3. Convert that regions file back to image space 
-    # (of HI cube) to work with Polygon and extract spectra.
+    """
+      Needs some basic coordinate info and grid info to know how to draw the grid
+      MY IFU data has dimensions 58x58.
+      1. I'm going to make this grid in pixel space so it is easier to impose on the IFU grid.
+      These have to be POLYGONS NOT BOXES to be able to work with the module Polygon.
+      2. Then I'll use ds9 to convert the resulting regions file
+      to wcs and impose that on the HI cube. 
+      3. Convert that regions file back to image space 
+      (of HI cube) to work with Polygon and extract spectra.
+    """
 
     # DS9 starts counting at (1,1) which it considers 
     # to be the center of the lower left pixel.
-    # Therefore, the center of the starting cell 
-    # at lower left will be the center of the (4,4) pixel.
-    starting_x = 4  # starting x lower left
-    starting_y = 4  # starting y lower left
+    # doesn't have to be the ll of cell, I'm just keeping it consistent
+    starting_x = 0.5  # starting x lower left of lower left grid cell 
+    starting_y = 0.5  # starting y lower left of lower left grid cell
     width = 7
     height = 7
 
     # Loop over all grid cells
-    for i in range(8):  # x
-        for j in range(8):  # y
+    for i in range(8):  # rows
 
-            # Only for starting cell
-            if i==0 and j==0:
-                center_x = starting_x
-                center_y = starting_y
+        low_y = 7*i + 0.5
+        up_y = 7*i + 7.5
+
+        for j in range(8):  # cols
+
+            left_x = 7*j + 0.5
+            right_x = 7*j + 7.5
 
             # Generate string to write and write
-            write_str = str(center_x) + ',' + str(center_y) + ',' + str(width) + ',' + str(height)
-            file_cat.write('image;box(' + write_str + ',0) # color=red width=2;' + '\n')
+            write_str = []  # has to be a list of (x,y) coordinate tuples
 
-            # Step over to next cell over
-            center_x += width
+            for k in range(4):
+                if k==0 or k==3:
+                    x = left_x
+                elif k==1 or k==2:
+                    x = right_x
 
-        # ----------------------------
-        # Update coordinates for next row up
-        center_x = starting_x
-        center_y += height
+                if k<=1:
+                    y = low_y
+                elif k>1:
+                    y = up_y
+
+                write_str.append(x)
+                write_str.append(y)
+
+            # Other str formatting
+            write_str = ','.join(map(str, write_str))
+            file_cat.write('image;polygon(' + write_str + ') # color=red width=2;' + '\n')
     
     # Close file so that it can actually be written
     file_cat.close()
@@ -133,9 +146,8 @@ def main():
 
     # Generate the "grid" -- the grid is essentially a set of regions
     # that are box shaped and look like a grid, saved to a single 
-    # ds9 regions file.
-    # Check the file by loading into DS9 and making sure it looks like
-    # a grid. 
+    # ds9 regions file. Check the file by loading into DS9 and 
+    # making sure it looks like a grid. 
     genreg()
 
     return None
