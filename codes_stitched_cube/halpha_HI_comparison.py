@@ -38,7 +38,49 @@ def extract_spec(reg_pn, cube):
     --- cube: data cube from which spectrum is to be extracted.
     """
 
-    # 
+    # Use polygon to generate mask which can then 
+    # be used on cube which is anumpy array 
+    # Code based on region mask making code in bpt_plots.py
+    # that one is optimzed for the Taffy IFU data 
+    # Here, I need it to work for both the optical and the HI cubes.
+    hi_cube_shape = (128,128)
+    regionmask = np.zeros(hi_cube_shape, dtype=np.int)
+
+    bbox = reg_pn.boundingBox()
+    print bbox
+    bbox_xmin = int(bbox[0])
+    bbox_xmax = int(bbox[1])
+    bbox_ymin = int(bbox[2])
+    bbox_ymax = int(bbox[3])
+    print bbox_xmin, bbox_xmax, bbox_ymin, bbox_ymax
+
+    # loop over all possible pixels inside the bounding box
+    for i in range(bbox_xmin, bbox_xmax):
+        for j in range(bbox_ymin, bbox_ymax):
+
+            # convert from ds9 coords to array coords
+            # this just needs to switch between x and y without the -1???
+            arr_x = int(j)
+            arr_y = int(i)
+
+            regionmask[arr_x,arr_y] = reg_pn.isInside(i,j)
+            print i, j, reg_pn.isInside(i,j)
+
+
+    # Loop again over vertices
+    for k in range(reg_pn.nPoints()):
+
+        arr_x = int(reg_pn[0][k][1])
+        arr_y = int(reg_pn[0][k][0])
+
+        regionmask[arr_x, arr_y] = True
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(regionmask, origin='lower')
+    ax.grid(True)
+    plt.show()
+    sys.exit(0)
 
     return spec_wav, spec_flux
 
@@ -90,10 +132,22 @@ def main():
     fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss) 
 
     # Now read in regions file and convert to polygons
-    regfile = open()
-    extract_spec(reg_pn, cube)
+    #regfile = open()
 
-    plt.show()
+    regstr = 'polygon(52.75971,52.679517,55.559628,52.679492,55.559611,55.479493,52.759775,55.479517) # color=red width=2'
+    regstr = regstr.split('(')[1].split(')')[0]
+    regstr = regstr.split(',')
+    reglist = list(regstr)  # this is now a list of floats represented as strings
+
+    reg_pn_list = []
+    for k in range(0,8,2):
+        reg_pn_list.append([float(reglist[k]), float(reglist[k+1])])
+
+    reg_pn = pg.Polygon(reg_pn_list)
+
+    extract_spec(reg_pn, hi_cube)
+
+    #plt.show()
 
     return None
 
