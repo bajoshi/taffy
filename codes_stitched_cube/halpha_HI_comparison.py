@@ -43,43 +43,90 @@ def extract_spec(reg_pn, cube):
     # Code based on region mask making code in bpt_plots.py
     # that one is optimzed for the Taffy IFU data 
     # Here, I need it to work for both the optical and the HI cubes.
-    hi_cube_shape = (128,128)
-    regionmask = np.zeros(hi_cube_shape, dtype=np.int)
+    hi_full_shape = (31, 128, 128)
+    hi_cube_shape2d = (128,128)
+    #ifu_cube_shape = (58,58)
+    regionmask = np.zeros(hi_cube_shape2d, dtype=np.int)
 
     bbox = reg_pn.boundingBox()
-    print bbox
-    bbox_xmin = int(bbox[0])
-    bbox_xmax = int(bbox[1])
-    bbox_ymin = int(bbox[2])
-    bbox_ymax = int(bbox[3])
-    print bbox_xmin, bbox_xmax, bbox_ymin, bbox_ymax
+    # Slightly padding all sides
+    bbox_xmin = int(bbox[0] - 0.1)
+    bbox_xmax = int(bbox[1] + 0.1)
+    bbox_ymin = int(bbox[2] - 0.1)
+    bbox_ymax = int(bbox[3] + 0.1)
+
+    # Test python (row,col) to ds9 (x,y) conversion
+    # Check spaxel spectrum in ds9 and the one plotted here
+    # ds9 coords to test
+    """
+    ds9_x = 57
+    ds9_y = 54
+    py_row = ds9_y - 1
+    py_col = ds9_x - 1
+
+    print cube.shape
+    print "Value at DS9 pixel (x,y):", ds9_x, ds9_y, "is", np.nanmean(cube[:, :, py_row, py_col])
+    print cube[:, :, py_row, py_col].reshape((31))
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(np.arange(31), cube[:, :, py_row, py_col].reshape((31)), lw=0.5)
+    ax.grid(True, lw=0.1)
+    plt.show()
+    sys.exit()
+    """
 
     # loop over all possible pixels inside the bounding box
-    for i in range(bbox_xmin, bbox_xmax):
-        for j in range(bbox_ymin, bbox_ymax):
+    # i.e., you need to loop over all possible pixel centers
+    # if the pixel center is within the polygon then it gets
+    # selected otherwise skip.
+    for i in range(bbox_xmin, bbox_xmax+1):
+        for j in range(bbox_ymin, bbox_ymax+1):
 
             # convert from ds9 coords to array coords
-            # this just needs to switch between x and y without the -1???
-            arr_x = int(j)
-            arr_y = int(i)
+            arr_x = int(j) - 1
+            arr_y = int(i) - 1
 
             regionmask[arr_x,arr_y] = reg_pn.isInside(i,j)
-            print i, j, reg_pn.isInside(i,j)
 
+    """
+    # plot to test
+    # all the -1.0 here are to show everything in python frame
+    # when you compare to ds9 the x and y are now in the correct
+    # direction but you need to add 1.0 mentally.
+    # Extract x and y coords for plotting
+    all_regpn_x, all_regpn_y = zip(*reg_pn[0])
+    all_regpn_x = np.asarray(all_regpn_x)
+    all_regpn_y = np.asarray(all_regpn_y)
 
-    # Loop again over vertices
-    for k in range(reg_pn.nPoints()):
-
-        arr_x = int(reg_pn[0][k][1])
-        arr_y = int(reg_pn[0][k][0])
-
-        regionmask[arr_x, arr_y] = True
+    # Make sure it is closed
+    all_regpn_x = np.append(all_regpn_x, all_regpn_x[0])
+    all_regpn_y = np.append(all_regpn_y, all_regpn_y[0])
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
+
+    # Plot region
+    ax.plot(all_regpn_x-1.0, all_regpn_y-1.0, color='r')
+
+    # PLot mask
     ax.imshow(regionmask, origin='lower')
-    ax.grid(True)
+
+    ax.grid(True, lw=0.1)
+
     plt.show()
+    sys.exit(0)
+    """
+
+    # ---------------- Extract spectrum ---------------- #
+    cube = cube.reshape(hi_full_shape)
+    print cube.shape
+    print cube[:, regionmask].shape
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    ax.imshow()
+
     sys.exit(0)
 
     return spec_wav, spec_flux
@@ -132,7 +179,8 @@ def main():
     fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss) 
 
     # Now read in regions file and convert to polygons
-    #regfile = open()
+    #with fl as open():
+
 
     regstr = 'polygon(52.75971,52.679517,55.559628,52.679492,55.559611,55.479493,52.759775,55.479517) # color=red width=2'
     regstr = regstr.split('(')[1].split(')')[0]
@@ -146,6 +194,7 @@ def main():
     reg_pn = pg.Polygon(reg_pn_list)
 
     extract_spec(reg_pn, hi_cube)
+    #extract_spec(reg_pn, obs_r)
 
     #plt.show()
 
