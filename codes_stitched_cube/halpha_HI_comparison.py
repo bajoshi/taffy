@@ -120,12 +120,37 @@ def extract_spec(reg_pn, cube):
     # ---------------- Extract spectrum ---------------- #
     cube = cube.reshape(hi_full_shape)
     print cube.shape
-    print cube[:, regionmask].shape
+
+    # Get cube for flux
+    spec_flux_cube = []
+    # This will end up being of shape = (num_pix, num_wav)
+    # wehre num_pix is pixels within the region
+    # num_wav is numer of spectral elements
+
+    for u in range(128):
+        for v in range(128):
+
+            if regionmask[u,v]:
+                spec_flux_cube.append(cube[:, u, v])
+
+                """
+                fig = plt.figure()
+                ax = fig.add_subplot(111)
+                ax.plot(np.arange(31), cube[:, u, v])
+                plt.show()
+                """
+
+    spec_flux_cube = np.array(spec_flux_cube)
+    
+
+    sys.exit(0)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    ax.imshow()
+    ax.plot(np.arange(len(spec_flux)), spec_flux)
+
+    plt.show()
 
     sys.exit(0)
 
