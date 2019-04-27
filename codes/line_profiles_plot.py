@@ -251,8 +251,8 @@ if __name__ == '__main__':
     # ------------ Plot galaxy ------------ #
     # SDSS g band image with proper stretch
     # set axis labels
-    ax.set_xlabel('Right Ascension', fontsize=8)
-    ax.set_ylabel('Declination', fontsize=8)
+    ax.set_xlabel('Right Ascension (J2000)', fontsize=8)
+    ax.set_ylabel('Declination (J2000)', fontsize=8)
 
     # get the correct sized image and normalization and plot
     norm = ImageNormalize(sdss_i[0].data, stretch=LogStretch())

@@ -92,8 +92,11 @@ if __name__ == '__main__':
     lon.display_minor_ticks(True)
     lat.display_minor_ticks(True)
     
-    lon.set_axislabel('Right Ascension', fontsize=16)
-    lat.set_axislabel('Declination', fontsize=16)
+    lon.set_axislabel('Right Ascension (J2000)', fontsize=16)
+    lat.set_axislabel('Declination (J2000)', fontsize=16)
+
+    lon.set_major_formatter('hh:mm:ss.s')
+    lat.set_major_formatter('dd:mm:ss.s')
 
     ax.coords.frame.set_color('k')
     ax.grid(color='gray', ls='dashed', lw=0.7)

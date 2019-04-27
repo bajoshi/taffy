@@ -84,9 +84,12 @@ def plot_map(ew_map, ew_map_north, ew_map_south):
     
     lon.display_minor_ticks(True)
     lat.display_minor_ticks(True)
-    
-    lon.set_axislabel('Right Ascension', fontsize=14)
-    lat.set_axislabel('Declination', fontsize=14)
+
+    lon.set_major_formatter('hh:mm:ss.s')
+    lat.set_major_formatter('dd:mm:ss.s')
+
+    lon.set_axislabel('Right Ascension (J2000)', fontsize=14)
+    lat.set_axislabel('Declination (J2000)', fontsize=14)
 
     ax.coords.frame.set_color('k')
     ax.grid(color='gray', ls='dashed', lw=0.7)

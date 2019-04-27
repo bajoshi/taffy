@@ -17,6 +17,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import matplotlib.cm as cm
+from matplotlib.font_manager import FontProperties
+from matplotlib.patches import Polygon
 
 home = os.getenv('HOME')  # Does not have a trailing slash at the end
 taffydir = home + '/Desktop/ipac/taffy/'
@@ -207,8 +209,8 @@ if __name__ == '__main__':
     dt = datetime.datetime
     print "Starting at --", dt.now()
 
-    make_diff_map()
-    sys.exit(0)
+    #make_diff_map()
+    #sys.exit(0)
 
     # read in indices file
     h = fits.open(savedir + 'all_cases_indices.fits')
@@ -259,6 +261,13 @@ if __name__ == '__main__':
     # read in lzifu output file
     lzifu_hdulist, wcs_lzifu = vcm.get_lzifu_products()
 
+    # Change MPL RC params first to stop using TeX for all text
+    # becasue I can't use bold text with TeX.
+    mpl.rcParams['text.usetex'] = False
+    # Bold text
+    f = FontProperties()
+    f.set_weight('bold')
+
     # plot sdss image
     fig, ax = vcm.plot_sdss_image(sdss_i, wcs_sdss)
 
@@ -289,7 +298,7 @@ if __name__ == '__main__':
 
         # highlight spaxels based on mask
         im = ax.scatter(mask_unique_x, mask_unique_y, s=34, c='r', marker='s',\
-         alpha=0.2, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+         alpha=0.3, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
         # had to use scatter instead of using another imshow on the same axes
         # it was ignoring the transform on the second imshow
 
@@ -299,7 +308,18 @@ if __name__ == '__main__':
         mask_y = np.where(mask_to_plot)[0]
 
         im = ax.scatter(mask_x, mask_y, s=34, c='g', marker='s',\
-         alpha=0.25, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+         alpha=0.7, edgecolors='none', transform=ax.get_transform(wcs_lzifu))
+
+    # Plot polygon to show area covered by double line profiles
+    double_poly_points = [[0.4279817,23.4983800],[0.4203425,23.5050142],[0.4147988,23.5043322],[0.4134471,23.4987525],\
+    [0.4116217,23.4960244],[0.4113375,23.4929686],[0.4146883,23.4922179],[0.4137292,23.4897778],[0.4109517,23.4892753],\
+    [0.4088000,23.4925042],[0.4050446,23.4918222],[0.4035975,23.4887367],[0.4054367,23.4831758],[0.4100133,23.4840372],\
+    [0.4114129,23.4877788],[0.4134233,23.4870962],[0.4122038,23.4826739],[0.4118607,23.4812233],[0.4167749,23.4793119],\
+    [0.4162721,23.4821358],[0.4172892,23.4849342],[0.4198692,23.4850511],[0.4197337,23.4898247],[0.4246657,23.4935163],\
+    [0.4266016,23.4932433],[0.4267506,23.4931750],[0.4281167,23.4949703]]
+    p = Polygon(np.array(double_poly_points), edgecolor='r', facecolor='None', \
+        closed=True, transform=ax.get_transform('fk5'), lw=3.0, zorder=5)
+    ax.add_patch(p)
 
     # draw contours
     x = np.arange(58)
@@ -307,17 +327,22 @@ if __name__ == '__main__':
     X, Y = np.meshgrid(x,y)
 
     # get colormap
-    colorbrewer_cm = vcm.get_colorbrewer_cm('coolwarm')
+    # 'blues' for intg_flux
+    # 'blues2yellow' for vel and vdisp
+    colorbrewer_cm = vcm.get_colorbrewer_cm('blues')
 
     # select contour map to plot and set the variables 
     # set the variables, levels, and limits below
-    con_map_type = 'vel'
-    con_map_comp = 'comp1'
-    con_map = vel_comp1
+    con_map_type = 'intg_flux'
+    con_map_comp = 'comp2'
+    con_map = intg_flux_comp2
 
     # apply min and max limits
-    minlim = -500
-    maxlim = 500
+    # 0 to 35000 for intg_flux
+    # 0 to 500 for vdisp
+    # -400 to 400 for vel
+    minlim = 0
+    maxlim = 35000
     minidx = np.where(con_map < minlim)
     maxidx = np.where(con_map > maxlim)
     con_map[minidx] = np.nan
@@ -325,8 +350,8 @@ if __name__ == '__main__':
 
     # Levels taken interactively from ds9
     # uncomment as needed
-    #levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
-    levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel both comp
+    levels = np.array([2000, 3000, 6000, 12000, 15000, 20000, 25000, 30000])  # intg flux 
+    #levels = np.array([-350, -250, -200, -150, -100, 0, 100, 150, 200, 250, 350])  # vel both comp
     # both velocity compoennts have the same levels to be consistent. 
     # The ds9 maps also have the same range i.e. -350 to +350 km/s
     #levels = np.array([50, 70, 90, 130, 160, 190, 230])  # vdisp 
@@ -334,7 +359,7 @@ if __name__ == '__main__':
     # change all nan to None to get closed contours
     # this will go wrong for velocities because 0 is a perfectly valid velocity
     # this is only good for integrated fluxes and velocity dispersion maps
-    #con_map = np.nan_to_num(con_map)
+    #con_map = np.nan_to_num(con_map)  # This is NOT USED ANYMORE. We are okay with open contours.
 
     # try smoothing the map to get smoother contours
     # define kernel
@@ -343,15 +368,15 @@ if __name__ == '__main__':
 
     c = ax.contour(X, Y, con_map, transform=ax.get_transform(wcs_lzifu),\
      levels=levels, cmap=colorbrewer_cm, linewidths=2.0, interpolation='None')
-    ax.clabel(c, inline=True, inline_spacing=2, fontsize=8, fmt='%1.1f', lw=4, ls='-')
+    #ax.clabel(c, inline=True, inline_spacing=2, fontsize=8, fmt='%1.1f', lw=4, ls='-')
 
     # add colorbar inside figure
     cbaxes = inset_axes(ax, width='30%', height='3%', loc=8, bbox_to_anchor=[0.02, 0.08, 1, 1], bbox_transform=ax.transAxes)
     cb = plt.colorbar(c, cax=cbaxes, ticks=[min(levels), max(levels)], orientation='horizontal')
-    cb.ax.get_children()[0].set_linewidths(10.0)
-    #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=12)
-    #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
-    cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion [km\, s^{-1}]}$', fontsize=12)
+    cb.ax.get_children()[0].set_linewidths(20.0)
+    #cb.ax.set_xlabel(r'$\mathrm{Integrated\ flux\, [erg\, s^{-1}\, cm^{-2}\, \AA^{-1} * km\, s^{-1}]}$', fontsize=15)
+    #cb.ax.set_xlabel(r'$\mathrm{Velocity\ dispersion\, [km\, s^{-1}]}$', fontsize=15)
+    #cb.ax.set_xlabel(r'$\mathrm{Radial\ Velocity\, [km\, s^{-1}]}$', fontsize=15)
     # uncomment one of the above lines as required for the contour colorbar label
     # linewidths required
     # this depends on the number of levels you want
@@ -363,7 +388,7 @@ if __name__ == '__main__':
 
     # save the figure
     fig.savefig(taffy_extdir + 'figures_stitched_cube/' \
-        + con_map_type + '_' + con_map_comp + '_contour_smooth.png', dpi=150, bbox_inches='tight')
+        + con_map_type + '_' + con_map_comp + '_contour_smooth.pdf', dpi=150, bbox_inches='tight')
     #plt.show()
 
     # close all open fits files
