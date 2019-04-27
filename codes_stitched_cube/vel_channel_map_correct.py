@@ -142,6 +142,14 @@ if __name__ == '__main__':
 
         ax.coords.frame.set_color('None')
 
+        # ONly plot scale bar in first panel
+        if j==0:
+            scalebar_x = [0.435, 0.435]
+            scalebar_y = [23.4715, 23.4715 + 60/3600]
+            ax.plot(scalebar_x, scalebar_y, color='k', lw=4.0, transform=ax.get_transform('fk5'), zorder=5)
+            ax.text(0.1, 0.42, '1 arcmin' + '\n' + '= 18 kpc', verticalalignment='top', horizontalalignment='left', \
+                transform=ax.transAxes, color='k', fontproperties=f, size=12)
+
         # make contour plot
         vel_range_low = low_vel_lim + vel_step*j
         vel_range_high = low_vel_lim + vel_step*(j+1)

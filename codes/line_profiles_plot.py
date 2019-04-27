@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
     # ----------- Assign gridspec locations ----------- #
     # define axes using above grid
-    ax = fig.add_subplot(gs[:36,24:60], projection=wcs_sdss)
+    ax = fig.add_subplot(gs[:34,24:58], projection=wcs_sdss)
 
     """
     These rightward increasing looking zorder values for hte subplots are to make sure that
@@ -251,8 +251,8 @@ if __name__ == '__main__':
     # ------------ Plot galaxy ------------ #
     # SDSS g band image with proper stretch
     # set axis labels
-    ax.set_xlabel('Right Ascension (J2000)', fontsize=8)
-    ax.set_ylabel('Declination (J2000)', fontsize=8)
+    #ax.set_xlabel('Right Ascension (J2000)', fontsize=8)
+    #ax.set_ylabel('Declination (J2000)', fontsize=8)
 
     # get the correct sized image and normalization and plot
     norm = ImageNormalize(sdss_i[0].data, stretch=LogStretch())
@@ -271,6 +271,9 @@ if __name__ == '__main__':
     #lat.set_ticklabel_visible(False)
     lon.set_axislabel('')
     lat.set_axislabel('')
+
+    lon.set_major_formatter('hh:mm:ss.s')
+    lat.set_major_formatter('dd:mm:ss.s')
 
     ax.coords.frame.set_color('k')
     ax.grid(color='gray', ls='dashed', lw=0.7)
